@@ -60,3 +60,18 @@ SoleStore is an e-commerce application built using FastAPI for the backend and R
    git clone https://github.com/yourusername/soleStore.git
    cd soleStore/server
    ```
+2. Create a virtual environment and activate it:
+   '''bash
+   python -m venv venv
+   source venv/bin/activate # On Windows: venv\Scripts\activate
+   '''
+3. Install dependencies:
+   '''bash
+   pip install -r requirements.txt
+   '''
+4. Configure the environment variables in .env
+5. Run the development server:
+   '''bash
+   uvicorn app.main:app --reload
+   '''
+6. Access the API documentation at http://localhost:8000/docs
