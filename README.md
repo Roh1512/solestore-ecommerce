@@ -111,3 +111,26 @@ pytest
 ```bash
 npm run test
 ```
+
+## Deployment
+
+### Backend
+
+1. Setup environment on render.
+2. Install dependencies
+3. Add environment variables
+
+### Frontend Deployment
+
+1. Build the front end application
+   ```bash
+   npm run build
+   ```
+2. Deliver the index.html file in "dist" folder from fastapi app
+
+## Contact
+
+For any questions or feedback, please reach out to:
+
+- **Email**: rohithashok19@gmail.com
+- **GitHub**: [yourusername](https://github.com/roh1512)
