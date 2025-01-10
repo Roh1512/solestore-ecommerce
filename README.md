@@ -77,3 +77,31 @@ SoleStore is an e-commerce application built using FastAPI for the backend and R
 6. Access the API documentation at http://localhost:8000/docs
 
 ### Frontend Setup
+
+1. Navigate to the client directory:
+   ```bash
+   cd soleStore/client
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start development server:
+   ```bash
+   npm run dev
+   ```
+4. Access the app at 'http://localhost:5173'
+
+## Testing
+
+### Backend Tests
+
+```bash
+pytest app/tests
+```
+
+or
+
+```bash
+pytest
+```
