@@ -56,7 +56,7 @@ SoleStore is an e-commerce application built using FastAPI for the backend and R
 
 ### Backend Setup
 
-1. Clone the repository:
+1. Fork and Clone the repository:
    ```bash
    git clone https://github.com/yourusername/soleStore.git
    cd soleStore/server
