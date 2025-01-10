@@ -138,8 +138,7 @@ npm run test
    cd server
    ```
 2. Add environment variables
-3. Build command
-   Install dependencies
+3. Build command. Install dependencies
    ```bash
    pip install -r requirements.txt
    ```
