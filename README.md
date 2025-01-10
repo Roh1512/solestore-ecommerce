@@ -105,3 +105,9 @@ or
 ```bash
 pytest
 ```
+
+### Frontend Tests
+
+```bash
+npm run test
+```
