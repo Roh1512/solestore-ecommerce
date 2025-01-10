@@ -87,3 +87,9 @@ dmypy.json
 
 .env
 .env.*
+
+static/openapi.json
+static/docs/
+
+static/
+media/
