@@ -84,3 +84,6 @@ dmypy.json
 *.db
 *.p12
 *.pem
+
+.env
+.env.*
