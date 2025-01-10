@@ -114,23 +114,6 @@ npm run test
 
 ## Deployment
 
-### Backend
-
-1. ```bash
-   cd server
-   ```
-2. Setup environment on render.
-3. Add environment variables
-4. Build command
-   Install dependencies
-   ```bash
-   pip install -r requirements.txt
-   ```
-5. Run the app
-   ```bash
-   uvicorn app.main:app --host 0.0.0.0 --port $PORT
-   ```
-
 ### Frontend Deployment
 
 1. ```bash
@@ -148,6 +131,22 @@ npm run test
    npm run build
    ```
 4. Deliver the index.html file in "dist" folder from fastapi app
+
+### Backend Deployment
+
+1. ```bash
+   cd server
+   ```
+2. Add environment variables
+3. Build command
+   Install dependencies
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Run the app
+   ```bash
+   uvicorn app.main:app --host 0.0.0.0 --port $PORT
+   ```
 
 ## Contact
 
