@@ -5,7 +5,6 @@ from app.admin_app.admin_models.admin import Admin, AdminResponse
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 import pytest_asyncio
-from beanie import PydanticObjectId
 
 from app.config.env_settings import settings
 

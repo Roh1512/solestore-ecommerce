@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Response, Request
 from app.admin_app.admin_crud_operations.admin_crud import create_admin, add_admin_refresh_token, remove_admin_refresh_token, remove_all_admin_refresh_token, admin_refresh_token_is_saved, get_admin_details
-from app.admin_app.admin_models.admin import Admin, AdminResponse, AdminCreateRequest
+from app.admin_app.admin_models.admin import Admin, AdminResponse, AdminCreateRequest, AdminRole
 from app.model.auth_models import Token
 from app.utilities.password_utils import verify_password
 from app.utilities.auth_utils import create_access_token, create_refresh_token

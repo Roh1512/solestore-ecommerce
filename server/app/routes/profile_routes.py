@@ -6,6 +6,7 @@ from app.crud.user_crud import update_user_details, update_user_contact_info
 from app.utilities.cloudinary_utils import delete_image_from_cloudinary, update_profile_image
 from app.model.user import User
 from beanie import PydanticObjectId
+from datetime import datetime, timezone
 
 
 router = APIRouter()
@@ -115,6 +116,7 @@ async def update_profile_image_route(
 
         current_user.profile_img_url = upload_result["secure_url"]
         current_user.profile_img_public_id = upload_result["public_id"]
+        current_user.updated_at = datetime.now(timezone.utc)
 
         await current_user.save()
 

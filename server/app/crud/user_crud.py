@@ -5,6 +5,7 @@ from fastapi import HTTPException, status
 from bson import ObjectId
 from pymongo.errors import DuplicateKeyError
 from pydantic import ValidationError
+from datetime import datetime, timezone
 
 
 async def create_user(user_data: dict):
@@ -156,6 +157,7 @@ async def update_user_details(user_id: str, details: UpdateProfileRequest, curre
     try:
         for key, value in update_data.items():
             setattr(user, key, value)
+        user.updated_at = datetime.now(timezone.utc)
         await user.save()
         updated_user_dict = user.model_dump(
             exclude=["password", "refresh_tokens"])
@@ -217,6 +219,7 @@ async def update_user_contact_info(user_id: str, contact_info: UpdateContactInfo
     try:
         for key, value in update_data.items():
             setattr(user, key, value)
+        user.updated_at = datetime.now(timezone.utc)
         await user.save()
         updated_user_dict = user.model_dump(
             exclude=["password", "refresh_tokens"])

@@ -2,6 +2,17 @@ from pydantic import BaseModel, Field, EmailStr, ConfigDict, field_validator
 from beanie import Document, PydanticObjectId, Indexed
 from datetime import datetime, timezone
 from typing import Optional, List
+from enum import Enum
+
+
+class AdminRole(str, Enum):
+    ADMIN = "ADMIN"
+    ORDER_MANAGER = "ORDER_MANAGER"
+    PRODUCT_MANAGER = "PRODUCT_MANAGER"
+
+
+class AdminRoleUpdateRequest(BaseModel):
+    role: AdminRole
 
 
 class AdminResponse(BaseModel):
@@ -11,6 +22,7 @@ class AdminResponse(BaseModel):
     email: EmailStr
     profile_img_url: Optional[str] = None
     profile_img_public_id: Optional[str] = None
+    role: AdminRole
     phone: Optional[str] = None
     created_at: datetime
     updated_at: datetime
@@ -39,6 +51,7 @@ class AdminCreateRequest(BaseModel):
     password: str
     name: Optional[str] = None
     phone: Optional[str] = None
+    role: AdminRole = Field(default=AdminRole.ADMIN)
 
     model_config = ConfigDict(extra="forbid")
 
@@ -80,6 +93,7 @@ class AdminBaseModel(BaseModel):
     email: Indexed(EmailStr, unique=True)
     profile_img_url: Optional[str] = None
     profile_img_public_id: Optional[str] = None
+    role: AdminRole = Field(default=AdminRole.ADMIN)  # Add the enum field
     phone: Optional[str] = None
     refresh_tokens: List[str] = Field(default_factory=list)
     created_at: datetime = Field(

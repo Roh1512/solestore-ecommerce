@@ -5,9 +5,9 @@ from app.admin_app.admin_models.admin import Admin, AdminResponse
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 import pytest_asyncio
-from beanie import PydanticObjectId
 from app.config.env_settings import settings
 from app.admin_app.admin_crud_operations.admin_crud import create_admin
+from beanie import PydanticObjectId
 
 
 @pytest_asyncio.fixture(
@@ -326,3 +326,132 @@ class TestAdminUpdateProfileImage:
             print(response_data)
             assert response.status_code == 422
             assert "fileee" in response_data["detail"]["0"]["loc"]
+
+
+class TestAdminUpdateRole:
+    @pytest_asyncio.fixture(scope="function", autouse=True)
+    async def login_admin(self, login_info):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            # Attempt login
+            response = await client.post(
+                "/api/admin/auth/login",
+                data={
+                    "username": login_info["username"],
+                    "password": login_info["password"]
+                }
+            )
+
+            # Debug print the response
+            print(f"Login response status: {response.status_code}")
+            print(f"Login response data: {response.json()}")
+
+            assert response.status_code == 200
+            response_data = response.json()
+
+            # Get required data, with proper error handling
+            access_token = response_data.get("access_token")
+            if not access_token:
+                raise ValueError("Access token not found in response")
+
+            cookies = response.cookies
+            refresh_token = cookies.get(settings.ADMIN_REFRESH_COOKIE_NAME)
+            if not refresh_token:
+                raise ValueError("Refresh token not found in cookies")
+
+            adminLoggedIn = await client.get(
+                "/api/admin/profile",
+                follow_redirects=True,
+                headers={
+                    "Authorization": f"Bearer {access_token}"
+                }
+            )
+            admin_data = adminLoggedIn.json()
+            print("ADMIN: ", admin_data)
+            admin_id = admin_data["_id"]
+
+            return {
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "admin_id": str(admin_id)  # Ensure ID is string
+            }
+
+    @pytest.mark.asyncio
+    async def test_update_role_invalid_role(self, login_admin):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            auth_headers = {
+                "Authorization": f"Bearer {login_admin['access_token']}"
+            }
+            client.cookies.set(
+                settings.ADMIN_REFRESH_COOKIE_NAME,
+                login_admin["refresh_token"]
+            )
+
+            # Test with invalid role
+            response = await client.put(
+                f"/api/admin/profile/update-admin-role/{
+                    login_admin['admin_id']}",
+                headers=auth_headers,
+                json={
+                    "role": "ADM"  # Invalid role value
+                }
+            )
+            assert response.status_code == 422  # Validation error
+            response_data = response.json()
+            assert "detail" in response_data
+            assert any("role" in error["loc"]
+                       for error in response_data["detail"])
+
+    @pytest.mark.asyncio
+    async def test_update_role_success(self, login_admin):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            auth_headers = {
+                "Authorization": f"Bearer {login_admin['access_token']}"
+            }
+            client.cookies.set(
+                settings.ADMIN_REFRESH_COOKIE_NAME,
+                login_admin["refresh_token"]
+            )
+
+            # Test with valid role
+            response = await client.put(
+                f"/api/admin/profile/update-admin-role/{
+                    login_admin['admin_id']}",
+                headers=auth_headers,
+                json={
+                    "role": "ORDER_MANAGER"  # Valid role from AdminRole enum
+                }
+            )
+            assert response.status_code == 200
+            response_data = response.json()
+            assert response_data["role"] == "ORDER_MANAGER"
+
+    @pytest.mark.asyncio
+    async def test_update_role_unauthorized(self, login_admin):
+        # First update the current admin to non-admin role
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            auth_headers = {
+                "Authorization": f"Bearer {login_admin['access_token']}"
+            }
+            client.cookies.set(
+                settings.ADMIN_REFRESH_COOKIE_NAME,
+                login_admin["refresh_token"]
+            )
+
+            update_admin = await Admin.get(
+                PydanticObjectId(login_admin["admin_id"])
+            )
+            update_admin.role = "PRODUCT_MANAGER"
+            await update_admin.save()
+
+            # Try to update role when not an ADMIN
+            response = await client.put(
+                f"/api/admin/profile/update-admin-role/{
+                    login_admin['admin_id']}",
+                headers=auth_headers,
+                json={
+                    "role": "ORDER_MANAGER"
+                }
+            )
+            assert response.status_code == 403
+            assert response.json()[
+                "detail"] == "Only an admin can update roles"

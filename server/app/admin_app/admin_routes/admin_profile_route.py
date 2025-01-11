@@ -1,10 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends, status, Body, UploadFile
 from app.admin_app.admin_utilities.admin_auth_utils import get_current_admin
 from typing import Annotated
-from app.admin_app.admin_models.admin import Admin, AdminResponse, AdminUpdateRequest
+from app.admin_app.admin_models.admin import Admin, AdminResponse, AdminUpdateRequest, AdminRole, AdminRoleUpdateRequest
 from beanie import PydanticObjectId
-from app.admin_app.admin_crud_operations.admin_crud import update_admin_details
+from app.admin_app.admin_crud_operations.admin_crud import update_admin_details, update_admin_role
 from app.utilities.cloudinary_utils import delete_image_from_cloudinary, update_profile_image
+from datetime import datetime, timezone
 
 
 router = APIRouter()
@@ -60,6 +61,35 @@ async def update_admin_profile_details(admin: Annotated[dict, Depends(get_curren
         ) from e
 
 
+@router.put("/update-admin-role/{admin_id}", status_code=200, response_model=AdminResponse)
+async def update_admin_role_route(
+    admin: Annotated[dict, Depends(get_current_admin)],
+    body: AdminRoleUpdateRequest,
+    admin_id: str
+):
+    try:
+        current_admin_role = AdminRole(admin["role"])
+
+        if current_admin_role != AdminRole.ADMIN:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only an admin can update roles"
+            )
+        return await update_admin_role(admin_id, body.role)
+    except HTTPException as e:
+        print(f"Error updating admin role: {e}")
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=e.detail
+        ) from e
+    except Exception as e:
+        print(f"Unexpected Error updating admin role: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error during admin role updation"
+        ) from e
+
+
 @router.post("/update-profile-img", status_code=200)
 async def update_admin_profile_image_route(
     admin: Annotated[dict, Depends(get_current_admin)],
@@ -99,6 +129,7 @@ async def update_admin_profile_image_route(
 
         current_admin.profile_img_url = upload_result["secure_url"]
         current_admin.profile_img_public_id = upload_result["public_id"]
+        current_admin.updated_at = datetime.now(timezone.utc)
 
         await current_admin.save()
 

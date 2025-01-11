@@ -1,8 +1,9 @@
-from app.admin_app.admin_models.admin import Admin, AdminCreateRequest
+from app.admin_app.admin_models.admin import Admin, AdminCreateRequest, AdminRole
 from beanie import PydanticObjectId
 from app.utilities.password_utils import hash_password, verify_password
 from fastapi import HTTPException, status
 from bson import ObjectId
+from datetime import datetime, timezone
 from pymongo.errors import DuplicateKeyError
 from pydantic import ValidationError
 from cloudinary.uploader import upload, destroy
@@ -174,6 +175,7 @@ async def update_admin_details(admin_id, details: AdminCreateRequest, current_pa
     try:
         for key, value in update_data.items():
             setattr(admin, key, value)
+        admin.updated_at = datetime.now(timezone.utc)
 
         await admin.save()
 
@@ -205,4 +207,34 @@ async def update_admin_details(admin_id, details: AdminCreateRequest, current_pa
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=e["detail"]
+        ) from e
+
+
+async def update_admin_role(admin_id: str, new_role: AdminRole):
+    try:
+        admin_to_update = await Admin.get(ObjectId(admin_id))
+        if not admin_to_update:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Admin not found"
+            )
+
+        # Instead of using dictionary access, use dot notation since it's a document
+        admin_to_update.role = new_role
+        admin_to_update.updated_at = datetime.now(timezone.utc)
+        await admin_to_update.save()
+
+        # Convert to dictionary using model_dump()
+        updated_admin_dict = admin_to_update.model_dump(
+            exclude=["password", "refresh_tokens"]
+        )
+        # Access id as a property, not as a dictionary key
+        updated_admin_dict["id"] = str(admin_to_update.id)
+        return updated_admin_dict
+
+    except Exception as e:
+        print(f"Error in update_admin_role: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error during admin role updation"
         ) from e

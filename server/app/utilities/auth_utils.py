@@ -7,7 +7,7 @@ import jwt
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 from typing import Annotated
 from fastapi import HTTPException, status, Depends, Request, Response
-from app.crud.user_crud import get_user_details, add_refresh_token, refresh_token_is_saved, remove_refresh_token
+from app.crud.user_crud import get_user_details, refresh_token_is_saved
 
 settings = get_settings()
 
