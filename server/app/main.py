@@ -1,14 +1,11 @@
+from app.routes.profile_routes import router as profile_router
+from app.routes.auth_routes import router as auth_router
+from app.config.cloudinary_config import cloudinary
+from app.admin_app.admin_router_hub import admin_router
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends
-from app.config.env_settings import get_settings, Settings
 from app.config.db import init_db
-
-from app.admin_app.admin_router_hub import admin_router
-
-from app.config.cloudinary_config import cloudinary
-
-from app.routes.auth_routes import router as auth_router
-from app.routes.profile_routes import router as profile_router
+from fastapi.middleware.cors import CORSMiddleware
 
 
 @asynccontextmanager
@@ -21,10 +18,23 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+origins = [
+    "http://localhost:5173",
+    "http://localhost:5174"
+]
 
-@app.get("/")
-async def root(settings: Settings = Depends(get_settings)):
-    return {"sample": settings.SAMPLE}
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.get("/api/server")
+async def root():
+    return {"message": "server connected"}
 
 
 app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
