@@ -36,7 +36,7 @@ SoleStore is an e-commerce application built using FastAPI for the backend and R
 
 - **Library**: React (with TypeScript)
 - **State Management**: Redux Toolkit
-- **UI Framework**: React Bootstrap
+- **UI Framework**: Tailwindcss, daisyui
 - **Routing**: React Router v6
 
 ### **Hosting**

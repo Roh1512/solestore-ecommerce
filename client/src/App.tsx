@@ -14,7 +14,10 @@ function App() {
   return (
     <>
       <header>Header</header>
-      <main>{message && <h1>{message}</h1>}</main>
+      <main>
+        {message && <h1>{message}</h1>}
+        <button className="btn">Button</button>
+      </main>
       <footer>Footer</footer>
     </>
   );
