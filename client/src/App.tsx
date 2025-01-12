@@ -1,24 +1,34 @@
-import { useEffect, useState } from "react";
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
+  RouterProvider,
+} from "react-router";
+import { ToastContainer } from "react-toastify";
+import LandingPage from "./pages/landingPage/LandingPage";
+import RegisterUser from "./pages/userPages/RegisterUser/RegisterUser";
+import LoginUser from "./pages/userPages/LoginUser/LoginUser";
+import UserAuthLayout from "./components/Layouts/UserAuthLayout/UserAuthLayout";
+
+const routes = createBrowserRouter(
+  createRoutesFromElements(
+    <>
+      <Route path="/" element={<LandingPage />} />
+
+      {/* UserAuthLayout wrapping RegisterUser and LoginUser */}
+      <Route element={<UserAuthLayout />}>
+        <Route path="/register" element={<RegisterUser />} />
+        <Route path="/login" element={<LoginUser />} />
+      </Route>
+    </>
+  )
+);
 
 function App() {
-  const [message, setMessage] = useState("");
-  useEffect(() => {
-    const apiRes = async () => {
-      const response = await fetch("/api/server");
-      const data = await response.json();
-      setMessage(data.message);
-      return;
-    };
-    apiRes();
-  }, []);
   return (
     <>
-      <header>Header</header>
-      <main>
-        {message && <h1>{message}</h1>}
-        <button className="btn">Button</button>
-      </main>
-      <footer>Footer</footer>
+      <ToastContainer position="top-right" autoClose={3000} />
+      <RouterProvider router={routes} />
     </>
   );
 }

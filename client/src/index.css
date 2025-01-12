@@ -28,16 +28,15 @@ body {
 }
 
 header {
-  border: 1px solid green;
+  @apply bg-base-300 text-base-content;
 }
 main {
-  background-color: blue;
   flex: 1;
 }
 footer {
-  border: 1px solid green;
+  @apply bg-base-300 text-base-content;
 }
 
-.btn {
-  @apply bg-red-500;
+.form-container-1 {
+  @apply w-full h-full max-w-md p-6 bg-neutral-content shadow-xl rounded-lg;
 }

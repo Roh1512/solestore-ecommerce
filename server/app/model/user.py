@@ -40,13 +40,28 @@ class UserResponse(BaseModel):
 
 
 class UpdateProfileRequest(BaseModel):
-    username: Optional[str] = None
-    email: Optional[EmailStr] = None
-    name: Optional[str] = None
-    password: Optional[str] = None
-
-    model_config = ConfigDict(
-        extra="forbid"
+    username: Optional[str] = Field(
+        None,
+        min_length=3,
+        max_length=30,
+        pattern="^[a-zA-Z0-9_]+$",
+        description="Username must be 3-30 characters long and can only contain letters, numbers, and underscores."
+    )
+    email: Optional[EmailStr] = Field(
+        None,
+        description="A valid email address is required."
+    )
+    name: Optional[str] = Field(
+        None,
+        min_length=1,
+        max_length=50,
+        description="Name must be between 1 and 50 characters."
+    )
+    password: Optional[str] = Field(
+        None,
+        min_length=8,
+        max_length=128,
+        description="Password must be between 8 and 128 characters."
     )
 
 
@@ -76,14 +91,51 @@ class UpdateContactInfoRequest(BaseModel):
 
 
 class UserCreateRequest(BaseModel):
-    username: str
-    email: EmailStr
-    password: str
-    name: Optional[str] = None
-    address: Optional[str] = None
-    phone: Optional[str] = None
+    username: str = Field(
+        ...,
+        min_length=3,
+        max_length=30,
+        pattern="^[a-zA-Z0-9_]+$",
+        description="Username must be 3-30 characters long and can only contain letters, numbers, and underscores."
+    )
+    email: EmailStr = Field(
+        ...,
+        description="A valid email address is required."
+    )
+    password: str = Field(
+        ...,
+        min_length=8,
+        max_length=128,
+        description="Password must be between 8 and 128 characters."
+    )
+    name: Optional[str] = Field(
+        None,
+        min_length=1,
+        max_length=50,
+        description="Name must be between 1 and 50 characters."
+    )
+    address: Optional[str] = Field(
+        None,
+        max_length=255,
+        description="Address can be up to 255 characters long."
+    )
+    phone: Optional[str] = Field(
+        None,
+        pattern="^\+?[1-9]\d{1,14}$",
+        description="Phone number must be in E.164 format (e.g., +1234567890)."
+    )
 
     model_config = ConfigDict(extra="forbid")
+
+    @field_validator("phone")
+    @classmethod
+    def validate_phone(cls, value):
+        if value:
+            if not (value.isdigit() and len(value) == 10):
+                raise ValueError(
+                    "Phone number must be a 10-digit number."
+                )
+        return value
 
 
 class UserBaseModel(BaseModel):

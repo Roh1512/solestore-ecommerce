@@ -3,7 +3,8 @@ from app.routes.auth_routes import router as auth_router
 from app.config.cloudinary_config import cloudinary
 from app.admin_app.admin_router_hub import admin_router
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
+from fastapi.routing import APIRoute
 from app.config.db import init_db
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -16,7 +17,15 @@ async def lifespan(app: FastAPI):
     # Any shutdown logic can go here, if necessary (e.g., closing DB connections)
     print("App shutdown. Closing database connections...")
 
-app = FastAPI(lifespan=lifespan)
+
+def custom_generate_unique_id(route: APIRoute):
+    if route.tags and len(route.tags) > 0:
+        return f"{route.tags[0]}-{route.name}"
+    return route.name
+
+
+app = FastAPI(lifespan=lifespan,
+              generate_unique_id_function=custom_generate_unique_id)
 
 origins = [
     "http://localhost:5173",
