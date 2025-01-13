@@ -6,7 +6,7 @@ const UserAuthLayout = () => {
   return (
     <>
       <HeaderStore />
-      <main className="flex flex-col items-center justify-center">
+      <main className="flex flex-col items-center justify-center pt-6 pb-6">
         <Outlet />
       </main>
       <FooterStore />

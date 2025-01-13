@@ -1,8 +1,10 @@
-// ThemeContext.tsx
 import React, { createContext, useContext, useState, useEffect } from "react";
 
+// Define the possible theme values
+type Theme = "business" | "corporate";
+
 type ThemeContextType = {
-  theme: string;
+  theme: Theme;
   toggleTheme: () => void;
 };
 
@@ -11,9 +13,12 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [theme, setTheme] = useState<string>(() => {
-    // Retrieve theme from localStorage or default to 'light'
-    return localStorage.getItem("theme") || "light";
+  const [theme, setTheme] = useState<Theme>(() => {
+    // Retrieve theme from localStorage or default to 'corporate'
+    const savedTheme = localStorage.getItem("theme") as Theme;
+    return savedTheme === "business" || savedTheme === "corporate"
+      ? savedTheme
+      : "corporate";
   });
 
   useEffect(() => {
@@ -23,7 +28,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+    setTheme((prevTheme) =>
+      prevTheme === "corporate" ? "business" : "corporate"
+    );
   };
 
   return (

@@ -2,10 +2,6 @@ import cloudinary
 import cloudinary.uploader
 from app.config.env_settings import settings
 
-print("Cloud Name:", settings.CLOUDINARY_CLOUD_NAME)
-print("API Key:", settings.CLOUDINARY_API_KEY)
-print("API Secret:", settings.CLOUDINARY_API_SECRET)
-
 # Configuration
 cloudinary.config(
     cloud_name=settings.CLOUDINARY_CLOUD_NAME,

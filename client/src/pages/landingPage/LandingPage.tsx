@@ -54,7 +54,7 @@ const LandingPage = () => {
         <div className="flex-none gap-2">
           <button
             onClick={() => navigate("/login")}
-            className="btn btn-primary font-bold text-lg"
+            className="btn btn-secondary font-bold text-base"
           >
             Shop Now
           </button>

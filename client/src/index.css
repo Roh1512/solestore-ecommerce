@@ -2,26 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  box-sizing: border-box;
-}
-
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+html,
 body {
   max-width: 1280px;
   margin: 0 auto;
   text-align: center;
   min-height: 100vh;
+  height: 100%;
 }
 
 #root {
   min-height: 100vh;
   width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -39,4 +40,20 @@ footer {
 
 .form-container-1 {
   @apply w-full h-full max-w-md p-6 bg-neutral-content shadow-xl rounded-lg;
+}
+
+.logo-text {
+  display: block;
+  @apply text-2xl font-bold;
+}
+
+.logout-icon {
+  width: 1.5em;
+  height: 1.5em;
+}
+
+@media only screen and (max-width: 600px) {
+  .logo-text {
+    display: none;
+  }
 }

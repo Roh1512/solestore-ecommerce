@@ -149,7 +149,7 @@ async def logout_all(response: Response, user: Annotated[dict, Depends(get_curre
         ) from e
 
 
-@router.get("/checkauth")
+@router.get("/checkauth", status_code=200)
 async def check_auth(user: Annotated[dict, Depends(get_current_user)]):
     try:
         return {"status": "authenticated", "user": user}

@@ -6,12 +6,13 @@ const ThemeToggle: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <label className="swap swap-rotate">
+    <label className="swap swap-rotate hover:bg-none">
       {/* Hidden checkbox to handle the toggle */}
       <input
         type="checkbox"
-        checked={theme === "dark"}
+        checked={theme === "business"}
         onChange={toggleTheme} // Call toggleTheme when checkbox changes
+        className="hover:bg-none"
       />
 
       {/* Sun icon for light mode */}

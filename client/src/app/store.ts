@@ -2,9 +2,11 @@ import {
   configureStore /* createListenerMiddleware */,
 } from "@reduxjs/toolkit";
 import { userAuthApi } from "@/features/userAuthApiSlice";
+import authReducer from "@/features/accessTokenApiSlice";
 
 export const store = configureStore({
   reducer: {
+    auth: authReducer,
     [userAuthApi.reducerPath]: userAuthApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
