@@ -1,37 +1,34 @@
 import { useLogoutMutation } from "@/features/userAuthApiSlice";
-import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "@/app/hooks"; // Assuming you have a custom hook for dispatch
-import { logout } from "@/features/accessTokenApiSlice";
-import { useEffect } from "react";
+import { useAppDispatch } from "@/app/hooks";
+import { clearCredentials } from "@/features/accessTokenApiSlice";
 import { toast } from "react-toastify";
 import { LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const LogoutButton = () => {
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const [logoutMutation, { isLoading, isError, isSuccess, data }] =
-    useLogoutMutation();
-
-  useEffect(() => {
-    if (isError) {
-      toast.error("Error logging out");
-    }
-    if (isSuccess) {
-      toast.success(data?.message || "Logged out");
-    }
-  }, [data?.message, isError, isSuccess]);
+  const navigate = useNavigate();
+  const [logoutMutation, { isLoading, isSuccess }] = useLogoutMutation();
 
   const handleLogout = async () => {
     try {
-      await logoutMutation().unwrap();
-      // Dispatch the logout action to clear the access token from Redux state
-      dispatch(logout());
-      // Redirect the user to the login page after logging out
-      navigate("/login");
+      await logoutMutation().unwrap(); // Execute logout mutation
     } catch (err) {
       console.error("Logout error:", err);
+      toast.error("Error logging out");
     }
   };
+
+  useEffect(() => {
+    if (isSuccess) {
+      // Clear credentials and navigate after successful logout
+      dispatch(clearCredentials());
+      toast.success("Logged out successfully");
+      navigate("/login"); // Redirect to login page
+      window.location.reload();
+    }
+  }, [isSuccess, dispatch, navigate]);
 
   return (
     <button

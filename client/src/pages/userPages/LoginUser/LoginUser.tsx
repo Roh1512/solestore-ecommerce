@@ -4,6 +4,7 @@ import { useLoginMutation } from "@/features/userAuthApiSlice";
 import { useAppDispatch } from "@/app/hooks";
 import { setCredentials } from "@/features/accessTokenApiSlice";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router";
 
 const LoginUser = () => {
   const [loginData, setLoginData] = useState<Body_auth_login>({
@@ -12,8 +13,9 @@ const LoginUser = () => {
     grant_type: "password", // Required for OAuth2
   });
 
-  const [login, { isLoading, isError }] = useLoginMutation();
+  const [login, { isLoading, isError, isSuccess }] = useLoginMutation();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +36,10 @@ const LoginUser = () => {
     if (isError) {
       toast.error("Error logging in");
     }
-  }, [isError]);
+    if (isSuccess) {
+      navigate("/shop");
+    }
+  }, [isError, isSuccess, navigate]);
 
   return (
     <div className="w-full h-full max-w-md p-3 bg-base-300 text-base-content shadow-xl rounded-lg">

@@ -11,6 +11,7 @@
     "generate-client": "openapi-ts --input ../openapi.json --output ./src/client --client @hey-api/client-fetch"
   },
   "dependencies": {
+    "@hey-api/client-fetch": "^0.6.0",
     "@reduxjs/toolkit": "^2.5.0",
     "lucide-react": "^0.471.1",
     "react": "^18.3.1",

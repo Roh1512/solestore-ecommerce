@@ -13,7 +13,7 @@ export const userAuthApi = createApi({
     baseUrl: "/api/auth",
     credentials: "include",
     prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.access_token;
+      const token = (getState() as RootState).auth.accessToken;
       console.log("Access token:", token); // Log the token for debugging
 
       if (token) {

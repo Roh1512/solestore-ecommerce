@@ -1,30 +1,30 @@
+// In your Redux slice
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface AuthState {
-  access_token: string | null;
+  isLoggedOut: boolean;
+  accessToken: string | null;
 }
 
 const initialState: AuthState = {
-  access_token: null,
+  isLoggedOut: false,
+  accessToken: null,
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setCredentials: (
-      state,
-      action: PayloadAction<{
-        accessToken: string;
-      }>
-    ) => {
-      state.access_token = action.payload.accessToken;
+    setCredentials: (state, action: PayloadAction<{ accessToken: string }>) => {
+      state.accessToken = action.payload.accessToken;
+      state.isLoggedOut = false; // Reset isLoggedOut state
     },
-    logout: (state) => {
-      state.access_token = null;
+    clearCredentials: (state) => {
+      state.accessToken = null;
+      state.isLoggedOut = true; // Set isLoggedOut state after logout
     },
   },
 });
 
-export const { setCredentials, logout } = authSlice.actions;
+export const { setCredentials, clearCredentials } = authSlice.actions;
 export default authSlice.reducer;
