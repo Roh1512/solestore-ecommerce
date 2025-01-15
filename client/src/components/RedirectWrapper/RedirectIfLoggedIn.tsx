@@ -4,44 +4,47 @@ import {
   useRefreshTokenMutation,
 } from "@/features/userAuthApiSlice";
 import { useEffect, useState } from "react";
-import { useAppDispatch } from "@/app/hooks";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { setCredentials } from "@/features/accessTokenApiSlice";
 
 const RedirectIfLoggedIn = () => {
-  const { data, isLoading, isError, refetch } = useCheckAuthQuery(undefined, {
+  const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
+  const { data, isLoading, isError } = useCheckAuthQuery(undefined, {
     skip: false, // Ensure the query runs on mount
   });
   const [refreshToken] = useRefreshTokenMutation();
   const [refreshing, setRefreshing] = useState(false);
-  const [refreshFailed, setRefreshFailed] = useState(false); // Prevent infinite retries
+  const [refreshFailed, setRefreshFailed] = useState<boolean>(false); // Prevent infinite retries
   const dispatch = useAppDispatch();
+
+  const [isLoadingState, setIsLoadingState] = useState<boolean>(false);
 
   useEffect(() => {
     const handleTokenRefresh = async () => {
       try {
+        setIsLoadingState(true);
         setRefreshing(true);
         const tokenResponse = await refreshToken().unwrap();
         dispatch(setCredentials({ accessToken: tokenResponse.access_token }));
-        refetch(); // Refetch `/checkauth` after refreshing the token
       } catch (error) {
         console.error("Token refresh failed:", error);
-        setRefreshFailed(true); // Stop further retries
+        setRefreshFailed(true); // Prevent further retries
       } finally {
         setRefreshing(false);
+        setIsLoadingState(false);
       }
     };
 
-    if (isError && !refreshing && !refreshFailed) {
+    if (isError && !refreshing && !refreshFailed && isLoggedIn) {
       handleTokenRefresh();
     }
-  }, [isError, refreshing, refreshFailed, refreshToken, dispatch, refetch]);
+  }, [isError, refreshing, refreshFailed, refreshToken, dispatch, isLoggedIn]);
 
-  if (isLoading || refreshing) {
-    // Optional: Show a loader while checking auth status or refreshing the token
+  if ((isLoadingState && isLoading) || refreshing) {
     return <p>Loading...</p>;
   }
 
-  if (refreshFailed) {
+  if (isError && refreshFailed) {
     // If refreshing failed, stop trying and let the user proceed to public routes
     return (
       <>

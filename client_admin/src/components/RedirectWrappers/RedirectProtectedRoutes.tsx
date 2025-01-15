@@ -1,18 +1,17 @@
-import { Outlet, useLocation, Navigate } from "react-router-dom";
+import { useAppDispatch } from "@/app/hooks";
+import { useCurrentState } from "@/app/useCurrentState";
 import {
   useCheckAuthQuery,
   useRefreshTokenMutation,
-} from "@/features/userAuthApiSlice";
+} from "@/features/adminAuthApiSlice";
+import { clearCredentials, setCredentials } from "@/features/adminAuthSlice";
 import { useEffect, useState } from "react";
-import { useAppDispatch } from "@/app/hooks";
-import { setCredentials } from "@/features/accessTokenApiSlice";
-import { useSelector } from "react-redux";
-import { RootState } from "@/app/store";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 
-const UserProtectedRoute = () => {
+const RedirectProtectedRoutes = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+  const { isLoggedIn } = useCurrentState().auth;
 
   const { isError: isAuthError, isLoading: isAuthLoading } = useCheckAuthQuery(
     undefined,
@@ -36,23 +35,23 @@ const UserProtectedRoute = () => {
         dispatch(setCredentials({ accessToken: tokenResponse.access_token }));
         setRefreshFailed(false);
       } catch (error) {
-        console.error("Token refresh failed:", error);
+        console.error("Token refresh failed: ", error);
+        dispatch(clearCredentials());
         setRefreshFailed(true);
       } finally {
         setIsLoadingState(false);
       }
     };
-
     if (isAuthError && !refreshFailed && isLoggedIn && !isRefreshing) {
-      refreshAuthToken(); // Only refresh if not already redirecting
+      refreshAuthToken();
     }
   }, [
     dispatch,
     isAuthError,
-    refreshFailed,
-    refreshToken,
     isLoggedIn,
     isRefreshing,
+    refreshFailed,
+    refreshToken,
   ]);
 
   if (isLoadingState && (isAuthLoading || isRefreshing)) {
@@ -60,10 +59,12 @@ const UserProtectedRoute = () => {
   }
 
   if (isAuthError && refreshFailed) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    return (
+      <Navigate to="admin/login" replace state={{ from: location.pathname }} />
+    );
   }
 
   return <Outlet />;
 };
 
-export default UserProtectedRoute;
+export default RedirectProtectedRoutes;

@@ -10,7 +10,6 @@ from app.admin_app.admin_utilities.admin_auth_utils import get_current_admin
 
 from typing import Annotated
 import jwt
-from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 from app.config.env_settings import settings
 
 

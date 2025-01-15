@@ -1,28 +1,24 @@
-import { Body_auth_login } from "@/client";
+import { Body_admin_admin_login } from "@/client";
+import { useLoginMutation } from "@/features/adminAuthApiSlice";
 import React, { useEffect, useState } from "react";
-import { useLoginMutation } from "@/features/userAuthApiSlice";
-import { useAppDispatch } from "@/app/hooks";
-import { setCredentials } from "@/features/accessTokenApiSlice";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router";
 
-const LoginUser = () => {
-  const [loginData, setLoginData] = useState<Body_auth_login>({
-    username: "mary123@gmail.com",
+const LoginPage = () => {
+  const navigate = useNavigate();
+  const [loginData, setLoginData] = useState<Body_admin_admin_login>({
+    username: "admin1",
     password: "password",
-    grant_type: "password", // Required for OAuth2
+    grant_type: "password",
   });
 
   const [login, { isLoading, isError, isSuccess }] = useLoginMutation();
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await login(loginData).unwrap();
       console.log("Login successful:", response);
-      dispatch(setCredentials({ accessToken: response.access_token }));
     } catch (error) {
       console.error("Login error:", error);
     }
@@ -34,21 +30,23 @@ const LoginUser = () => {
 
   useEffect(() => {
     if (isError) {
-      toast.error("Error logging in");
+      toast.error("Login failed");
     }
     if (isSuccess) {
-      navigate("/shop");
+      navigate("/admin/dashboard");
     }
   }, [isError, isSuccess, navigate]);
 
   return (
     <div className="w-full h-full max-w-md p-3 bg-base-300 text-base-content shadow-xl rounded-lg">
-      <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
+      <h2 className="text-2xl font-bold text-center mb-6">Admin Login</h2>
       <form onSubmit={handleLogin}>
         <div className="mb-4">
           <label htmlFor="username" className="form-control w-full max-w-lg">
-            <div className="label text-lg font-medium">
-              <span className="label-text">Enter Username or Email</span>
+            <div className="label font-medium">
+              <span className="label-text text-lg">
+                Enter Username or Email
+              </span>
             </div>
           </label>
           <input
@@ -65,8 +63,8 @@ const LoginUser = () => {
 
         <div className="mb-6">
           <label htmlFor="password" className="form-control w-full max-w-lg">
-            <div className="label text-lg font-medium">
-              <span className="label-text">Password</span>
+            <div className="label font-medium">
+              <span className="label-text text-lg">Password</span>
             </div>
           </label>
           <input
@@ -86,11 +84,11 @@ const LoginUser = () => {
           className="btn btn-primary w-full mb-4 text-2xl"
           disabled={isLoading}
         >
-          {isLoading ? "Logging In..." : "Login"}
+          {isLoading ? "Logging in..." : "Login"}
         </button>
 
         <div className="text-center">
-          <p className="text-sm">
+          <p className="text-lg">
             Don't have an account?{" "}
             <a href="/register" className="text-blue-600 hover:underline">
               Sign up here
@@ -102,4 +100,4 @@ const LoginUser = () => {
   );
 };
 
-export default LoginUser;
+export default LoginPage;

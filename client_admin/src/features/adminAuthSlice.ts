@@ -1,4 +1,3 @@
-// In your Redux slice
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface AuthState {

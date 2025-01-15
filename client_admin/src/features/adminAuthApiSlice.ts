@@ -1,41 +1,27 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import {
-  UserCreateRequest,
-  UserResponse,
-  Body_auth_login,
-  Token,
-} from "@/client";
+import { Token, Body_admin_admin_login, AdminResponse } from "@/client";
 import { RootState } from "@/app/store";
-import { clearCredentials, setCredentials } from "./accessTokenApiSlice";
+import { clearCredentials, setCredentials } from "./adminAuthSlice";
 
-export const userAuthApi = createApi({
-  reducerPath: "userAuthApi",
+export const adminAuthApi = createApi({
+  reducerPath: "adminAuthApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "/api/auth",
+    baseUrl: "/api/admin/auth",
     credentials: "include",
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth.accessToken;
-
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       } else {
-        console.warn("No token found!"); // Add a warning if no token is available
+        console.warn("No token found");
+        headers.set("Authorization", "Bearer");
       }
-
       return headers;
     },
   }),
   tagTypes: ["Session", "Register"],
   endpoints: (builder) => ({
-    register: builder.mutation<UserResponse, UserCreateRequest>({
-      query: (credentials) => ({
-        url: "/register",
-        method: "POST",
-        body: credentials,
-      }),
-      invalidatesTags: [{ type: "Register" }],
-    }),
-    login: builder.mutation<Token, Body_auth_login>({
+    login: builder.mutation<Token, Body_admin_admin_login>({
       query: (loginData) => ({
         url: "/login",
         method: "POST",
@@ -48,7 +34,7 @@ export const userAuthApi = createApi({
           client_secret: loginData.client_secret || "",
         }),
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded", // FastAPI expects form data for OAuth2
+          "Content-Type": "application/x-www-form-urlencoded",
         },
       }),
       invalidatesTags: [{ type: "Session" }],
@@ -57,11 +43,12 @@ export const userAuthApi = createApi({
           const res: Token = (await queryFulfilled).data;
           dispatch(setCredentials({ accessToken: res.access_token }));
         } catch (error) {
-          console.error("Logout failed", error);
+          console.error("Login failed", error);
+          dispatch(clearCredentials());
         }
       },
     }),
-    checkAuth: builder.query<{ status: string; user: UserResponse }, void>({
+    checkAuth: builder.query<{ status: string; admin: AdminResponse }, void>({
       query: () => ({
         url: "/checkauth",
         method: "GET",
@@ -74,6 +61,15 @@ export const userAuthApi = createApi({
         method: "POST",
       }),
       invalidatesTags: [{ type: "Session" }],
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const res: Token = (await queryFulfilled).data;
+          dispatch(setCredentials({ accessToken: res.access_token }));
+        } catch (error) {
+          console.error("Error refreshing token: ", error);
+          dispatch(clearCredentials());
+        }
+      },
     }),
     logout: builder.mutation<{ message: string }, void>({
       query: () => ({
@@ -94,9 +90,8 @@ export const userAuthApi = createApi({
 });
 
 export const {
-  useRegisterMutation,
   useLoginMutation,
   useRefreshTokenMutation,
   useCheckAuthQuery,
   useLogoutMutation,
-} = userAuthApi;
+} = adminAuthApi;
