@@ -60,10 +60,11 @@ const LoginUser = () => {
       if (isApiError(error)) {
         const message = getApiErrorMessage(error);
         setApiError(message);
+        toast.error(message);
       } else {
         setApiError("Error logging in");
+        toast.error("Error logging in");
       }
-      toast.error("Error logging in");
     }
     if (isSuccess) {
       navigate("/shop");

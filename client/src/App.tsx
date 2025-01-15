@@ -14,6 +14,7 @@ import LogoutButton from "./components/LogoutButtons/LogoutUser";
 import { Link } from "react-router-dom";
 import RedirectIfLoggedIn from "./components/RedirectWrapper/RedirectIfLoggedIn";
 import UserAuthLayout from "./components/Layouts/UserAuthLayout/UserAuthLayout";
+import { useTheme } from "./context/ThemeContext";
 
 const routes = createBrowserRouter(
   createRoutesFromElements(
@@ -61,9 +62,15 @@ const routes = createBrowserRouter(
 );
 
 function App() {
+  const { theme } = useTheme();
+  const themeValue = theme === "business" ? "dark" : "light";
   return (
     <>
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        theme={themeValue}
+      />
       <RouterProvider router={routes} />
     </>
   );
