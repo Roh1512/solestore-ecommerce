@@ -1,5 +1,13 @@
 import { Body_admin_admin_login } from "@/client";
+import AlertMessage from "@/components/ErrorElements/AlertMessage";
 import { useLoginMutation } from "@/features/adminAuthApiSlice";
+import { ValidationErrorDisplay } from "@/types/errorTypes";
+import {
+  getApiErrorMessage,
+  getValidationErrors,
+  isApiError,
+  isFieldValidationError,
+} from "@/utils/errorHandler";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -12,10 +20,17 @@ const LoginPage = () => {
     grant_type: "password",
   });
 
-  const [login, { isLoading, isError, isSuccess }] = useLoginMutation();
+  const [login, { isLoading, isError, isSuccess, error }] = useLoginMutation();
+
+  const [validationErrors, setValidationErrors] = useState<
+    ValidationErrorDisplay[]
+  >([]);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setApiError(null);
+    setValidationErrors([]);
     try {
       const response = await login(loginData).unwrap();
       console.log("Login successful:", response);
@@ -26,16 +41,33 @@ const LoginPage = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
+    setApiError(null);
+    setValidationErrors((prevErrors) =>
+      prevErrors.filter((err) => err.field !== e.target.name)
+    );
   };
 
   useEffect(() => {
-    if (isError) {
+    if (isError && error) {
+      if (isFieldValidationError(error)) {
+        const errors = getValidationErrors(error);
+        setValidationErrors(errors);
+      }
+      if (isApiError(error)) {
+        const errorMessage = getApiErrorMessage(error);
+        setApiError(errorMessage);
+      }
       toast.error("Login failed");
     }
     if (isSuccess) {
       navigate("/admin/dashboard");
     }
-  }, [isError, isSuccess, navigate]);
+  }, [error, isError, isSuccess, navigate]);
+
+  const getValidationMessage = (field: string) => {
+    const error = validationErrors.find((err) => err.field === field);
+    return error ? error.message : null;
+  };
 
   return (
     <div className="w-full h-full max-w-md p-3 bg-base-300 text-base-content shadow-xl rounded-lg">
@@ -53,12 +85,19 @@ const LoginPage = () => {
             type="text"
             id="username"
             name="username"
-            className="input input-bordered w-full max-w-lg"
+            className={`input input-bordered w-full max-w-lg ${
+              getValidationMessage("username") ? "input-error" : ""
+            }`}
             placeholder="Username or Email"
             value={loginData.username}
             onChange={handleChange}
             required
           />
+          {getValidationMessage("username") && (
+            <p className="text-red-600 text-sm mt-1">
+              {getValidationMessage("username")}
+            </p>
+          )}
         </div>
 
         <div className="mb-6">
@@ -71,12 +110,19 @@ const LoginPage = () => {
             type="password"
             id="password"
             name="password"
-            className="input input-bordered w-full max-w-lg"
+            className={`input input-bordered w-full max-w-lg ${
+              getValidationMessage("password") ? "input-error" : ""
+            }`}
             placeholder="Enter your password"
             value={loginData.password}
             onChange={handleChange}
             required
           />
+          {getValidationMessage("password") && (
+            <p className="text-red-600 text-sm mt-1">
+              {getValidationMessage("password")}
+            </p>
+          )}
         </div>
 
         <button
@@ -86,6 +132,8 @@ const LoginPage = () => {
         >
           {isLoading ? "Logging in..." : "Login"}
         </button>
+
+        {apiError ? <AlertMessage message={apiError} /> : "\u00A0"}
 
         <div className="text-center">
           <p className="text-lg">

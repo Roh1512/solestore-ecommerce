@@ -5,6 +5,14 @@ import { useAppDispatch } from "@/app/hooks";
 import { setCredentials } from "@/features/accessTokenApiSlice";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
+import { ValidationErrorDisplay } from "@/types/errorTypes";
+import {
+  getApiErrorMessage,
+  getValidationErrors,
+  isApiError,
+  isFieldValidationError,
+} from "@/utils/errorHandler";
+import AlertMessage from "@/components/ErrorElements/AlertMessage";
 
 const LoginUser = () => {
   const [loginData, setLoginData] = useState<Body_auth_login>({
@@ -13,12 +21,19 @@ const LoginUser = () => {
     grant_type: "password", // Required for OAuth2
   });
 
-  const [login, { isLoading, isError, isSuccess }] = useLoginMutation();
+  const [validationErrors, setValidationErrors] = useState<
+    ValidationErrorDisplay[]
+  >([]);
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  const [login, { isLoading, isError, isSuccess, error }] = useLoginMutation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setApiError(null);
+    setValidationErrors([]);
     try {
       const response = await login(loginData).unwrap();
       console.log("Login successful:", response);
@@ -30,16 +45,35 @@ const LoginUser = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
+    setApiError(null);
+    setValidationErrors((prevErrors) =>
+      prevErrors.filter((err) => err.field !== e.target.name)
+    );
   };
 
   useEffect(() => {
-    if (isError) {
+    if (isError && error) {
+      if (isFieldValidationError(error)) {
+        const errors = getValidationErrors(error);
+        setValidationErrors(errors);
+      }
+      if (isApiError(error)) {
+        const message = getApiErrorMessage(error);
+        setApiError(message);
+      } else {
+        setApiError("Error logging in");
+      }
       toast.error("Error logging in");
     }
     if (isSuccess) {
       navigate("/shop");
     }
-  }, [isError, isSuccess, navigate]);
+  }, [isError, isSuccess, navigate, error]);
+
+  const getValidationMessage = (field: string) => {
+    const error = validationErrors.find((err) => err.field === field);
+    return error ? error.message : null;
+  };
 
   return (
     <div className="w-full h-full max-w-md p-3 bg-base-300 text-base-content shadow-xl rounded-lg">
@@ -61,6 +95,11 @@ const LoginUser = () => {
             onChange={handleChange}
             required
           />
+          {getValidationMessage("username") && (
+            <p className="text-red-600 text-sm mt-1">
+              {getValidationMessage("username")}
+            </p>
+          )}
         </div>
 
         <div className="mb-6">
@@ -79,6 +118,11 @@ const LoginUser = () => {
             onChange={handleChange}
             required
           />
+          {getValidationMessage("password") && (
+            <p className="text-red-600 text-sm mt-1">
+              {getValidationMessage("password")}
+            </p>
+          )}
         </div>
 
         <button
@@ -88,6 +132,8 @@ const LoginUser = () => {
         >
           {isLoading ? "Logging In..." : "Login"}
         </button>
+
+        {apiError ? <AlertMessage message={apiError} /> : "\u00A0"}
 
         <div className="text-center">
           <p className="text-sm">

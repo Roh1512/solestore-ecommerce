@@ -1,9 +1,11 @@
 import { UserCreateRequest } from "@/client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useRegisterMutation } from "@/features/userAuthApiSlice";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
+import { getApiErrorMessage, isApiError } from "@/utils/errorHandler";
+import AlertMessage from "@/components/ErrorElements/AlertMessage";
 
 // Define a Zod schema for user input
 const userCreateSchema = z.object({
@@ -43,11 +45,14 @@ const RegisterUser = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const [register, { isLoading, isError }] = useRegisterMutation();
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  const [register, { isLoading, isError, error }] = useRegisterMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+    setApiError(null);
 
     // Ensure phone and address are `null` if empty
     const normalizedUserDetails = {
@@ -90,6 +95,7 @@ const RegisterUser = () => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
+    setApiError(null);
     const { name, value } = e.target;
 
     setUserDetails((prev) => ({
@@ -98,6 +104,15 @@ const RegisterUser = () => {
         value === "" && (name === "phone" || name === "address") ? null : value,
     }));
   };
+
+  useEffect(() => {
+    if (isError && error) {
+      if (isApiError(error)) {
+        const errorMessage = getApiErrorMessage(error);
+        setApiError(errorMessage);
+      }
+    }
+  }, [error, isError]);
 
   return (
     <div className="card w-full max-w-md bg-base-300 shadow-xl">
@@ -173,7 +188,9 @@ const RegisterUser = () => {
             </button>
           </div>
         </form>
-        {isError && <p>Error registering user</p>}
+        {apiError && (
+          <AlertMessage message={apiError || "Error registering user"} />
+        )}
       </div>
     </div>
   );
