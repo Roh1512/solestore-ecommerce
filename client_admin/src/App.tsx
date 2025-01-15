@@ -11,6 +11,7 @@ import RedirectUnprotectedRoutes from "@components/RedirectWrappers/RedirectUnpr
 import NotFound from "@components/ErrorElements/NotFound";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import RedirectProtectedRoutes from "./components/RedirectWrappers/RedirectProtectedRoutes";
+import { useTheme } from "./context/ThemeContext";
 
 const routes = createBrowserRouter(
   createRoutesFromElements(
@@ -29,9 +30,11 @@ const routes = createBrowserRouter(
 );
 
 function App() {
+  const { theme } = useTheme();
+  const themeText = theme === "business" ? "dark" : "light";
   return (
     <>
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer position="top-right" autoClose={3000} theme={themeText} />
       <RouterProvider router={routes} />
     </>
   );

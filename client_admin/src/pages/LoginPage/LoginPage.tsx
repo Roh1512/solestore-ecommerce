@@ -56,8 +56,11 @@ const LoginPage = () => {
       if (isApiError(error)) {
         const errorMessage = getApiErrorMessage(error);
         setApiError(errorMessage);
+        toast.error(errorMessage);
+      } else {
+        setApiError("Error logging in");
+        toast.error("Error logging in");
       }
-      toast.error("Login failed");
     }
     if (isSuccess) {
       navigate("/admin/dashboard");
