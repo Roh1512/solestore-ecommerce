@@ -1,6 +1,7 @@
 import { useCurrentState } from "@/app/useCurrentState";
 import LogoLink from "@components/Logo/LogoLink";
 import ThemeToggle from "@components/theme/ToggleTheme";
+import { Link } from "react-router-dom";
 
 const HeaderAdmin = () => {
   const { isLoggedIn, accessToken } = useCurrentState().auth;
@@ -11,7 +12,11 @@ const HeaderAdmin = () => {
       </div>
       {/* Shop Now Button */}
       <div className="flex-none gap-2">
-        {isLoggedIn && accessToken && <button className="btn">profile</button>}
+        {isLoggedIn && accessToken && (
+          <Link to="/admin/profile" className="btn">
+            profile
+          </Link>
+        )}
         <ThemeToggle />
       </div>
     </header>

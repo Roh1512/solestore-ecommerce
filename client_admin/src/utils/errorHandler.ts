@@ -34,7 +34,7 @@ export const getValidationErrors = (
       return error.data.detail.map((validationError) => {
         // Extract the last element in loc as the field name
         const field = Array.isArray(validationError.loc)
-          ? validationError.loc[validationError.loc.length - 1]
+          ? validationError.loc[validationError.loc.length - 1] // Get the last element of the loc array
           : "unknown";
 
         return {

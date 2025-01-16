@@ -26,7 +26,7 @@ const LogoutAdmin = () => {
 
   return (
     <button
-      className="btn btn-outline btn-error w-fit font-semibold flex items-center justify-center gap-2"
+      className="btn btn-secondary w-fit font-semibold flex items-center justify-center gap-2"
       onClick={handleLogout}
       disabled={isLoading}
     >

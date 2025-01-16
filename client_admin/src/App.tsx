@@ -12,6 +12,7 @@ import NotFound from "@components/ErrorElements/NotFound";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import RedirectProtectedRoutes from "./components/RedirectWrappers/RedirectProtectedRoutes";
 import { useTheme } from "./context/ThemeContext";
+import ProfilePage from "./pages/profile/ProfilePage";
 
 const routes = createBrowserRouter(
   createRoutesFromElements(
@@ -23,6 +24,7 @@ const routes = createBrowserRouter(
 
       <Route element={<RedirectProtectedRoutes />}>
         <Route path="/admin/dashboard" element={<Dashboard />} />
+        <Route path="/admin/profile" element={<ProfilePage />} />
       </Route>
       <Route path="*" element={<NotFound />} />
     </>

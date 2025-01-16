@@ -1,21 +1,16 @@
 import { Link } from "react-router-dom";
 import { Package, Box, ShoppingCart, Users, ClipboardList } from "lucide-react"; // Importing icons from Lucide React
-import HeaderAdmin from "@/components/Headers/HeaderAdmin";
-import FooterAdmin from "@/components/Footers/FooterAdmin";
-import LogoutAdmin from "@/components/Logout/LogoutAdmin";
 
 const Dashboard = () => {
   return (
     <>
-      <HeaderAdmin />
-      <main className="flex-1 flex flex-col items-center justify-center px-4">
+      <div className="flex flex-col items-center justify-center px-4">
         {/* Header */}
         <div className="mb-8 text-center">
           <h1 className="text-4xl font-bold text-primary">Admin Dashboard</h1>
           <p className="text-base-content mt-2">
             Manage your store effortlessly
           </p>
-          <LogoutAdmin />
         </div>
 
         {/* Navigation Links */}
@@ -70,8 +65,7 @@ const Dashboard = () => {
             <span className="font-medium mt-2">Orders</span>
           </Link>
         </div>
-      </main>
-      <FooterAdmin />
+      </div>
     </>
   );
 };

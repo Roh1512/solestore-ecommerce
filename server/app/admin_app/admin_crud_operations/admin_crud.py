@@ -168,9 +168,12 @@ async def update_admin_details(admin_id, details: AdminCreateRequest, current_pa
     update_data = details.model_dump(exclude_unset=True)
 
     if "password" in update_data:
-        update_data["password"] = hash_password(
-            str(update_data["password"])
-        )
+        if update_data["password"]:  # This checks if the password is not None or empty
+            update_data["password"] = hash_password(
+                str(update_data["password"])
+            )
+        else:
+            del update_data["password"]
 
     try:
         for key, value in update_data.items():

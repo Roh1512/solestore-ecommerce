@@ -7,6 +7,8 @@ import {
 import { clearCredentials, setCredentials } from "@/features/adminAuthSlice";
 import { useEffect, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
+import HeaderAdmin from "../Headers/HeaderAdmin";
+import FooterAdmin from "../Footers/FooterAdmin";
 
 const RedirectProtectedRoutes = () => {
   const dispatch = useAppDispatch();
@@ -64,7 +66,15 @@ const RedirectProtectedRoutes = () => {
     );
   }
 
-  return <Outlet />;
+  return (
+    <>
+      <HeaderAdmin />
+      <main className="flex-1">
+        <Outlet />
+      </main>
+      <FooterAdmin />
+    </>
+  );
 };
 
 export default RedirectProtectedRoutes;

@@ -73,7 +73,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="w-full h-full max-w-md p-3 bg-base-300 text-base-content shadow-xl rounded-lg">
+    <div className="w-full h-full max-w-md p-3 bg-base-300 border-2 border-black text-base-content shadow-xl rounded-lg">
       <h2 className="text-2xl font-bold text-center mb-6">Admin Login</h2>
       <form onSubmit={handleLogin}>
         <div className="mb-4">
@@ -119,7 +119,7 @@ const LoginPage = () => {
             placeholder="Enter your password"
             value={loginData.password}
             onChange={handleChange}
-            required
+            // required
           />
           {getValidationMessage("password") && (
             <p className="text-red-600 text-sm mt-1">

@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+[data-theme="lofi"] .btn-secondary {
+  background-color: rgb(13, 8, 139);
+}
+[data-theme="lofi"] .btn-primary:hover {
+  background-color: black;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -45,6 +52,12 @@ main {
   @apply text-red-600;
   width: 1.5rem;
   height: 1.5rem;
+}
+
+.alert-icon-2 {
+  @apply text-red-600;
+  width: 1.2rem;
+  height: 1.2rem;
 }
 
 @media only screen and (max-width: 600px) {
