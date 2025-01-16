@@ -22,6 +22,7 @@ import {
   isFieldValidationError,
 } from "@/utils/errorHandler";
 import AlertMessage from "../ErrorElements/AlertMessage";
+import { toast } from "react-toastify";
 
 type Props = {
   admin: AdminGetAdminProfileDetailsResponse;
@@ -142,6 +143,16 @@ const EditProfile = (props: Props) => {
         currentPassword,
       }).unwrap();
       console.log(response);
+      toast.success("Profile updated");
+      const modal = document.getElementById(
+        "my_modal_2"
+      ) as HTMLDialogElement | null;
+      if (modal) {
+        modal.close(); // Close the modal
+      }
+
+      // Optionally reset the form after successful update
+      resetForm();
     } catch (error) {
       console.error("Error updating profile", error);
     }

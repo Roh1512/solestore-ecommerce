@@ -10,6 +10,7 @@ from cloudinary.uploader import upload, destroy
 from cloudinary.exceptions import Error as CloudinaryError
 from PIL import Image
 import io
+from beanie.operators import And
 
 
 from asyncio import get_event_loop
@@ -136,6 +137,7 @@ async def admin_refresh_token_is_saved(admin_id: str, refresh_token: str) -> boo
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Admin not found"
         )
+
     return refresh_token in admin.refresh_tokens
 
 
@@ -152,6 +154,31 @@ async def update_admin_details(admin_id, details: AdminCreateRequest, current_pa
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Admin not found"
             )
+        )
+
+    duplicate_username = await Admin.find_one(
+        And(
+            Admin.username == details.username,
+            Admin.id != PydanticObjectId(admin_id)
+        )
+    )
+
+    if duplicate_username:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already exists"
+        )
+    duplicate_email = await Admin.find_one(
+        And(
+            Admin.email == details.email,
+            Admin.id != PydanticObjectId(admin_id)
+        )
+    )
+
+    if duplicate_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already exists"
         )
 
     is_password_valid = verify_password(
@@ -188,28 +215,29 @@ async def update_admin_details(admin_id, details: AdminCreateRequest, current_pa
         updated_admin_dict["id"] = str(admin_id)
         return updated_admin_dict
     except DuplicateKeyError as e:
-        if "username" in str(e):
+        # This gets the string representation of the error
+        error_message = str(e)
+
+        print("Duplicte error: ", error_message)
+
+        if "username" in error_message:
             print("Username already exists")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Username already exists"
             ) from e
-        elif "email" in str(e):
+
+        if "email" in error_message:
             print("Email already exists")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Email already exists"
             ) from e
-        else:
-            print("A duplicate key error occurred")
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="A duplicate key error occurred"
-            ) from e
-    except ValidationError as e:
+
+        print("A duplicate key error occurred")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=e["detail"]
+            detail="A duplicate key error occurred"
         ) from e
 
 
