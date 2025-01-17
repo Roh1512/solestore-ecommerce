@@ -8,6 +8,9 @@ import { useAppDispatch } from "@/app/hooks";
 import { setCredentials } from "@/features/accessTokenApiSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
+import HeaderStore from "../headersAndFooters/headers/headersStore/HeaderStore";
+import FooterStore from "../headersAndFooters/footersStore/FooterStore";
+import PageLoading from "../Loading/PageLoading";
 
 const UserProtectedRoute = () => {
   const dispatch = useAppDispatch();
@@ -56,14 +59,22 @@ const UserProtectedRoute = () => {
   ]);
 
   if (isLoadingState && (isAuthLoading || isRefreshing)) {
-    return <div>Loading...</div>;
+    return <PageLoading />;
   }
 
   if (isAuthError && refreshFailed) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
-  return <Outlet />;
+  return (
+    <>
+      <HeaderStore />
+      <main className="flex-1">
+        <Outlet />
+      </main>
+      <FooterStore />
+    </>
+  );
 };
 
 export default UserProtectedRoute;

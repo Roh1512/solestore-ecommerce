@@ -6,6 +6,7 @@ import {
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { setCredentials } from "@/features/accessTokenApiSlice";
+import PageLoading from "../Loading/PageLoading";
 
 const RedirectIfLoggedIn = () => {
   const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
@@ -41,7 +42,7 @@ const RedirectIfLoggedIn = () => {
   }, [isError, refreshing, refreshFailed, refreshToken, dispatch, isLoggedIn]);
 
   if ((isLoadingState && isLoading) || refreshing) {
-    return <p>Loading...</p>;
+    return <PageLoading />;
   }
 
   if (isError && refreshFailed) {

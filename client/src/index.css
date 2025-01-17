@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+[data-theme="lofi"] .btn-secondary {
+  background-color: rgb(3, 1, 71);
+}
+[data-theme="lofi"] .btn-primary:hover {
+  background-color: rgb(34, 31, 31);
+}
+[data-theme="lofi"] .btn-primary:disabled {
+  background-color: rgb(104, 104, 104);
+  color: white;
+}
+
+.btn:active {
+  transform: translate(0.8);
+  transition: transform 200ms;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -32,7 +48,7 @@ header {
   @apply bg-base-300 text-base-content;
 }
 main {
-  flex: 1;
+  @apply flex-1;
 }
 footer {
   @apply bg-base-300 text-base-content;

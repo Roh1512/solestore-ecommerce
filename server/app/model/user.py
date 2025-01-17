@@ -59,9 +59,6 @@ class UpdateProfileRequest(BaseModel):
     )
     password: Optional[str] = Field(
         None,
-        min_length=8,
-        max_length=128,
-        description="Password must be between 8 and 128 characters."
     )
 
 

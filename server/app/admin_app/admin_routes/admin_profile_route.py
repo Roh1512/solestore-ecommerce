@@ -96,7 +96,7 @@ async def update_admin_profile_image_route(
     file: UploadFile
 ):
     print("Admin Profile Image File: ", file)
-    if file.content_type.lower() not in ["image/jpeg", "image/png", "image/jpg",  "image/webp"]:
+    if file.content_type.lower() not in ["image/jpeg", "image/png", "image/jpg",]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Only jpeg, png and jpg images are accepted"

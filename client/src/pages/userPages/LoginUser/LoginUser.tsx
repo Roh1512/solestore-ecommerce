@@ -16,7 +16,7 @@ import AlertMessage from "@/components/ErrorElements/AlertMessage";
 
 const LoginUser = () => {
   const [loginData, setLoginData] = useState<Body_auth_login>({
-    username: "mary123@gmail.com",
+    username: "johnwick",
     password: "password",
     grant_type: "password", // Required for OAuth2
   });

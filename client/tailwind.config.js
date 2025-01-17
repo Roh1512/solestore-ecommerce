@@ -7,7 +7,21 @@ export default {
   plugins: [require("daisyui")],
 
   daisyui: {
-    themes: ["business", "lofi"], // false: only light + dark | true: all themes | array: specific themes like this ["light", "dark", "cupcake"]
+    themes: [
+      {
+        lofi: {
+          ...require("daisyui/src/theming/themes")["lofi"],
+          primary: "#000000",
+          "primary-content": "#FFFFFF",
+          secondary: "#545350",
+          "secondary-content": "white",
+          accent: "#cdc4cf",
+          "accent-content": "#000000",
+        },
+      },
+      "business",
+      "lofi",
+    ], // false: only light + dark | true: all themes | array: specific themes like this ["light", "dark", "cupcake"]
     darkTheme: "business", // name of one of the included themes for dark mode
     base: true, // applies background color and foreground color for root element by default
     styled: true, // include daisyUI colors and design decisions for all components

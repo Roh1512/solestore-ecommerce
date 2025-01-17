@@ -6,6 +6,7 @@ from bson import ObjectId
 from pymongo.errors import DuplicateKeyError
 from pydantic import ValidationError
 from datetime import datetime, timezone
+from beanie.operators import And
 
 
 async def create_user(user_data: dict):
@@ -138,6 +139,30 @@ async def update_user_details(user_id: str, details: UpdateProfileRequest, curre
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
+
+    duplicate_username = await User.find_one(
+        And(
+            User.username == details.username,
+            User.id != PydanticObjectId(user_id)
+        )
+    )
+    if duplicate_username:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already exists"
+        )
+    duplicate_email = await User.find_one(
+        And(
+            User.email == details.email,
+            User.id != PydanticObjectId(user_id)
+        )
+    )
+
+    if duplicate_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already exists"
+        )
     # Exclude unset fields from the request to allow partial updates
     update_data = details.model_dump(exclude_unset=True)
 
@@ -151,8 +176,12 @@ async def update_user_details(user_id: str, details: UpdateProfileRequest, curre
         )
 
     if "password" in update_data:
-        update_data["password"] = hash_password(
-            str(update_data["password"]))
+        if update_data["password"]:  # This checks if the password is not None or empty
+            update_data["password"] = hash_password(
+                str(update_data["password"])
+            )
+        else:
+            del update_data["password"]
 
     try:
         for key, value in update_data.items():

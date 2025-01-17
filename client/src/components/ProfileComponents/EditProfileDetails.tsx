@@ -1,32 +1,20 @@
-import { Edit2 } from "lucide-react";
-import { AdminUpdateRequest, AdminResponse } from "@/client";
-import {
-  User2,
-  SignatureIcon,
-  MailIcon,
-  PhoneCallIcon,
-  KeyRound,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { z } from "zod";
-import { useUpdateProfileMutation } from "@/features/profileApiSLice";
-
+import { UpdateProfileRequest, UserResponse } from "@/client";
+import { useUpdateProfileDetailsMutation } from "@/features/userProfileApiSlice";
 import {
   getApiErrorMessage,
   getValidationErrors,
   isApiError,
   isFieldValidationError,
 } from "@/utils/errorHandler";
-import AlertMessage from "../ErrorElements/AlertMessage";
+import { Edit2, KeyRound, MailIcon, SignatureIcon, User2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { z } from "zod";
+import AlertText from "../ErrorElements/AlertText";
 import ButtonLoading from "../Loading/ButtonLoading";
+import { closeModal, openModal } from "@/utils/modal_utils";
 
-type Props = {
-  admin: AdminResponse;
-};
-
-// Zod validation schema
-const updateAdminSchema = z.object({
+const updateProfileSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters").trim(),
   name: z.string().min(3, "Name must be at least 3 characters").trim(),
   email: z.string().email("Invalid email address").trim(),
@@ -37,13 +25,6 @@ const updateAdminSchema = z.object({
     .refine((value) => !value || value.length >= 6, {
       message: "Password must be at least 6 characters",
     }),
-  phone: z
-    .string()
-    .optional()
-    .nullable()
-    .refine((value) => !value || /^\+?[1-9]\d{1,14}$/.test(value), {
-      message: "Invalid phone number",
-    }),
 });
 
 const passwordSchema = z.object({
@@ -53,18 +34,21 @@ const passwordSchema = z.object({
     .trim(),
 });
 
-const EditProfile = (props: Props) => {
-  const admin: AdminResponse = props.admin;
+type Props = {
+  user: UserResponse;
+};
 
-  const initialAdminDetails: AdminUpdateRequest = {
-    username: admin?.username || "",
-    name: admin?.name || "",
-    email: admin?.email || "",
+const EditProfileDetails = (props: Props) => {
+  const user = props.user;
+  const initialUserDetails: UpdateProfileRequest = {
+    username: user?.username || "",
+    name: user?.name || "",
+    email: user?.email || "",
     password: "",
-    phone: admin?.phone || "",
   };
-  const [adminDetails, setAdminDetails] =
-    useState<AdminUpdateRequest>(initialAdminDetails);
+  const modalId = "edit_profile_modal";
+  const [userDetails, setUserDetails] =
+    useState<UpdateProfileRequest>(initialUserDetails);
   const [currentPassword, setCurrentPassword] = useState<string>("");
 
   const [zodErrors, setZodErrors] = useState<Record<string, string>>({});
@@ -74,11 +58,11 @@ const EditProfile = (props: Props) => {
 
   const [apiError, setApiError] = useState<string | null>(null);
 
-  const [updateProfile, { isLoading, isError, error }] =
-    useUpdateProfileMutation();
+  const [updateProfileDetails, { isLoading, isError, error }] =
+    useUpdateProfileDetailsMutation();
 
   const resetForm = () => {
-    setAdminDetails(initialAdminDetails);
+    setUserDetails(initialUserDetails);
     setZodErrors({});
     setCurrentPassword("");
     setCurrentPasswordError({});
@@ -88,12 +72,9 @@ const EditProfile = (props: Props) => {
   const handleDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setApiError(null);
     const { name, value } = e.target;
-    setAdminDetails((prev) => ({
+    setUserDetails((prev) => ({
       ...prev,
-      [name]:
-        value === "" && (name === "phone" || name === "password")
-          ? null
-          : value,
+      [name]: value === "" && name === "password" ? null : value,
     }));
   };
 
@@ -104,10 +85,8 @@ const EditProfile = (props: Props) => {
     setZodErrors({});
     setCurrentPasswordError({});
 
-    // Validate using Zod schema
-    const result = updateAdminSchema.safeParse(adminDetails);
+    const result = updateProfileSchema.safeParse(userDetails);
     if (!result.success) {
-      // Collect Zod errors
       const errors: Record<string, string> = {};
       result.error.errors.forEach((err) => {
         if (err.path[0]) {
@@ -134,21 +113,15 @@ const EditProfile = (props: Props) => {
     }
 
     try {
-      const profileDetails = adminDetails;
-      const response = await updateProfile({
+      const profileDetails = userDetails;
+      const response = await updateProfileDetails({
         profileDetails,
         currentPassword,
       }).unwrap();
       console.log(response);
       toast.success("Profile updated");
-      const modal = document.getElementById(
-        "my_modal_2"
-      ) as HTMLDialogElement | null;
-      if (modal) {
-        modal.close(); // Close the modal
-      }
 
-      // Optionally reset the form after successful update
+      closeModal(modalId);
       resetForm();
     } catch (error) {
       console.error("Error updating profile", error);
@@ -164,13 +137,12 @@ const EditProfile = (props: Props) => {
         errors.forEach(({ field, message }) => {
           newErrors[field] = message;
         });
-        console.log(newErrors);
 
         setZodErrors((prev) => ({ ...prev, ...newErrors }));
       }
       if (isApiError(error)) {
         const errorMessage = getApiErrorMessage(error);
-        setApiError(errorMessage);
+        setApiError(errorMessage as string);
       } else {
         setApiError("Error updating profile");
       }
@@ -191,41 +163,29 @@ const EditProfile = (props: Props) => {
     <>
       <button
         aria-label="Edit profile"
-        className="btn w-fit"
+        className="bg-transparent border-2 border-secondary text-secondary w-fit  btn-info rounded-full p-2 hover:bg-secondary hover:text-secondary-content"
         onClick={() => {
           resetForm();
-          const modal = document.getElementById(
-            "my_modal_2"
-          ) as HTMLDialogElement | null;
-          if (modal) {
-            modal.showModal();
-          }
+          openModal(modalId);
         }}
       >
         <Edit2 />
       </button>
-      <dialog id="my_modal_2" className="modal">
+
+      <dialog id={modalId} className="modal">
         <div className="modal-box">
           <div>
             {/* Close Modal */}
             <button
               type="button"
               className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-              onClick={() => {
-                const modal = document.getElementById(
-                  "my_modal_2"
-                ) as HTMLDialogElement | null;
-                if (modal) {
-                  modal.close();
-                }
-              }}
+              onClick={() => closeModal(modalId)}
             >
               ✕
             </button>
           </div>
           <h3 className="font-bold text-lg">Edit</h3>
           <form onSubmit={handleSubmit}>
-            {/* Username */}
             <div className="mb-4">
               <label
                 htmlFor="username"
@@ -238,15 +198,11 @@ const EditProfile = (props: Props) => {
                   name="username"
                   className="grow"
                   placeholder="Username"
-                  value={adminDetails.username || ""}
+                  value={userDetails.username || ""}
                   onChange={handleDetailsChange}
                 />
               </label>
-              {zodErrors.username && (
-                <p className="text-red-500 text-sm mt-1">
-                  {zodErrors.username}
-                </p>
-              )}
+              {zodErrors.username && <AlertText message={zodErrors.username} />}
             </div>
 
             {/* Name */}
@@ -262,13 +218,11 @@ const EditProfile = (props: Props) => {
                   name="name"
                   className="grow"
                   placeholder="Name"
-                  value={adminDetails.name || ""}
+                  value={userDetails.name || ""}
                   onChange={handleDetailsChange}
                 />
               </label>
-              {zodErrors.name && (
-                <p className="text-red-500 text-sm mt-1">{zodErrors.name}</p>
-              )}
+              {zodErrors.name && <AlertText message={zodErrors.name} />}
             </div>
 
             {/* Email */}
@@ -284,13 +238,11 @@ const EditProfile = (props: Props) => {
                   name="email"
                   className="grow"
                   placeholder="Email"
-                  value={adminDetails.email || ""}
+                  value={userDetails.email || ""}
                   onChange={handleDetailsChange}
                 />
               </label>
-              {zodErrors.email && (
-                <p className="text-red-500 text-sm mt-1">{zodErrors.email}</p>
-              )}
+              {zodErrors.email && <AlertText message={zodErrors.email} />}
             </div>
 
             {/* Password */}
@@ -305,38 +257,12 @@ const EditProfile = (props: Props) => {
                   id="password"
                   name="password"
                   className="grow"
-                  placeholder="Password"
-                  value={adminDetails.password || ""}
+                  placeholder="New Password to change(optional)"
+                  value={userDetails.password || ""}
                   onChange={handleDetailsChange}
                 />
               </label>
-              {zodErrors.password && (
-                <p className="text-red-500 text-sm mt-1">
-                  {zodErrors.password}
-                </p>
-              )}
-            </div>
-
-            {/* Phone */}
-            <div className="mb-4">
-              <label
-                htmlFor="phone"
-                className="input input-bordered flex items-center gap-2"
-              >
-                <PhoneCallIcon />
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  className="grow"
-                  placeholder="Phone"
-                  value={adminDetails.phone || ""}
-                  onChange={handleDetailsChange}
-                />
-              </label>
-              {zodErrors.phone && (
-                <p className="text-red-500 text-sm mt-1">{zodErrors.phone}</p>
-              )}
+              {zodErrors.password && <AlertText message={zodErrors.password} />}
             </div>
 
             <div className="mb-4">
@@ -359,14 +285,12 @@ const EditProfile = (props: Props) => {
                 />
               </label>
               {currentPasswordError.current_password && (
-                <p className="text-red-500 text-sm mt-1">
-                  {currentPasswordError.current_password}
-                </p>
+                <AlertText message={currentPasswordError.current_password} />
               )}
             </div>
-
+            <br />
             {apiError && typeof apiError === "string" && (
-              <AlertMessage message={apiError} />
+              <AlertText message={apiError} />
             )}
 
             {/* Submit Button */}
@@ -384,4 +308,4 @@ const EditProfile = (props: Props) => {
   );
 };
 
-export default EditProfile;
+export default EditProfileDetails;

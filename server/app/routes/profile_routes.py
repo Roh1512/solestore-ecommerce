@@ -91,7 +91,7 @@ async def update_profile_image_route(
     if file.content_type not in ["image/jpeg", "image/png", "image/jpg"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Uploaded file is not an image"
+            detail="Only jpeg, png and jpg images are accepted"
         )
     try:
         # Read file as bytes
