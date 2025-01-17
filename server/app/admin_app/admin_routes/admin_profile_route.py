@@ -90,16 +90,16 @@ async def update_admin_role_route(
         ) from e
 
 
-@router.post("/update-profile-img", status_code=200)
+@router.post("/update-profile-img", status_code=200, response_model=AdminResponse)
 async def update_admin_profile_image_route(
     admin: Annotated[dict, Depends(get_current_admin)],
     file: UploadFile
 ):
     print("Admin Profile Image File: ", file)
-    if file.content_type not in ["image/jpeg", "image/png", "image/jpg"]:
+    if file.content_type.lower() not in ["image/jpeg", "image/png", "image/jpg",  "image/webp"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Uploaded file is not an image"
+            detail="Only jpeg, png and jpg images are accepted"
         )
 
     try:

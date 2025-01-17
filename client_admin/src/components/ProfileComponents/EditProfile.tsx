@@ -1,9 +1,5 @@
 import { Edit2 } from "lucide-react";
-import {
-  AdminGetAdminProfileDetailsResponse,
-  AdminUpdateRequest,
-  AdminResponse,
-} from "@/client";
+import { AdminUpdateRequest, AdminResponse } from "@/client";
 import {
   User2,
   SignatureIcon,
@@ -23,9 +19,10 @@ import {
 } from "@/utils/errorHandler";
 import AlertMessage from "../ErrorElements/AlertMessage";
 import { toast } from "react-toastify";
+import ButtonLoading from "../Loading/ButtonLoading";
 
 type Props = {
-  admin: AdminGetAdminProfileDetailsResponse;
+  admin: AdminResponse;
 };
 
 // Zod validation schema
@@ -368,7 +365,7 @@ const EditProfile = (props: Props) => {
               className="mt-3 btn btn-primary w-full"
               disabled={isLoading}
             >
-              {isLoading ? "Updating..." : "Save changes"}
+              {isLoading ? <ButtonLoading text="Updating" /> : "Save changes"}
             </button>
           </form>
         </div>

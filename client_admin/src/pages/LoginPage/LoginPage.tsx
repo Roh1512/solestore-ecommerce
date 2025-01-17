@@ -1,5 +1,6 @@
 import { Body_admin_admin_login } from "@/client";
 import AlertMessage from "@/components/ErrorElements/AlertMessage";
+import ButtonLoading from "@/components/Loading/ButtonLoading";
 import { useLoginMutation } from "@/features/adminAuthApiSlice";
 import { ValidationErrorDisplay } from "@/types/errorTypes";
 import {
@@ -15,7 +16,7 @@ import { toast } from "react-toastify";
 const LoginPage = () => {
   const navigate = useNavigate();
   const [loginData, setLoginData] = useState<Body_admin_admin_login>({
-    username: "admin1",
+    username: "admina",
     password: "password",
     grant_type: "password",
   });
@@ -133,7 +134,7 @@ const LoginPage = () => {
           className="btn btn-primary w-full mb-4 text-2xl"
           disabled={isLoading}
         >
-          {isLoading ? "Logging in..." : "Login"}
+          {isLoading ? <ButtonLoading text="Logging in" /> : "Login"}
         </button>
 
         {apiError ? <AlertMessage message={apiError} /> : "\u00A0"}

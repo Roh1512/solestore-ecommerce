@@ -1,9 +1,6 @@
 import { RootState } from "@/app/store";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import {
-  AdminGetAdminProfileDetailsResponse,
-  AdminUpdateRequest,
-} from "@/client";
+import { AdminResponse, AdminUpdateRequest } from "@/client";
 
 export const profileApi = createApi({
   reducerPath: "createApi",
@@ -23,7 +20,7 @@ export const profileApi = createApi({
   }),
   tagTypes: ["Profile"],
   endpoints: (builder) => ({
-    getProfile: builder.query<AdminGetAdminProfileDetailsResponse, void>({
+    getProfile: builder.query<AdminResponse, void>({
       query: () => ({
         url: "/",
         method: "GET",
@@ -31,7 +28,7 @@ export const profileApi = createApi({
       providesTags: [{ type: "Profile" }],
     }),
     updateProfile: builder.mutation<
-      AdminGetAdminProfileDetailsResponse,
+      AdminResponse,
       { profileDetails: AdminUpdateRequest; currentPassword: string }
     >({
       query: ({ profileDetails, currentPassword }) => ({
@@ -45,7 +42,19 @@ export const profileApi = createApi({
       // Optional: Cache invalidation and updating state after mutation
       invalidatesTags: [{ type: "Profile" }],
     }),
+    updateProfileImage: builder.mutation<AdminResponse, FormData>({
+      query: (formData) => ({
+        url: "/update-profile-img",
+        method: "POST",
+        body: formData,
+      }),
+      invalidatesTags: [{ type: "Profile" }],
+    }),
   }),
 });
 
-export const { useGetProfileQuery, useUpdateProfileMutation } = profileApi;
+export const {
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+  useUpdateProfileImageMutation,
+} = profileApi;

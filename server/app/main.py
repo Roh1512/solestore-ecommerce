@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 import os
-import re
+
 
 from app.routes.profile_routes import router as profile_router
 from app.routes.auth_routes import router as auth_router
@@ -12,6 +12,8 @@ from app.admin_app.admin_router_hub import admin_router
 from contextlib import asynccontextmanager
 from app.config.db import init_db
 from fastapi.exceptions import HTTPException
+
+from app.config.cloudinary_config import cloudinary  # DO NOT REMOVE
 
 # Path to the React build folder
 client_build_dir = os.path.join(os.getcwd(), "..", 'client', 'dist')

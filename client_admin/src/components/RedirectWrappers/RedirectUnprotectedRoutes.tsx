@@ -70,7 +70,7 @@ const RedirectUnprotectedRoutes = () => {
     return (
       <>
         <HeaderAdmin />
-        <main className="flex flex-col items-center justify-center">
+        <main className="flex-1 flex flex-col items-center justify-center">
           <Outlet />
         </main>
         <FooterAdmin />

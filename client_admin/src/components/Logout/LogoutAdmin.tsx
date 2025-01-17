@@ -3,6 +3,7 @@ import { LogOut } from "lucide-react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import ButtonLoading from "../Loading/ButtonLoading";
 
 const LogoutAdmin = () => {
   const navigate = useNavigate();
@@ -26,12 +27,12 @@ const LogoutAdmin = () => {
 
   return (
     <button
-      className="btn btn-secondary w-fit font-semibold flex items-center justify-center gap-2"
+      className="btn btn-primary w-fit font-semibold flex items-center justify-center gap-2"
       onClick={handleLogout}
       disabled={isLoading}
     >
       {isLoading ? (
-        "Logging out..."
+        <ButtonLoading text="Logging out" />
       ) : (
         <>
           <LogOut className="logout-icon" /> <span>Logout</span>

@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import RedirectProtectedRoutes from "./components/RedirectWrappers/RedirectProtectedRoutes";
 import { useTheme } from "./context/ThemeContext";
 import ProfilePage from "./pages/profile/ProfilePage";
+import PageLoading from "./components/Loading/PageLoading";
 
 const routes = createBrowserRouter(
   createRoutesFromElements(
@@ -25,6 +26,7 @@ const routes = createBrowserRouter(
       <Route element={<RedirectProtectedRoutes />}>
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/profile" element={<ProfilePage />} />
+        <Route path="/admin/loading" element={<PageLoading />} />
       </Route>
       <Route path="*" element={<NotFound />} />
     </>

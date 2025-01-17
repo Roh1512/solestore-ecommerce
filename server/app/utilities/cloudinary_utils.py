@@ -19,7 +19,7 @@ async def validate_image(file: bytes) -> bool:
     """
     try:
         with Image.open(io.BytesIO(file)) as img:
-            return img.format.lower() in ["jpeg", "png", "gif", "bmp", "tiff"]
+            return img.format.lower() in ["jpeg", "png",  "jpg", "webp"]
     except Exception as e:
         print("Validate Image error: ", e)
         return False
@@ -36,7 +36,7 @@ async def update_profile_image(file: bytes, folder: str = "solestore_ecommerce_a
 
     if not await validate_image(file):
         raise ValueError(
-            "Invalid file type. Only image files are allowed.")
+            "Invalid file type. Only image files of (jpeg, jpg, png, webp) are allowed.")
 
     try:
         loop = get_event_loop()

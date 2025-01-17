@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import HeaderAdmin from "../Headers/HeaderAdmin";
 import FooterAdmin from "../Footers/FooterAdmin";
+import PageLoading from "../Loading/PageLoading";
 
 const RedirectProtectedRoutes = () => {
   const dispatch = useAppDispatch();
@@ -57,7 +58,7 @@ const RedirectProtectedRoutes = () => {
   ]);
 
   if (isLoadingState && (isAuthLoading || isRefreshing)) {
-    return <div>Loading...</div>;
+    return <PageLoading />;
   }
 
   if (isAuthError && refreshFailed) {
