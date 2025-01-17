@@ -9,6 +9,7 @@ import {
 import { useAppDispatch } from "@/app/hooks";
 import { useEffect, useState } from "react";
 import { setCredentials } from "@/features/adminAuthSlice";
+import PageLoading from "../Loading/PageLoading";
 
 const RedirectUnprotectedRoutes = () => {
   const dispatch = useAppDispatch();
@@ -63,7 +64,7 @@ const RedirectUnprotectedRoutes = () => {
   ]);
 
   if (isLoadingState && (isAuthLoading || refreshing || isRefreshing)) {
-    return <p>Loading...</p>;
+    return <PageLoading />;
   }
 
   if (isAuthError && refreshFailed) {
