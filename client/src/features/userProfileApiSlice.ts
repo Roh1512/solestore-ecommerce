@@ -1,5 +1,9 @@
 import { RootState } from "@/app/store";
-import { UpdateProfileRequest, UserResponse } from "@/client";
+import {
+  UpdateContactInfoRequest,
+  UpdateProfileRequest,
+  UserResponse,
+} from "@/client";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const userProfileApiSlice = createApi({
@@ -40,6 +44,20 @@ export const userProfileApiSlice = createApi({
       }),
       invalidatesTags: [{ type: "Profile" }],
     }),
+    updateContactInfo: builder.mutation<
+      UserResponse,
+      { contactInfo: UpdateContactInfoRequest; currentPassword: string }
+    >({
+      query: ({ contactInfo, currentPassword }) => ({
+        url: "/update-contact-info",
+        method: "PUT",
+        body: {
+          contact_info: contactInfo,
+          current_password: currentPassword,
+        },
+      }),
+      invalidatesTags: [{ type: "Profile" }],
+    }),
     updateProfileImage: builder.mutation<UserResponse, FormData>({
       query: (formData) => ({
         url: "/update-profile-img",
@@ -55,4 +73,5 @@ export const {
   useGetProfileQuery,
   useUpdateProfileImageMutation,
   useUpdateProfileDetailsMutation,
+  useUpdateContactInfoMutation,
 } = userProfileApiSlice;

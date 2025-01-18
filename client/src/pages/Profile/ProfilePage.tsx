@@ -2,15 +2,9 @@ import PageLoading from "@/components/Loading/PageLoading";
 import LogoutButton from "@/components/LogoutButtons/LogoutUser";
 import EditProfileDetails from "@/components/ProfileComponents/EditProfileDetails";
 import ProfilePicture from "@/components/ProfileComponents/ProfilePicture";
+import UpdateContanctInfo from "@/components/ProfileComponents/UpdateContanctInfo";
 import { useGetProfileQuery } from "@/features/userProfileApiSlice";
-import {
-  Calendar,
-  Mail,
-  Phone,
-  User,
-  HomeIcon,
-  ReceiptText,
-} from "lucide-react";
+import { Calendar, Mail, Phone, User, HomeIcon } from "lucide-react";
 
 const ProfilePage = () => {
   const { data, isLoading } = useGetProfileQuery();
@@ -76,9 +70,7 @@ const ProfilePage = () => {
           </div>
 
           <br />
-          <button className="btn w-fit m-auto box-content p-2 sm:btn-sm">
-            <ReceiptText className="w-4 h-4" /> Update Address and Phone number
-          </button>
+          <UpdateContanctInfo user={data} />
 
           {/* Divider */}
           <div className="divider my-8"></div>
