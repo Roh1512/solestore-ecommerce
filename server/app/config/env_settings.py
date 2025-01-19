@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     CLOUDINARY_API_SECRET: str
     ADMIN_REFRESH_COOKIE_NAME: str
     USER_REFRESH_COOKIE_NAME: str
+    ENVIRONMENT: str
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: str
 
     model_config = SettingsConfigDict(env_file=".env")
 

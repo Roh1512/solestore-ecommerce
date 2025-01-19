@@ -13,6 +13,8 @@ import {
   isFieldValidationError,
 } from "@/utils/errorHandler";
 import AlertMessage from "@/components/ErrorElements/AlertMessage";
+import GoogleLoginButton from "@/components/Google/GoogleLoginButton";
+import { Link } from "react-router-dom";
 
 const LoginUser = () => {
   const [loginData, setLoginData] = useState<Body_auth_login>({
@@ -128,23 +130,26 @@ const LoginUser = () => {
 
         <button
           type="submit"
-          className="btn btn-primary w-full mb-4 text-2xl"
+          className="btn btn-primary w-full text-2xl"
           disabled={isLoading}
         >
           {isLoading ? "Logging In..." : "Login"}
         </button>
 
+        <br />
+
         {apiError ? <AlertMessage message={apiError} /> : "\u00A0"}
 
         <div className="text-center">
-          <p className="text-sm">
+          <p className="text-lg mb-2">
             Don't have an account?{" "}
-            <a href="/register" className="text-blue-600 hover:underline">
+            <Link to="/register" className="text-blue-600 hover:underline">
               Sign up here
-            </a>
+            </Link>
           </p>
         </div>
       </form>
+      <GoogleLoginButton />
     </div>
   );
 };

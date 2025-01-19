@@ -6,6 +6,8 @@ import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { getApiErrorMessage, isApiError } from "@/utils/errorHandler";
 import AlertMessage from "@/components/ErrorElements/AlertMessage";
+import GoogleLoginButton from "@/components/Google/GoogleLoginButton";
+import { Link } from "react-router-dom";
 
 // Define a Zod schema for user input
 const userCreateSchema = z.object({
@@ -115,84 +117,104 @@ const RegisterUser = () => {
   }, [error, isError]);
 
   return (
-    <div className="card w-full max-w-md bg-base-300 shadow-xl">
-      <div className="card-body">
-        <h2 className="card-title text-2xl font-bold text-center mb-6">
-          Create Account
-        </h2>
+    <>
+      <GoogleLoginButton />
+      <div className="mt-2 card w-full max-w-md bg-base-300 shadow-xl pt-2">
+        <div className="card-body">
+          <h2 className="card-title text-2xl font-bold text-center mb-3 m-auto">
+            Register
+          </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {[
-            {
-              name: "username",
-              label: "Username",
-              type: "text",
-              required: true,
-            },
-            { name: "name", label: "Full Name", type: "text", required: true },
-            { name: "email", label: "Email", type: "email", required: true },
-            {
-              name: "password",
-              label: "Password",
-              type: "password",
-              required: true,
-            },
-            { name: "phone", label: "Phone", type: "tel" },
-          ].map((field) => (
-            <div key={field.name} className="form-control">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {[
+              {
+                name: "username",
+                label: "Username",
+                type: "text",
+                required: true,
+              },
+              {
+                name: "name",
+                label: "Full Name",
+                type: "text",
+                required: true,
+              },
+              { name: "email", label: "Email", type: "email", required: true },
+              {
+                name: "password",
+                label: "Password",
+                type: "password",
+                required: true,
+              },
+              { name: "phone", label: "Phone", type: "tel" },
+            ].map((field) => (
+              <div key={field.name} className="form-control">
+                <label className="label">
+                  <span className="label-text">{field.label}</span>
+                </label>
+                <input
+                  type={field.type}
+                  name={field.name}
+                  value={
+                    userDetails[field.name as keyof UserCreateRequest] ?? ""
+                  }
+                  onChange={handleChange}
+                  placeholder={`Enter ${field.label.toLowerCase()}`}
+                  className={`input input-bordered w-full ${
+                    errors[field.name] ? "input-error" : ""
+                  }`}
+                  required={field.required ? field.required : false}
+                />
+                {errors[field.name] && (
+                  <p className="text-error text-sm mt-1">
+                    {errors[field.name]}
+                  </p>
+                )}
+              </div>
+            ))}
+
+            <div className="form-control">
               <label className="label">
-                <span className="label-text">{field.label}</span>
+                <span className="label-text">Address</span>
               </label>
-              <input
-                type={field.type}
-                name={field.name}
-                value={userDetails[field.name as keyof UserCreateRequest] ?? ""}
+              <textarea
+                name="address"
+                value={userDetails.address ?? ""}
                 onChange={handleChange}
-                placeholder={`Enter ${field.label.toLowerCase()}`}
-                className={`input input-bordered w-full ${
-                  errors[field.name] ? "input-error" : ""
+                placeholder="Enter address"
+                className={`textarea textarea-bordered h-24 ${
+                  errors.address ? "textarea-error" : ""
                 }`}
-                required={field.required ? field.required : false}
               />
-              {errors[field.name] && (
-                <p className="text-error text-sm mt-1">{errors[field.name]}</p>
+              {errors.address && (
+                <p className="text-error text-sm mt-1">{errors.address}</p>
               )}
             </div>
-          ))}
 
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Address</span>
-            </label>
-            <textarea
-              name="address"
-              value={userDetails.address ?? ""}
-              onChange={handleChange}
-              placeholder="Enter address"
-              className={`textarea textarea-bordered h-24 ${
-                errors.address ? "textarea-error" : ""
-              }`}
-            />
-            {errors.address && (
-              <p className="text-error text-sm mt-1">{errors.address}</p>
-            )}
-          </div>
-
-          <div className="form-control mt-6">
-            <button
-              type="submit"
-              className="btn btn-primary w-full mb-4 text-2xl"
-              disabled={isLoading}
-            >
-              {isLoading ? "Registering..." : "Register"}
-            </button>
-          </div>
-        </form>
-        {apiError && (
-          <AlertMessage message={apiError || "Error registering user"} />
-        )}
+            <div className="form-control mt-6">
+              <button
+                type="submit"
+                className="btn btn-primary w-full mb-4 text-2xl"
+                disabled={isLoading}
+              >
+                {isLoading ? "Registering..." : "Register"}
+              </button>
+            </div>
+          </form>
+          {apiError && (
+            <AlertMessage message={apiError || "Error registering user"} />
+          )}
+        </div>
+        <div className="text-center">
+          <p className="text-lg mb-2">
+            Have an account?{" "}
+            <Link to="/login" className="text-blue-600 hover:underline">
+              Login here
+            </Link>
+          </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

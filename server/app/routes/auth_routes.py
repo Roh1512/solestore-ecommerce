@@ -11,6 +11,14 @@ from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 from app.config.env_settings import settings
 from beanie.operators import Or
 
+from fastapi.responses import RedirectResponse
+
+from app.config.google_oauth import oauth
+
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+
+
 router = APIRouter()
 
 
@@ -103,6 +111,82 @@ async def login(user_credentials: Annotated[OAuth2PasswordRequestForm, Depends()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error during login",
+        ) from e
+
+
+@router.post("/google/login")
+async def google_callback(request: Request, response: Response):
+    body = await request.json()
+    token = body.get("token")
+    try:
+        if not token:
+            raise HTTPException(
+                status_code=400,
+                detail="Token not found"
+            )
+
+        user_info = id_token.verify_oauth2_token(
+            token,
+            google_requests.Request(),
+            settings.GOOGLE_CLIENT_ID
+        )
+
+        if user_info["iss"] not in ['accounts.google.com', 'https://accounts.google.com']:
+            raise HTTPException(
+                status_code=401,
+                detail="Wrong issuer"
+            )
+
+        # Extract user data
+        email = user_info.get("email")
+        name = user_info.get("name")
+
+        # Check if user exists
+        user = await User.find_one(User.email == email)
+
+        print("USER:", user)
+        if not user:
+            # If user doesn't exist, create a new one
+            user = await create_user({"email": email, "username": name, "name": name})
+
+        user_dict = user.model_dump()
+
+        print("USER_ID: ", str(user_dict["id"]))
+
+        # Generate access and refresh tokens
+        access_token = await create_access_token(data={"sub": str(user_dict["id"])})
+        refresh_token = await create_refresh_token(data={"sub": str(user_dict["id"])})
+
+        add_refresh_token_to_user = await add_refresh_token(
+            str(user_dict["id"]), refresh_token)
+
+        if not add_refresh_token_to_user:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Error adding refresh token to user"
+            )
+
+        response.set_cookie(
+            key=settings.USER_REFRESH_COOKIE_NAME,
+            value=refresh_token,
+            httponly=True,
+            max_age=60 * 60 * 24 * 30,  # 30 days
+            secure=False,
+            samesite="lax",
+        )
+
+        return Token(access_token=access_token, token_type="bearer")
+    except HTTPException as e:
+        print("Google login http exception: ", e)
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=e.detail
+        ) from e
+    except Exception as e:
+        print("Unexpected error in google login: ", e)
+        raise HTTPException(
+            status_code=500,
+            detail="Unexpected error in google login"
         ) from e
 
 

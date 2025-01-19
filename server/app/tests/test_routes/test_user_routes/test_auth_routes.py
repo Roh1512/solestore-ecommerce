@@ -37,7 +37,7 @@ def valid_user():
         "password": "password",
         "name": "Test User",
         "address": "123 Main St",
-        "phone": "+1234567890"
+        "phone": "1234567890"
     }
 
 
@@ -61,6 +61,7 @@ async def test_register_user_success(valid_user):
 
         assert response.status_code == 201
         response_data = response.json()
+        print("REGOSTER : ", response_data)
         assert response_data["email"] == valid_user["email"]
         assert response_data["username"] == valid_user["username"]
         assert "password" not in response_data  # Make sure password isn't returned

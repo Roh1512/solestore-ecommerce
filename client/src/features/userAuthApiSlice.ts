@@ -61,6 +61,7 @@ export const userAuthApi = createApi({
         }
       },
     }),
+
     checkAuth: builder.query<{ status: string; user: UserResponse }, void>({
       query: () => ({
         url: "/checkauth",
@@ -90,6 +91,22 @@ export const userAuthApi = createApi({
         }
       },
     }),
+    googleLogin: builder.mutation<Token, { token: string }>({
+      query: ({ token }) => ({
+        url: "/google/login",
+        method: "POST",
+        body: { token },
+      }),
+      invalidatesTags: [{ type: "Session" }],
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const res: Token = (await queryFulfilled).data;
+          dispatch(setCredentials({ accessToken: res.access_token }));
+        } catch (error) {
+          console.error("Logout failed", error);
+        }
+      },
+    }),
   }),
 });
 
@@ -99,4 +116,5 @@ export const {
   useRefreshTokenMutation,
   useCheckAuthQuery,
   useLogoutMutation,
+  useGoogleLoginMutation,
 } = userAuthApi;
