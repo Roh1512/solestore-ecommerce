@@ -86,6 +86,12 @@ const UpdateContanctInfo = (props: Props) => {
     e.preventDefault();
     e.stopPropagation();
 
+    if (contactInfo === initialContactInfo) {
+      toast.info("Nothing has changed.");
+      closeModal(modalId);
+      return;
+    }
+
     setZodErrors({});
     setCurrentPasswordError({});
     setApiError(null);

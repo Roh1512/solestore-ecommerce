@@ -167,6 +167,8 @@ async def update_user_details(user_id: str, details: UpdateProfileRequest, curre
     if user.google_id:
         if "email" in update_data:
             del update_data["email"]
+        if "password" in update_data:
+            del update_data["password"]
 
     if not user.google_id:
         is_password_valid = verify_password(
@@ -284,15 +286,14 @@ async def create_or_get_google_user(google_user: dict):
         email: str = str(google_user.get("email"))
         name: str = str(google_user.get("name"))
         google_id: str = str(google_user.get("sub"))
-        username: str = str(email.split("@")[0])
+        username: str = str(email.split("@", maxsplit=1)[0])
         prifile_img_url = str(google_user.get("picture")
                               ) if google_user["picture"] else None
 
         existing_user = await User.find_one(User.email == email)
+        print("Existing user: ", existing_user)
         if existing_user:
-            existing_user.name = existing_user.name if existing_user.name else name
             existing_user.google_id = google_id
-            existing_user.username = existing_user.username if existing_user.username else username
             existing_user.profile_img_url = existing_user.profile_img_url if existing_user.profile_img_url else prifile_img_url
             await existing_user.save()
             existing_user_dict = existing_user.model_dump(
@@ -301,10 +302,10 @@ async def create_or_get_google_user(google_user: dict):
             return existing_user_dict
 
         return await create_user({
-            "email": str(google_user.get("email")),
-            "name": str(google_user.get("name")),
-            "username": str(google_user.get("email")).split("@", maxsplit=1)[0],
-            "google_id": str(google_user.get("sub")),
+            "email": email,
+            "name": name,
+            "username": username,
+            "google_id": google_id,
             "profile_img_url": str(google_user.get("picture")) if google_user.get("picture") else None
         })
 
