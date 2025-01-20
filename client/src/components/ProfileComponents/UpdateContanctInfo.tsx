@@ -107,7 +107,7 @@ const UpdateContanctInfo = (props: Props) => {
       current_password: currentPassword,
     });
 
-    if (!currentPasswordResult.success) {
+    if (!currentPasswordResult.success && !props.user.google_id) {
       const errors: Record<string, string> = {};
       currentPasswordResult.error.errors.forEach((err) => {
         if (err.path[0]) {
@@ -223,31 +223,33 @@ const UpdateContanctInfo = (props: Props) => {
               </label>
             </div>
 
-            <div className="mb-4">
-              <label
-                htmlFor="current_password"
-                className="input input-bordered flex items-center gap-2"
-              >
-                <KeyRound />
-                <input
-                  type="password"
-                  id="current_password"
-                  name="current_password"
-                  className="grow"
-                  placeholder="Enter current password"
-                  value={currentPassword}
-                  onChange={(e) => {
-                    setCurrentPassword(e.target.value);
-                    setApiError(null);
-                  }}
-                />
-              </label>
-              {currentPasswordError.current_password && (
-                <p className="text-red-500 text-sm mt-1">
-                  {currentPasswordError.current_password}
-                </p>
-              )}
-            </div>
+            {!user?.google_id && (
+              <div className="mb-4">
+                <label
+                  htmlFor="current_password"
+                  className="input input-bordered flex items-center gap-2"
+                >
+                  <KeyRound />
+                  <input
+                    type="password"
+                    id="current_password"
+                    name="current_password"
+                    className="grow"
+                    placeholder="Enter current password"
+                    value={currentPassword}
+                    onChange={(e) => {
+                      setCurrentPassword(e.target.value);
+                      setApiError(null);
+                    }}
+                  />
+                </label>
+                {currentPasswordError.current_password && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {currentPasswordError.current_password}
+                  </p>
+                )}
+              </div>
+            )}
 
             {apiError && typeof apiError === "string" && (
               <AlertText message={apiError} />

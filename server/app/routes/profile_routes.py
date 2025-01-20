@@ -26,7 +26,7 @@ async def get_profile_details(user: Annotated[dict, Depends(get_current_user)]):
 
 @router.put("/", status_code=status.HTTP_200_OK, response_model=UserResponse)
 async def update_profile_details(user: Annotated[dict, Depends(get_current_user)], profile_details: UpdateProfileRequest, current_password: Annotated[str, Body(embed=True)]):
-    if not current_password:
+    if not current_password and not user.get("google_id"):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Password is required"
@@ -53,7 +53,7 @@ async def update_contact_info(
     current_password: Annotated[str, Body(embed=True)],
 
 ):
-    if not current_password:
+    if not current_password and not user.get("google_id"):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Password is required"

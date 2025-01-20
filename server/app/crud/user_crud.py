@@ -26,12 +26,11 @@ async def create_user(user_data: dict):
         if "username" in str(e):
             print("Username already exists")
             raise ValueError("Username already exists") from e
-        elif "email" in str(e):
+        if "email" in str(e):
             print("Email already exists")
             raise ValueError("Email already exists") from e
-        else:
-            print("A duplicate key error occurred")
-            raise ValueError("A duplicate key error occurred") from e
+        print("A duplicate key error occurred")
+        raise ValueError("A duplicate key error occurred") from e
 
 
 async def get_user_details(user_id: str):
@@ -91,7 +90,6 @@ async def remove_refresh_token(user_id: str, refresh_token: str):
     if refresh_token in user.refresh_tokens:
         user.refresh_tokens.remove(refresh_token)
         await user.save()
-        print("Refresh token found removed successfully")
     return {"message": "Refresh token removed successfully"}
 
 
@@ -127,7 +125,7 @@ async def refresh_token_is_saved(user_id: str, refresh_token: str) -> bool:
     return refresh_token in user.refresh_tokens
 
 
-async def update_user_details(user_id: str, details: UpdateProfileRequest, current_password: str):
+async def update_user_details(user_id: str, details: UpdateProfileRequest, current_password: str | None):
     if not ObjectId.is_valid(user_id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -166,14 +164,19 @@ async def update_user_details(user_id: str, details: UpdateProfileRequest, curre
     # Exclude unset fields from the request to allow partial updates
     update_data = details.model_dump(exclude_unset=True)
 
-    is_password_valid = verify_password(
-        current_password, user.password)
+    if user.google_id:
+        if "email" in update_data:
+            del update_data["email"]
 
-    if not is_password_valid:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect password"
-        )
+    if not user.google_id:
+        is_password_valid = verify_password(
+            current_password, user.password)
+
+        if not is_password_valid:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect password"
+            )
 
     if "password" in update_data:
         if update_data["password"]:  # This checks if the password is not None or empty
@@ -191,7 +194,6 @@ async def update_user_details(user_id: str, details: UpdateProfileRequest, curre
         updated_user_dict = user.model_dump(
             exclude=["password", "refresh_tokens"])
         updated_user_dict["id"] = str(user.id)
-        print(updated_user_dict)
         return updated_user_dict
     except DuplicateKeyError as e:
         # Handle duplicate key errors for both username and email
@@ -201,18 +203,17 @@ async def update_user_details(user_id: str, details: UpdateProfileRequest, curre
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Username already exists"
             ) from e
-        elif "email" in str(e):
+        if "email" in str(e):
             print("Email already exists")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Email already exists"
             ) from e
-        else:
-            print("A duplicate key error occurred")
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="A duplicate key error occurred"
-            ) from e
+        print("A duplicate key error occurred")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A duplicate key error occurred"
+        ) from e
 
     except ValidationError as e:
         raise HTTPException(
@@ -221,7 +222,7 @@ async def update_user_details(user_id: str, details: UpdateProfileRequest, curre
         ) from e
 
 
-async def update_user_contact_info(user_id: str, contact_info: UpdateContactInfoRequest, current_password: str):
+async def update_user_contact_info(user_id: str, contact_info: UpdateContactInfoRequest, current_password: str | None):
     if not ObjectId.is_valid(user_id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -237,14 +238,20 @@ async def update_user_contact_info(user_id: str, contact_info: UpdateContactInfo
     # Exclude unset fields from the request to allow partial updates
     update_data = contact_info.model_dump(exclude_unset=True)
 
-    is_password_valid = verify_password(
-        current_password, user.password)
+    if not user.google_id:
+        if not current_password:
+            raise HTTPException(
+                status_code=400,
+                detail="Current password is required"
+            )
+        is_password_valid = verify_password(
+            current_password, user.password)
 
-    if not is_password_valid:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect password"
-        )
+        if not is_password_valid:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect password"
+            )
     try:
         for key, value in update_data.items():
             setattr(user, key, value)
@@ -253,7 +260,6 @@ async def update_user_contact_info(user_id: str, contact_info: UpdateContactInfo
         updated_user_dict = user.model_dump(
             exclude=["password", "refresh_tokens"])
         updated_user_dict["id"] = str(user.id)
-        print(updated_user_dict)
         return updated_user_dict
     except ValueError as e:
         print(f"Value Error: {e}")
@@ -270,4 +276,48 @@ async def update_user_contact_info(user_id: str, contact_info: UpdateContactInfo
         raise HTTPException(
             status_code=e.status_code,
             detail=e.detail
+        ) from e
+
+
+async def create_or_get_google_user(google_user: dict):
+    try:
+        email: str = str(google_user.get("email"))
+        name: str = str(google_user.get("name"))
+        google_id: str = str(google_user.get("sub"))
+        username: str = str(email.split("@")[0])
+        prifile_img_url = str(google_user.get("picture")
+                              ) if google_user["picture"] else None
+
+        existing_user = await User.find_one(User.email == email)
+        if existing_user:
+            existing_user.name = existing_user.name if existing_user.name else name
+            existing_user.google_id = google_id
+            existing_user.username = existing_user.username if existing_user.username else username
+            existing_user.profile_img_url = existing_user.profile_img_url if existing_user.profile_img_url else prifile_img_url
+            await existing_user.save()
+            existing_user_dict = existing_user.model_dump(
+                exclude=["password", "refresh_tokens"])
+            existing_user_dict["id"] = str(existing_user.id)
+            return existing_user_dict
+
+        return await create_user({
+            "email": str(google_user.get("email")),
+            "name": str(google_user.get("name")),
+            "username": str(google_user.get("email")).split("@", maxsplit=1)[0],
+            "google_id": str(google_user.get("sub")),
+            "profile_img_url": str(google_user.get("picture")) if google_user.get("picture") else None
+        })
+
+    except HTTPException as e:
+        print(f"Http exception in google login: {e}")
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=e.detail
+        ) from e
+
+    except Exception as e:
+        print("Unexpected error during google user retrieval: ", e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Unexpected error during google login"
         ) from e

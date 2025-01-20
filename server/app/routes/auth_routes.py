@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Response, Request
-from app.crud.user_crud import create_user, get_user_details, add_refresh_token, remove_refresh_token, remove_all_refresh_tokens, refresh_token_is_saved
+from app.crud.user_crud import create_user, get_user_details, add_refresh_token, remove_refresh_token, remove_all_refresh_tokens, refresh_token_is_saved, create_or_get_google_user
 from app.model.user import User, UserResponse, UserCreateRequest
 from app.model.auth_models import Token
 from app.utilities.password_utils import verify_password
@@ -11,9 +11,6 @@ from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 from app.config.env_settings import settings
 from beanie.operators import Or
 
-from fastapi.responses import RedirectResponse
-
-from app.config.google_oauth import oauth
 
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
@@ -30,10 +27,23 @@ router = APIRouter()
 )
 async def create_new_user(user: UserCreateRequest):
     try:
-        existing_user = await User.find_one(User.email == user.email or User.username == user.username)
-        if existing_user:
-            print("User already exists")
-            raise HTTPException(status_code=400, detail="User already exists")
+        duplicate_username = await User.find_one(
+            User.username == user.username
+        )
+        if duplicate_username:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Username already exists"
+            )
+        duplicate_email = await User.find_one(
+            User.email == user.email
+        )
+
+        if duplicate_email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already exists"
+            )
         user_data_dict = user.model_dump()
         created_user = await create_user(user_data_dict)
         return created_user
@@ -137,28 +147,14 @@ async def google_callback(request: Request, response: Response):
                 detail="Wrong issuer"
             )
 
-        # Extract user data
-        email = user_info.get("email")
-        name = user_info.get("name")
-
-        # Check if user exists
-        user = await User.find_one(User.email == email)
-
-        print("USER:", user)
-        if not user:
-            # If user doesn't exist, create a new one
-            user = await create_user({"email": email, "username": name, "name": name})
-
-        user_dict = user.model_dump()
-
-        print("USER_ID: ", str(user_dict["id"]))
+        user = await create_or_get_google_user(user_info)
 
         # Generate access and refresh tokens
-        access_token = await create_access_token(data={"sub": str(user_dict["id"])})
-        refresh_token = await create_refresh_token(data={"sub": str(user_dict["id"])})
+        access_token = await create_access_token(data={"sub": str(user["id"])})
+        refresh_token = await create_refresh_token(data={"sub": str(user["id"])})
 
         add_refresh_token_to_user = await add_refresh_token(
-            str(user_dict["id"]), refresh_token)
+            str(user["id"]), refresh_token)
 
         if not add_refresh_token_to_user:
             raise HTTPException(

@@ -101,7 +101,7 @@ const EditProfileDetails = (props: Props) => {
       current_password: currentPassword,
     });
 
-    if (!currentPasswordResult.success) {
+    if (!currentPasswordResult.success && !user.google_id) {
       const errors: Record<string, string> = {};
       currentPasswordResult.error.errors.forEach((err) => {
         if (err.path[0]) {
@@ -226,68 +226,76 @@ const EditProfileDetails = (props: Props) => {
             </div>
 
             {/* Email */}
-            <div className="mb-4">
-              <label
-                htmlFor="email"
-                className="input input-bordered flex items-center gap-2"
-              >
-                <MailIcon />
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  className="grow"
-                  placeholder="Email"
-                  value={userDetails.email || ""}
-                  onChange={handleDetailsChange}
-                />
-              </label>
-              {zodErrors.email && <AlertText message={zodErrors.email} />}
-            </div>
+            {!user?.google_id && (
+              <div className="mb-4">
+                <label
+                  htmlFor="email"
+                  className="input input-bordered flex items-center gap-2"
+                >
+                  <MailIcon />
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    className="grow"
+                    placeholder="Email"
+                    value={userDetails.email || ""}
+                    onChange={handleDetailsChange}
+                  />
+                </label>
+                {zodErrors.email && <AlertText message={zodErrors.email} />}
+              </div>
+            )}
 
             {/* Password */}
-            <div className="mb-4">
-              <label
-                htmlFor="password"
-                className="input input-bordered flex items-center gap-2"
-              >
-                <KeyRound />
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  className="grow"
-                  placeholder="New Password to change(optional)"
-                  value={userDetails.password || ""}
-                  onChange={handleDetailsChange}
-                />
-              </label>
-              {zodErrors.password && <AlertText message={zodErrors.password} />}
-            </div>
+            {!user.google_id && (
+              <div className="mb-4">
+                <label
+                  htmlFor="password"
+                  className="input input-bordered flex items-center gap-2"
+                >
+                  <KeyRound />
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    className="grow"
+                    placeholder="New Password to change(optional)"
+                    value={userDetails.password || ""}
+                    onChange={handleDetailsChange}
+                  />
+                </label>
+                {zodErrors.password && (
+                  <AlertText message={zodErrors.password} />
+                )}
+              </div>
+            )}
 
-            <div className="mb-4">
-              <label
-                htmlFor="current_password"
-                className="input input-bordered flex items-center gap-2"
-              >
-                <KeyRound />
-                <input
-                  type="password"
-                  id="current_password"
-                  name="current_password"
-                  className="grow"
-                  placeholder="Enter current password"
-                  value={currentPassword}
-                  onChange={(e) => {
-                    setCurrentPassword(e.target.value);
-                    setApiError(null);
-                  }}
-                />
-              </label>
-              {currentPasswordError.current_password && (
-                <AlertText message={currentPasswordError.current_password} />
-              )}
-            </div>
+            {!user?.google_id && (
+              <div className="mb-4">
+                <label
+                  htmlFor="current_password"
+                  className="input input-bordered flex items-center gap-2"
+                >
+                  <KeyRound />
+                  <input
+                    type="password"
+                    id="current_password"
+                    name="current_password"
+                    className="grow"
+                    placeholder="Enter current password"
+                    value={currentPassword}
+                    onChange={(e) => {
+                      setCurrentPassword(e.target.value);
+                      setApiError(null);
+                    }}
+                  />
+                </label>
+                {currentPasswordError.current_password && (
+                  <AlertText message={currentPasswordError.current_password} />
+                )}
+              </div>
+            )}
             <br />
             {apiError && typeof apiError === "string" && (
               <AlertText message={apiError} />

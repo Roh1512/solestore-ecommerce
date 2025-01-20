@@ -32,6 +32,7 @@ const ProfilePicture = (props: Props) => {
         alt={`profile image`}
         className="rounded-full w-24 h-24 border-4 border-base-100 shadow-lg object-cover"
         onClick={openModal}
+        crossOrigin="anonymous"
       />
       {/* Update Button */}
       <button
