@@ -120,7 +120,7 @@ const UpdateContanctInfo = (props: Props) => {
           errors[err.path[0] as string] = err.message;
         }
       });
-      setCurrentPasswordError(errors); // Set the current password error
+      setCurrentPasswordError(errors); // Set the current password error//
       return;
     }
 
