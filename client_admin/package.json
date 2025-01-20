@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate-client": "openapi-ts --input ../openapi.json --output ./src/client --client @hey-api/client-fetch",
+    "generate-client": "openapi-ts --input http://127.0.0.1:8000/openapi.json --output ./src/client --client @hey-api/client-fetch",
     "openapi-ts": "openapi-ts"
   },
   "dependencies": {

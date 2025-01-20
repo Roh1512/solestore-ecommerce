@@ -110,9 +110,6 @@ export type UpdateProfileRequest = {
      * Name must be between 1 and 50 characters.
      */
     name?: (string | null);
-    /**
-     * Password must be between 8 and 128 characters.
-     */
     password?: (string | null);
 };
 
@@ -178,6 +175,10 @@ export type AuthLoginData = {
 export type AuthLoginResponse = (Token);
 
 export type AuthLoginError = (HTTPValidationError);
+
+export type AuthGoogleCallbackResponse = (unknown);
+
+export type AuthGoogleCallbackError = unknown;
 
 export type AuthLogoutResponse = (unknown);
 
@@ -286,7 +287,7 @@ export type AdminUpdateAdminProfileImageRouteData = {
     body: Body_admin_update_admin_profile_image_route;
 };
 
-export type AdminUpdateAdminProfileImageRouteResponse = (unknown);
+export type AdminUpdateAdminProfileImageRouteResponse = (AdminResponse);
 
 export type AdminUpdateAdminProfileImageRouteError = (HTTPValidationError);
 
