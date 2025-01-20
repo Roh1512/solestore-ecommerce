@@ -86,8 +86,8 @@ const UpdateContanctInfo = (props: Props) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (contactInfo === initialContactInfo) {
-      toast.info("Nothing has changed.");
+    if (JSON.stringify(contactInfo) === JSON.stringify(initialContactInfo)) {
+      toast.info("No change detected");
       closeModal(modalId);
       return;
     }

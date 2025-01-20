@@ -85,6 +85,12 @@ const EditProfileDetails = (props: Props) => {
     setZodErrors({});
     setCurrentPasswordError({});
 
+    if (JSON.stringify(userDetails) === JSON.stringify(initialUserDetails)) {
+      toast.info("No change detected");
+      closeModal(modalId);
+      return;
+    }
+
     const result = updateProfileSchema.safeParse(userDetails);
     if (!result.success) {
       const errors: Record<string, string> = {};
