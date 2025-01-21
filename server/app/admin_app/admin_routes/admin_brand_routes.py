@@ -1,9 +1,8 @@
-from typing import Optional
+from typing import Optional, Annotated
 from fastapi import APIRouter, Depends, status,  Query
 from fastapi.exceptions import HTTPException
 from app.admin_app.admin_utilities.admin_auth_utils import get_current_admin
 from app.model.brand_models import BrandCreateRequest, BrandResponse
-from typing import Annotated
 from app.admin_app.admin_crud_operations.brand_crud import create_brand, edit_brand,  delete_brand
 from app.crud.brand_crud import get_brands
 
