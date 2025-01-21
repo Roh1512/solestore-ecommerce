@@ -1,12 +1,15 @@
+'''User data Models'''
+
+from datetime import datetime, timezone
+from typing import Optional, List, Annotated
 from pydantic import BaseModel, Field, EmailStr, ConfigDict, field_validator
 from beanie import Document, PydanticObjectId, Indexed
-from datetime import datetime, timezone
-from typing import Optional, List
 
 # Create a response model (for API responses)
 
 
 class UserResponse(BaseModel):
+    '''User Response to client'''
     id: str = Field(alias="_id")
     username: str
     name: Optional[str] = None
@@ -40,6 +43,7 @@ class UserResponse(BaseModel):
 
 
 class UpdateProfileRequest(BaseModel):
+    '''User profile update request'''
     username: Optional[str] = Field(
         None,
         min_length=3,
@@ -63,6 +67,7 @@ class UpdateProfileRequest(BaseModel):
 
 
 class UpdateContactInfoRequest(BaseModel):
+    '''Contact info update request model'''
     phone: Optional[str] = Field(
         None,
         description="Phone number with 10 digits or including country code (e.g., +1234567890)"
@@ -75,6 +80,7 @@ class UpdateContactInfoRequest(BaseModel):
     @field_validator("phone")
     @classmethod
     def validate_phone(cls, value):
+        '''Validate phone'''
         if value:
             if not (value.isdigit() and len(value) == 10):
                 raise ValueError(
@@ -88,6 +94,7 @@ class UpdateContactInfoRequest(BaseModel):
 
 
 class UserCreateRequest(BaseModel):
+    '''Create user request model'''
     username: str = Field(
         ...,
         min_length=3,
@@ -127,6 +134,7 @@ class UserCreateRequest(BaseModel):
     @field_validator("phone")
     @classmethod
     def validate_phone(cls, value):
+        '''Validate phone field'''
         if value:
             if not (value.isdigit() and len(value) == 10):
                 raise ValueError(
@@ -136,10 +144,11 @@ class UserCreateRequest(BaseModel):
 
 
 class UserBaseModel(BaseModel):
+    '''User Base model'''
     id: Optional[PydanticObjectId] = Field(default=None, alias="_id")
-    username: Indexed(str, unique=True)
+    username: Annotated[str, Indexed(unique=True)]
     name: Optional[str] = None
-    email: Indexed(EmailStr, unique=True)
+    email: Annotated[EmailStr, Indexed(unique=True)]
     profile_img_url: Optional[str] = None
     profile_img_public_id: Optional[str] = None
     address: Optional[str] = None
@@ -159,6 +168,7 @@ class UserBaseModel(BaseModel):
 
 
 class UserModel(UserBaseModel):
+    '''User model in database'''
     password: Optional[str] = None
 
     model_config = ConfigDict(
@@ -169,5 +179,7 @@ class UserModel(UserBaseModel):
 
 
 class User(UserModel, Document):
+    '''User db model'''
     class Settings:
+        '''User db settings'''
         name = "users"

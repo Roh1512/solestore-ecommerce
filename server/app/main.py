@@ -5,14 +5,16 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 import os
 from app.config.env_settings import settings
+from fastapi.exceptions import HTTPException
+from contextlib import asynccontextmanager
+from app.config.db import init_db
 
 
 from app.routes.profile_routes import router as profile_router
 from app.routes.auth_routes import router as auth_router
 from app.admin_app.admin_router_hub import admin_router
-from contextlib import asynccontextmanager
-from app.config.db import init_db
-from fastapi.exceptions import HTTPException
+from app.routes.brand_routes import router as brand_router
+
 
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -75,6 +77,7 @@ app.mount("/assets", StaticFiles(directory=os.path.join(
 app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 app.include_router(profile_router, prefix="/api/profile", tags=["profile"])
 app.include_router(admin_router, prefix="/api/admin", tags=["admin"])
+app.include_router(brand_router, prefix="/api/brand", tags=["brand"])
 
 # Fallback route for serving the Admin React app
 

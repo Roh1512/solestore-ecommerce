@@ -50,6 +50,24 @@ def duplicate_user():
     }
 
 
+@pytest_asyncio.fixture(scope="function", loop_scope="function")
+def duplicate_email():
+    return {
+        "username": "new_username",
+        "email": "duplicate@123.com",
+        "password": "password"
+    }
+
+
+@pytest_asyncio.fixture(scope="function", loop_scope="function")
+def duplicate_username():
+    return {
+        "username": "duplicateuser",
+        "email": "newEmail@123.com",
+        "password": "password"
+    }
+
+
 @pytest.mark.asyncio
 async def test_register_user_success(valid_user):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
@@ -68,25 +86,25 @@ async def test_register_user_success(valid_user):
 
 
 @pytest.mark.asyncio
-async def test_register_user_duplicate_email(duplicate_user):
+async def test_register_user_duplicate_email(duplicate_user, duplicate_email):
     # Insert a user with the same username
     await User(**duplicate_user).create()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.post("/api/auth/register", json=duplicate_user)
+        response = await client.post("/api/auth/register", json=duplicate_email)
 
         assert response.status_code == 400
         response_data = response.json()
-        assert response_data["detail"] == "User already exists"
+        assert response_data["detail"] == "Email already exists"
 
 
 @pytest.mark.asyncio
-async def test_register_user_duplicate_username(duplicate_user):
+async def test_register_user_duplicate_username(duplicate_user, duplicate_username):
     await User(**duplicate_user).create()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.post("/api/auth/register", json=duplicate_user)
+        response = await client.post("/api/auth/register", json=duplicate_username)
         assert response.status_code == 400
         response_data = response.json()
-        assert response_data["detail"] == "User already exists"
+        assert response_data["detail"] == "Username already exists"
 
 
 @pytest.mark.asyncio
