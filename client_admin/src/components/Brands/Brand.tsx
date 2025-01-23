@@ -4,13 +4,14 @@ import DeleteBrand from "./DeleteBrand";
 import { useDeleteBrandMutation } from "@/features/brandApiSlice";
 import { toast } from "react-toastify";
 import EditBrand from "./EditBrand";
+import { getApiErrorMessage, isApiError } from "@/utils/errorHandler";
 
 type Props = {
   brand: BrandResponse;
 };
 
 const Brand: React.FC<Props> = ({ brand }) => {
-  const [deleteBrand, { data, isLoading, isSuccess, isError }] =
+  const [deleteBrand, { data, isLoading, isSuccess, isError, error }] =
     useDeleteBrandMutation();
   const currentBrandId = brand.id;
   const handleDeleteBrand = async () => {
@@ -26,10 +27,15 @@ const Brand: React.FC<Props> = ({ brand }) => {
     if (isSuccess) {
       toast.success(data?.message || "Brand deleted");
     }
-    if (isError) {
-      toast.error("Error deleting brand");
+    if (isError && error) {
+      if (isApiError(error)) {
+        const errorMessage = getApiErrorMessage(error);
+        toast.error(errorMessage);
+      } else {
+        toast.error("Error deleting brand");
+      }
     }
-  }, [data?.message, isError, isSuccess]);
+  }, [data?.message, error, isError, isSuccess]);
 
   return (
     <div className="bg-base-200 p-2 shadow-lg flex flex-row items-center justify-between min-w-64 rounded-xl max-h-fit">

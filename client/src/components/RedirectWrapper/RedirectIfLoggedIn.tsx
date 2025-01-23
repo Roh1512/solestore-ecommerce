@@ -4,65 +4,95 @@ import {
   useRefreshTokenMutation,
 } from "@/features/userAuthApiSlice";
 import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import { useAppDispatch } from "@/app/hooks";
 import { setCredentials } from "@/features/accessTokenApiSlice";
 import PageLoading from "../Loading/PageLoading";
+import { isTokenExpired } from "@/utils/tokenUtils";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store";
 
 const RedirectIfLoggedIn = () => {
-  const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
-  const { data, isLoading, isError } = useCheckAuthQuery(undefined, {
-    skip: false, // Ensure the query runs on mount
+  const dispatch = useAppDispatch();
+  const { isLoggedIn, accessToken } = useSelector(
+    (state: RootState) => state.auth
+  );
+
+  const {
+    data: authData,
+    isError: isAuthError,
+    isLoading: isAuthLoading,
+  } = useCheckAuthQuery(undefined, {
+    refetchOnFocus: false,
+    refetchOnReconnect: false,
   });
-  const [refreshToken] = useRefreshTokenMutation();
+
+  const [refreshToken, { isLoading: isRefreshing }] = useRefreshTokenMutation();
+
   const [refreshing, setRefreshing] = useState(false);
   const [refreshFailed, setRefreshFailed] = useState<boolean>(false); // Prevent infinite retries
-  const dispatch = useAppDispatch();
-
   const [isLoadingState, setIsLoadingState] = useState<boolean>(false);
 
   useEffect(() => {
-    const handleTokenRefresh = async () => {
+    const refreshAuthToken = async () => {
       try {
         setIsLoadingState(true);
         setRefreshing(true);
         const tokenResponse = await refreshToken().unwrap();
         dispatch(setCredentials({ accessToken: tokenResponse.access_token }));
+        setRefreshFailed(false);
       } catch (error) {
         console.error("Token refresh failed:", error);
-        setRefreshFailed(true); // Prevent further retries
+        setRefreshFailed(true);
       } finally {
         setRefreshing(false);
         setIsLoadingState(false);
       }
     };
 
-    if (isError && !refreshing && !refreshFailed && isLoggedIn) {
-      handleTokenRefresh();
+    // Check if the token is expired
+    if (accessToken && isTokenExpired(accessToken)) {
+      console.log("Token is expired, attempting to refresh...");
+      refreshAuthToken();
     }
-  }, [isError, refreshing, refreshFailed, refreshToken, dispatch, isLoggedIn]);
 
-  if ((isLoadingState && isLoading) || refreshing) {
+    // Handle auth error (e.g., token is invalid or missing)
+    if (isAuthError && !refreshing && !refreshFailed && isLoggedIn) {
+      console.log("Auth error detected, attempting to refresh token...");
+      refreshAuthToken();
+    }
+  }, [
+    dispatch,
+    isAuthError,
+    isLoggedIn,
+    refreshFailed,
+    refreshToken,
+    refreshing,
+    accessToken, // Add accessToken to dependency array
+  ]);
+
+  if (isLoadingState && (isAuthLoading || refreshing || isRefreshing)) {
     return <PageLoading />;
   }
 
-  if (isError && refreshFailed) {
-    // If refreshing failed, stop trying and let the user proceed to public routes
+  if (!isAuthError && refreshFailed) {
     return (
       <>
-        <Outlet />
+        <main className="flex-1 flex flex-col items-center justify-center">
+          <Outlet />
+        </main>
       </>
     );
   }
 
-  if (data?.status === "authenticated" && data.user) {
-    // If the user is authenticated, redirect to "/shop"
+  if (authData?.status === "authenticated" && authData.user) {
     return <Navigate to="/shop" replace />;
   }
 
-  // If the user is not logged in, render the intended component
   return (
     <>
-      <Outlet />
+      <main className="flex flex-col items-center justify-center">
+        <Outlet />
+      </main>
     </>
   );
 };

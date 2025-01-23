@@ -238,7 +238,7 @@ const UpdateContanctInfo = (props: Props) => {
                   <KeyRound />
                   <input
                     type="password"
-                    id="current_password"
+                    id="current_password_field"
                     name="current_password"
                     className="grow"
                     placeholder="Enter current password"

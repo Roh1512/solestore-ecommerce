@@ -53,6 +53,14 @@ export const brandApi = createApi({
       }),
       invalidatesTags: [{ type: "Brand" }],
     }),
+    createBrand: builder.mutation<BrandResponse, BrandCreateRequest>({
+      query: (data) => ({
+        url: "/",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: [{ type: "Brand" }],
+    }),
   }),
 });
 
@@ -60,4 +68,5 @@ export const {
   useGetBrandsQuery,
   useDeleteBrandMutation,
   useEditBrandMutation,
+  useCreateBrandMutation,
 } = brandApi;

@@ -10,11 +10,12 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import HeaderAdmin from "../Headers/HeaderAdmin";
 import FooterAdmin from "../Footers/FooterAdmin";
 import PageLoading from "../Loading/PageLoading";
+import { isTokenExpired } from "@/types/tokenUtils";
 
 const RedirectProtectedRoutes = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const { isLoggedIn } = useCurrentState().auth;
+  const { isLoggedIn, accessToken } = useCurrentState().auth;
 
   const { isError: isAuthError, isLoading: isAuthLoading } = useCheckAuthQuery(
     undefined,
@@ -45,10 +46,15 @@ const RedirectProtectedRoutes = () => {
         setIsLoadingState(false);
       }
     };
+    if (accessToken && isTokenExpired(accessToken)) {
+      console.log("Token expired Attempting to refresh");
+      refreshAuthToken();
+    }
     if (isAuthError && !refreshFailed && isLoggedIn && !isRefreshing) {
       refreshAuthToken();
     }
   }, [
+    accessToken,
     dispatch,
     isAuthError,
     isLoggedIn,

@@ -1,7 +1,10 @@
-import { useAppSelector } from "./hooks"; // Adjust the path to your custom hooks file
-import { RootState } from "./store";
+// src/app/useCurrentState.ts
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store";
 
-// Custom hook to get the entire state
 export const useCurrentState = () => {
-  return useAppSelector((state: RootState) => state);
+  const auth = useSelector((state: RootState) => state.auth);
+  const user = useSelector((state: RootState) => state.userAuthApi);
+
+  return { auth, user };
 };

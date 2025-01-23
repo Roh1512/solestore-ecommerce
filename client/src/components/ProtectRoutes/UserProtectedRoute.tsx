@@ -11,11 +11,14 @@ import { RootState } from "@/app/store";
 import HeaderStore from "../headersAndFooters/headers/headersStore/HeaderStore";
 import FooterStore from "../headersAndFooters/footersStore/FooterStore";
 import PageLoading from "../Loading/PageLoading";
+import { isTokenExpired } from "@/utils/tokenUtils";
 
 const UserProtectedRoute = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+  const { isLoggedIn, accessToken } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   const { isError: isAuthError, isLoading: isAuthLoading } = useCheckAuthQuery(
     undefined,
@@ -46,6 +49,10 @@ const UserProtectedRoute = () => {
       }
     };
 
+    if (accessToken && isTokenExpired(accessToken)) {
+      console.log("Token expired Attempting to refresh");
+      refreshAuthToken();
+    }
     if (isAuthError && !refreshFailed && isLoggedIn && !isRefreshing) {
       refreshAuthToken(); // Only refresh if not already redirecting
     }
@@ -56,6 +63,7 @@ const UserProtectedRoute = () => {
     refreshToken,
     isLoggedIn,
     isRefreshing,
+    accessToken,
   ]);
 
   if (isLoadingState && (isAuthLoading || isRefreshing)) {

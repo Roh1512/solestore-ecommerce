@@ -10,10 +10,12 @@ import { useAppDispatch } from "@/app/hooks";
 import { useEffect, useState } from "react";
 import { setCredentials } from "@/features/adminAuthSlice";
 import PageLoading from "../Loading/PageLoading";
+import { isTokenExpired } from "@/types/tokenUtils";
 
 const RedirectUnprotectedRoutes = () => {
   const dispatch = useAppDispatch();
-  const { isLoggedIn } = useCurrentState().auth;
+  const { isLoggedIn, accessToken } = useCurrentState().auth;
+
   const {
     data: authData,
     isError: isAuthError,
@@ -22,11 +24,11 @@ const RedirectUnprotectedRoutes = () => {
     refetchOnFocus: false,
     refetchOnReconnect: false,
   });
+
   const [refreshToken, { isLoading: isRefreshing }] = useRefreshTokenMutation();
 
   const [refreshing, setRefreshing] = useState(false);
   const [refreshFailed, setRefreshFailed] = useState<boolean>(false); // Prevent infinite retries
-
   const [isLoadingState, setIsLoadingState] = useState<boolean>(false);
 
   useEffect(() => {
@@ -45,13 +47,16 @@ const RedirectUnprotectedRoutes = () => {
         setIsLoadingState(false);
       }
     };
-    if (
-      isAuthError &&
-      !refreshing &&
-      !refreshFailed &&
-      isLoggedIn &&
-      !refreshFailed
-    ) {
+
+    // Check if the token is expired
+    if (accessToken && isTokenExpired(accessToken)) {
+      console.log("Token is expired, attempting to refresh...");
+      refreshAuthToken();
+    }
+
+    // Handle auth error (e.g., token is invalid or missing)
+    if (isAuthError && !refreshing && !refreshFailed && isLoggedIn) {
+      console.log("Auth error detected, attempting to refresh token...");
       refreshAuthToken();
     }
   }, [
@@ -61,13 +66,14 @@ const RedirectUnprotectedRoutes = () => {
     refreshFailed,
     refreshToken,
     refreshing,
+    accessToken, // Add accessToken to dependency array
   ]);
 
   if (isLoadingState && (isAuthLoading || refreshing || isRefreshing)) {
     return <PageLoading />;
   }
 
-  if (isAuthError && refreshFailed) {
+  if (!isAuthError && refreshFailed) {
     return (
       <>
         <HeaderAdmin />

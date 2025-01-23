@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { useGetBrandsQuery } from "@/features/brandApiSlice";
+import AddCategory from "@/components/Categories/AddCategory";
+import Category from "@/components/Categories/Category";
+import PageLoading from "@/components/Loading/PageLoading";
+import { useGetCategoriesQuery } from "@/features/categoryApiSlice";
 import { SortBy, SortOrder } from "@/types/queryTypes";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
-import PageLoading from "@/components/Loading/PageLoading";
-import Brand from "@/components/Brands/Brand";
-import AddBrand from "@/components/Brands/AddBrand";
+import { useEffect, useState } from "react";
 
-const BrandsPage: React.FC = () => {
+const CategoriesPage = () => {
   const [page, setPage] = useState<number>(1);
-  const limit = 10; // Number of items per page
+  const limit = 10;
+
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [debouncedSearch, setDebouncedSearch] = useState<string>("");
 
@@ -23,8 +24,7 @@ const BrandsPage: React.FC = () => {
     };
   }, [searchQuery]);
 
-  // Fetch brands with pagination and debounced search
-  const { data: brands, isLoading } = useGetBrandsQuery({
+  const { data: categories, isLoading } = useGetCategoriesQuery({
     search: debouncedSearch || "",
     skip: (page - 1) * limit, // Calculate skip based on current page
     limit: limit,
@@ -32,7 +32,6 @@ const BrandsPage: React.FC = () => {
     sort_order: SortOrder.Asc,
   });
 
-  // Handle loading state
   if (isLoading) {
     return <PageLoading />;
   }
@@ -53,8 +52,7 @@ const BrandsPage: React.FC = () => {
       style={{ minHeight: "80vh" }}
     >
       <div className="">
-        <h3 className="text-3xl font-bold text-center mb-8">Brands</h3>
-        <AddBrand />
+        <h3 className="text-3xl font-bold text-center mb-8">Categories</h3>
         <label className="input input-bordered flex items-center">
           <input
             type="text"
@@ -66,10 +64,13 @@ const BrandsPage: React.FC = () => {
           />
           <Search className="w-6 h-6" />
         </label>
+        <AddCategory />
       </div>
       <div className="overflow-x-auto grid sm:grid-cols-1 md:grid-cols-2 gap-7 lg:grid-cols-3 flex-1">
-        {brands &&
-          brands.map((brand) => <Brand brand={brand} key={brand.id} />)}
+        {categories &&
+          categories.map((category) => (
+            <Category category={category} key={category.id} />
+          ))}
       </div>
 
       {/* Pagination Controls */}
@@ -87,7 +88,7 @@ const BrandsPage: React.FC = () => {
         </span>
         <button
           onClick={handleNextPage}
-          disabled={brands && brands?.length < limit} // Disable if fewer items are returned than the limit
+          disabled={categories && categories?.length < limit} // Disable if fewer items are returned than the limit
           className="btn btn-sm btn-ghost"
           aria-label="Next Page"
         >
@@ -98,4 +99,4 @@ const BrandsPage: React.FC = () => {
   );
 };
 
-export default BrandsPage;
+export default CategoriesPage;

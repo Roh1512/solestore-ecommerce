@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
 
 from app.admin_app.admin_utilities.admin_auth_utils import get_current_admin
+from app.admin_app.admin_models.admin import AdminRole
 from app.model.category_model import CategoryCreateRequest, CategoryResponse
 from app.admin_app.admin_crud_operations.category_crud import create_category, edit_category, delete_category
 from app.crud.category_crud import get_categories
@@ -48,6 +49,11 @@ async def category_create(
     admin: Annotated[dict, Depends(get_current_admin)],
     category: CategoryCreateRequest
 ):
+    if not admin["role"] == AdminRole.ADMIN:
+        raise HTTPException(
+            status_code=401,
+            detail="You are not authorized for this action"
+        )
     if not category or category.title == "":
         raise HTTPException(
             status_code=400,
@@ -77,6 +83,11 @@ async def category_update(
     category: CategoryCreateRequest,
     category_id: str
 ):
+    if not admin["role"] == AdminRole.ADMIN:
+        raise HTTPException(
+            status_code=401,
+            detail="You are not authorized for this action"
+        )
     try:
         return await edit_category(
             category_data=category,
@@ -100,6 +111,11 @@ async def category_delete(
     admin: Annotated[dict, Depends(get_current_admin)],
     category_id: str
 ):
+    if not admin["role"] == AdminRole.ADMIN:
+        raise HTTPException(
+            status_code=401,
+            detail="You are not authorized for this action"
+        )
     try:
         return await delete_category(str(category_id))
     except HTTPException as e:

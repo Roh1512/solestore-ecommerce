@@ -1,8 +1,10 @@
 '''Admin brand routes'''
 
 from typing import Optional, Annotated
-from fastapi import APIRouter, Depends, status,  Query
+from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
+
+from app.admin_app.admin_models.admin import AdminRole
 from app.admin_app.admin_utilities.admin_auth_utils import get_current_admin
 from app.model.brand_models import BrandCreateRequest, BrandResponse
 from app.admin_app.admin_crud_operations.brand_crud import create_brand, edit_brand,  delete_brand
@@ -43,6 +45,12 @@ async def get_all_brands(
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=BrandResponse)
 async def brand_create(admin: Annotated[dict, Depends(get_current_admin)], brand: BrandCreateRequest):
+    '''Brand create route'''
+    if not admin["role"] == AdminRole.ADMIN:
+        raise HTTPException(
+            status_code=401,
+            detail="You are not authorized for this action"
+        )
     if not brand or brand.title == "":
         raise HTTPException(
             status_code=400,
@@ -67,6 +75,11 @@ async def brand_create(admin: Annotated[dict, Depends(get_current_admin)], brand
 
 @router.put("/{brand_id}", status_code=200,  response_model=BrandResponse)
 async def brand_update(admin: Annotated[dict, Depends(get_current_admin)], brand: BrandCreateRequest, brand_id: str):
+    if not admin["role"] == AdminRole.ADMIN:
+        raise HTTPException(
+            status_code=401,
+            detail="You are not authorized for this action"
+        )
     try:
         return await edit_brand(brand_data=brand, brand_id=brand_id)
     except HTTPException as e:
@@ -84,6 +97,11 @@ async def brand_update(admin: Annotated[dict, Depends(get_current_admin)], brand
 
 @router.delete("/{brand_id}", status_code=200)
 async def brand_delete(admin: Annotated[dict, Depends(get_current_admin)], brand_id: str):
+    if not admin["role"] == AdminRole.ADMIN:
+        raise HTTPException(
+            status_code=401,
+            detail="You are not authorized for this action"
+        )
     try:
         return await delete_brand(str(brand_id))
     except HTTPException as e:

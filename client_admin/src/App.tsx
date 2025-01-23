@@ -15,6 +15,7 @@ import { useTheme } from "./context/ThemeContext";
 import ProfilePage from "./pages/profile/ProfilePage";
 import PageLoading from "./components/Loading/PageLoading";
 import BrandsPage from "./pages/Brands/BrandPage";
+import CategoriesPage from "./pages/Categories/CategoriesPage";
 
 const routes = createBrowserRouter(
   createRoutesFromElements(
@@ -28,6 +29,7 @@ const routes = createBrowserRouter(
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/profile" element={<ProfilePage />} />
         <Route path="/admin/brands" element={<BrandsPage />} />
+        <Route path="/admin/categories" element={<CategoriesPage />} />
         <Route path="/admin/loading" element={<PageLoading />} />
       </Route>
       <Route path="*" element={<NotFound />} />
