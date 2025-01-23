@@ -1,19 +1,14 @@
-'''Brand data models'''
-
-from typing import Annotated
+from typing import Optional, List, Annotated
 from datetime import datetime, timezone
 from pydantic import BaseModel, ConfigDict, field_validator, Field
 from beanie import Document, PydanticObjectId, Indexed, before_event, Save
-
-
 from bson import ObjectId
 
 
-class BrandResponse(BaseModel):
-    '''Brand Response model'''
+class CategoryResponse(BaseModel):
+    '''Category response model'''
     id: str = Field(alias="id")
     title: str
-    created_at: datetime
     updated_at: datetime
 
     model_config = ConfigDict(
@@ -23,8 +18,8 @@ class BrandResponse(BaseModel):
     )
 
 
-class BrandCreateRequest(BaseModel):
-    '''Create brand request model'''
+class CategoryCreateRequest(BaseModel):
+    '''Create Category request model'''
     title: str
 
     @field_validator("title")
@@ -32,11 +27,11 @@ class BrandCreateRequest(BaseModel):
     def validate_title(cls, value):
         '''Validate title'''
         if not value or value == "":
-            raise ValueError("Brand title is required")
+            raise ValueError("Category title is required")
         return value
 
 
-class Brand(Document):
+class Category(Document):
     title: Annotated[str, Indexed(unique=True)]
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc))
@@ -44,7 +39,7 @@ class Brand(Document):
         default_factory=lambda: datetime.now(timezone.utc))
 
     class Settings:
-        name = "brands"  # Collection name
+        name = "categories"
 
     @before_event(Save)
     async def set_updated_at(self):

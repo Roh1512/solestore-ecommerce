@@ -1,8 +1,17 @@
 const PageLoading = () => {
   return (
-    <main className="p-20 min-h-full flex justify-center items-center">
-      <span className="loading loading-infinity loading-lg"></span>
-    </main>
+    <div className="bg-base-200 flex items-center justify-center min-h-screen">
+      {/* Loading Container */}
+      <div className="flex flex-col items-center justify-center space-y-4">
+        {/* Spinner */}
+        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+
+        {/* Loading Text */}
+        <p className="text-lg text-primary font-bold">
+          Loading, please wait...
+        </p>
+      </div>
+    </div>
   );
 };
 

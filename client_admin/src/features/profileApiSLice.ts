@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { AdminResponse, AdminUpdateRequest } from "@/client";
 
 export const profileApi = createApi({
-  reducerPath: "createApi",
+  reducerPath: "profileApi",
   baseQuery: fetchBaseQuery({
     baseUrl: "/api/admin/profile",
     credentials: "include",

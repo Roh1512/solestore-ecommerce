@@ -77,8 +77,49 @@ export type Body_profile_update_profile_image_route = {
     file: (Blob | File);
 };
 
+/**
+ * Create brand request model
+ */
+export type BrandCreateRequest = {
+    title: string;
+};
+
+/**
+ * Brand Response model
+ */
+export type BrandResponse = {
+    id: string;
+    title: string;
+    created_at: string;
+    updated_at: string;
+};
+
+/**
+ * Create Category request model
+ */
+export type CategoryCreateRequest = {
+    title: string;
+};
+
+/**
+ * Category response model
+ */
+export type CategoryResponse = {
+    id: string;
+    title: string;
+    updated_at: string;
+};
+
 export type HTTPValidationError = {
     detail?: Array<ValidationError>;
+};
+
+export type SortBy = 'title' | 'date';
+
+export type SortOrder = 'desc' | 'asc';
+
+export type SuccessMessage = {
+    message?: string;
 };
 
 export type Token = {
@@ -86,6 +127,9 @@ export type Token = {
     token_type: string;
 };
 
+/**
+ * Contact info update request model
+ */
 export type UpdateContactInfoRequest = {
     /**
      * Phone number with 10 digits or including country code (e.g., +1234567890)
@@ -97,6 +141,9 @@ export type UpdateContactInfoRequest = {
     address?: (string | null);
 };
 
+/**
+ * User profile update request
+ */
 export type UpdateProfileRequest = {
     /**
      * Username must be 3-30 characters long and can only contain letters, numbers, and underscores.
@@ -113,6 +160,9 @@ export type UpdateProfileRequest = {
     password?: (string | null);
 };
 
+/**
+ * Create user request model
+ */
 export type UserCreateRequest = {
     /**
      * Username must be 3-30 characters long and can only contain letters, numbers, and underscores.
@@ -140,6 +190,9 @@ export type UserCreateRequest = {
     phone?: (string | null);
 };
 
+/**
+ * User Response to client
+ */
 export type UserResponse = {
     _id: string;
     username: string;
@@ -224,6 +277,49 @@ export type ProfileUpdateProfileImageRouteResponse = (UserResponse);
 
 export type ProfileUpdateProfileImageRouteError = (HTTPValidationError);
 
+export type BrandGetAllBrandsData = {
+    query?: {
+        /**
+         * Number of records to return
+         */
+        limit?: number;
+        /**
+         * Search term for brand title
+         */
+        search?: (string | null);
+        /**
+         * Number of records to skip
+         */
+        skip?: number;
+        /**
+         * Field to sort by (date or title)
+         */
+        sort_by?: SortBy;
+        /**
+         * Sort order (asc or desc)
+         */
+        sort_order?: SortOrder;
+    };
+};
+
+export type BrandGetAllBrandsResponse = (Array<BrandResponse>);
+
+export type BrandGetAllBrandsError = (HTTPValidationError);
+
+export type CategoryGetAllCategoriesData = {
+    query?: {
+        limit?: number;
+        search?: (string | null);
+        skip?: number;
+        sort_by?: SortBy;
+        sort_order?: SortOrder;
+    };
+};
+
+export type CategoryGetAllCategoriesResponse = (Array<CategoryResponse>);
+
+export type CategoryGetAllCategoriesError = (HTTPValidationError);
+
 export type AdminAdminGetResponse = (unknown);
 
 export type AdminAdminGetError = unknown;
@@ -291,22 +387,88 @@ export type AdminUpdateAdminProfileImageRouteResponse = (AdminResponse);
 
 export type AdminUpdateAdminProfileImageRouteError = (HTTPValidationError);
 
-export type ServeAdminReactAppData = {
-    path: {
-        full_path: string;
+export type AdminGetAllBrandsData = {
+    query?: {
+        limit?: number;
+        search?: (string | null);
+        skip?: number;
+        sort_by?: SortBy;
+        sort_order?: SortOrder;
     };
 };
 
-export type ServeAdminReactAppResponse = (string);
+export type AdminGetAllBrandsResponse = (Array<BrandResponse>);
 
-export type ServeAdminReactAppError = (HTTPValidationError);
+export type AdminGetAllBrandsError = (HTTPValidationError);
 
-export type ServeReactAppData = {
+export type AdminBrandCreateData = {
+    body: BrandCreateRequest;
+};
+
+export type AdminBrandCreateResponse = (BrandResponse);
+
+export type AdminBrandCreateError = (HTTPValidationError);
+
+export type AdminBrandUpdateData = {
+    body: BrandCreateRequest;
     path: {
-        full_path: string;
+        brand_id: string;
     };
 };
 
-export type ServeReactAppResponse = (string);
+export type AdminBrandUpdateResponse = (BrandResponse);
 
-export type ServeReactAppError = (HTTPValidationError);
+export type AdminBrandUpdateError = (HTTPValidationError);
+
+export type AdminBrandDeleteData = {
+    path: {
+        brand_id: string;
+    };
+};
+
+export type AdminBrandDeleteResponse = (unknown);
+
+export type AdminBrandDeleteError = (HTTPValidationError);
+
+export type AdminGetAllCategoriesData = {
+    query?: {
+        limit?: number;
+        search?: (string | null);
+        skip?: number;
+        sort_by?: SortBy;
+        sort_order?: SortOrder;
+    };
+};
+
+export type AdminGetAllCategoriesResponse = (Array<CategoryResponse>);
+
+export type AdminGetAllCategoriesError = (HTTPValidationError);
+
+export type AdminCategoryCreateData = {
+    body: CategoryCreateRequest;
+};
+
+export type AdminCategoryCreateResponse = (CategoryResponse);
+
+export type AdminCategoryCreateError = (HTTPValidationError);
+
+export type AdminCategoryUpdateData = {
+    body: CategoryCreateRequest;
+    path: {
+        category_id: string;
+    };
+};
+
+export type AdminCategoryUpdateResponse = (CategoryResponse);
+
+export type AdminCategoryUpdateError = (HTTPValidationError);
+
+export type AdminCategoryDeleteData = {
+    path: {
+        category_id: string;
+    };
+};
+
+export type AdminCategoryDeleteResponse = (SuccessMessage);
+
+export type AdminCategoryDeleteError = (HTTPValidationError);

@@ -1,11 +1,13 @@
 '''Admin Brand crud functions'''
 from app.model.brand_models import Brand, BrandCreateRequest
+
 from fastapi import HTTPException, status
-from pymongo.errors import DuplicateKeyError
 from pydantic import ValidationError
 from bson import ObjectId
 from beanie import PydanticObjectId
 from beanie.operators import And
+
+from pymongo.errors import DuplicateKeyError
 from pymongo.results import DeleteResult
 
 
@@ -37,6 +39,7 @@ async def create_brand(brand_data: BrandCreateRequest):
 
 
 async def edit_brand(brand_data: BrandCreateRequest, brand_id: str):
+    '''Function to edit brand'''
     if not ObjectId.is_valid(brand_id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -90,7 +93,7 @@ async def delete_brand(brand_id: str):
         result: DeleteResult = await Brand.find_one(Brand.id == PydanticObjectId(brand_id)).delete()
         print("Deleted: ", result)
         print("Deleted Count: ", result.deleted_count)
-        if not result.deleted_count or result.deleted_count == 0:
+        if not result.deleted_count or result.deleted_count <= 0:
             raise HTTPException(status_code=404, detail="Brand not found")
 
         return {"message": "Brand deleted"}

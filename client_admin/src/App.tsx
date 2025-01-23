@@ -14,6 +14,7 @@ import RedirectProtectedRoutes from "./components/RedirectWrappers/RedirectProte
 import { useTheme } from "./context/ThemeContext";
 import ProfilePage from "./pages/profile/ProfilePage";
 import PageLoading from "./components/Loading/PageLoading";
+import BrandsPage from "./pages/Brands/BrandPage";
 
 const routes = createBrowserRouter(
   createRoutesFromElements(
@@ -26,6 +27,7 @@ const routes = createBrowserRouter(
       <Route element={<RedirectProtectedRoutes />}>
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/profile" element={<ProfilePage />} />
+        <Route path="/admin/brands" element={<BrandsPage />} />
         <Route path="/admin/loading" element={<PageLoading />} />
       </Route>
       <Route path="*" element={<NotFound />} />

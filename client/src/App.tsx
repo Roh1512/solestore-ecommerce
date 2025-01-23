@@ -15,6 +15,7 @@ import RedirectIfLoggedIn from "./components/RedirectWrapper/RedirectIfLoggedIn"
 import UserAuthLayout from "./components/Layouts/UserAuthLayout/UserAuthLayout";
 import { useTheme } from "./context/ThemeContext";
 import ProfilePage from "./pages/Profile/ProfilePage";
+import PageLoading from "./components/Loading/PageLoading";
 
 const routes = createBrowserRouter(
   createRoutesFromElements(
@@ -44,6 +45,7 @@ const routes = createBrowserRouter(
           }
         />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/loading" element={<PageLoading />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />

@@ -5,10 +5,9 @@ from app.model.brand_models import Brand
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 import pytest_asyncio
-from beanie import PydanticObjectId
 
 from app.config.env_settings import settings
-from app.admin_app.admin_models.admin import Admin, AdminResponse
+from app.admin_app.admin_models.admin import Admin
 from app.admin_app.admin_crud_operations.admin_crud import create_admin
 
 
@@ -466,7 +465,7 @@ class TestAdminBrandDelete:
             return {"access_token": access_token, "refresh_token": refresh_token}
 
     @pytest.mark.asyncio
-    async def delete_brand(self, login_admin):
+    async def test_delete_brand(self, login_admin):
         async with AsyncClient(
             transport=ASGITransport(app=app),
             base_url="http://test"
@@ -498,7 +497,7 @@ class TestAdminBrandDelete:
             assert delete_res.json()["message"] == "Brand deleted"
 
     @pytest.mark.asyncio
-    async def delete_brand_invalid_id(self, login_admin):
+    async def test_delete_brand_invalid_id(self, login_admin):
         async with AsyncClient(
             transport=ASGITransport(app=app),
             base_url="http://test"
@@ -519,7 +518,7 @@ class TestAdminBrandDelete:
             assert delete_res.json()["detail"] == "Invalid brand ID"
 
     @pytest.mark.asyncio
-    async def delete_brand_not_found(self, login_admin):
+    async def test_delete_brand_not_found(self, login_admin):
         async with AsyncClient(
             transport=ASGITransport(app=app),
             base_url="http://test"
@@ -536,7 +535,7 @@ class TestAdminBrandDelete:
                 headers=auth_headers,
                 follow_redirects=True,
             )
-            assert delete_res.status_code == 400
+            assert delete_res.status_code == 404
             assert delete_res.json()["detail"] == "Brand not found"
 
 

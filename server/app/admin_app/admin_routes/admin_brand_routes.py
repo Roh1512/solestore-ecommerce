@@ -1,3 +1,5 @@
+'''Admin brand routes'''
+
 from typing import Optional, Annotated
 from fastapi import APIRouter, Depends, status,  Query
 from fastapi.exceptions import HTTPException
@@ -6,7 +8,7 @@ from app.model.brand_models import BrandCreateRequest, BrandResponse
 from app.admin_app.admin_crud_operations.brand_crud import create_brand, edit_brand,  delete_brand
 from app.crud.brand_crud import get_brands
 
-from app.utilities.query_models import SortBy, SortOrder
+from app.utilities.query_models import SortBy, SortOrder, CBQueryParams
 
 
 router = APIRouter()
@@ -14,23 +16,17 @@ router = APIRouter()
 
 @router.get("/", status_code=200, response_model=list[BrandResponse])
 async def get_all_brands(
-    search: Optional[str] = Query(
-        None, description="Search term for brand title"),
-    skip: int = Query(0, ge=0, description="Number of records to skip"),
-    limit: int = Query(10, ge=1, description="Number of records to return"),
-    sort_by: SortBy = Query(SortBy.title,
-                            description="Field to sort by (date or title)", ),
-    sort_order: SortOrder = Query(SortOrder.asc,
-                                  description="Sort order (asc or desc)")
+    admin: Annotated[dict, Depends(get_current_admin)],
+    query_params: Annotated[CBQueryParams, Depends()]
 ):
     '''GET ALL BRANDS ROUTE'''
     try:
         return await get_brands(
-            search=search,
-            skip=skip,
-            limit=limit,
-            sort_by=sort_by,
-            sort_order=sort_order
+            search=query_params.search,
+            skip=query_params.skip,
+            limit=query_params.limit,
+            sort_by=query_params.sort_by,
+            sort_order=query_params.sort_order
         )
     except HTTPException as e:
         raise HTTPException(
@@ -78,6 +74,11 @@ async def brand_update(admin: Annotated[dict, Depends(get_current_admin)], brand
         raise HTTPException(
             status_code=e.status_code,
             detail=e.detail
+        ) from e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail="Unexpected error editing brand"
         ) from e
 
 

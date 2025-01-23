@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from app.admin_app.admin_routes.admin_auth_routes import router as admin_auth_router
 from app.admin_app.admin_routes.admin_profile_route import router as admin_profile_router
 from app.admin_app.admin_routes.admin_brand_routes import router as admin_brand_routes
+from app.admin_app.admin_routes.admin_category_routes import router as admin_category_routes
 
 admin_router = APIRouter()
 
@@ -29,4 +30,10 @@ admin_router.include_router(
     admin_brand_routes,
     prefix="/brand",
     tags=["admin_brand"]
+)
+
+admin_router.include_router(
+    admin_category_routes,
+    prefix="/category",
+    tags=["admin_category"]
 )
