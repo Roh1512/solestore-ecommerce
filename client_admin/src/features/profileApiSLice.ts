@@ -1,29 +1,17 @@
-import { RootState } from "@/app/store";
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import { AdminResponse, AdminUpdateRequest } from "@/client";
+import { baseQueryWithReauth } from "./beseQuery";
 
 export const profileApi = createApi({
   reducerPath: "profileApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: "/api/admin/profile",
-    credentials: "include",
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.accessToken;
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      } else {
-        console.warn("No token found");
-        headers.set("Authorization", "Bearer");
-      }
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ["Profile"],
   endpoints: (builder) => ({
     getProfile: builder.query<AdminResponse, void>({
       query: () => ({
-        url: "/",
+        url: "/admin/profile/",
         method: "GET",
+        credentials: "include",
       }),
       providesTags: [{ type: "Profile" }],
     }),
@@ -32,21 +20,23 @@ export const profileApi = createApi({
       { profileDetails: AdminUpdateRequest; currentPassword: string }
     >({
       query: ({ profileDetails, currentPassword }) => ({
-        url: "/",
+        url: "/admin/profile/",
         method: "PUT",
         body: {
           profile_details: profileDetails,
           current_password: currentPassword,
         },
+        credentials: "include",
       }),
       // Optional: Cache invalidation and updating state after mutation
       invalidatesTags: [{ type: "Profile" }],
     }),
     updateProfileImage: builder.mutation<AdminResponse, FormData>({
       query: (formData) => ({
-        url: "/update-profile-img",
+        url: "/admin/profile/update-profile-img",
         method: "POST",
         body: formData,
+        credentials: "include",
       }),
       invalidatesTags: [{ type: "Profile" }],
     }),

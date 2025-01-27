@@ -1,22 +1,10 @@
-import { useAppDispatch } from "@/app/hooks";
-import { useCurrentState } from "@/app/useCurrentState";
-import {
-  useCheckAuthQuery,
-  useRefreshTokenMutation,
-} from "@/features/adminAuthApiSlice";
-import { clearCredentials, setCredentials } from "@/features/adminAuthSlice";
-import { useEffect, useState } from "react";
+import { useCheckAuthQuery } from "@/features/adminAuthApiSlice";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import HeaderAdmin from "../Headers/HeaderAdmin";
 import FooterAdmin from "../Footers/FooterAdmin";
 import PageLoading from "../Loading/PageLoading";
-import { isTokenExpired } from "@/types/tokenUtils";
 
 const RedirectProtectedRoutes = () => {
-  const dispatch = useAppDispatch();
-  const location = useLocation();
-  const { isLoggedIn, accessToken } = useCurrentState().auth;
-
   const { isError: isAuthError, isLoading: isAuthLoading } = useCheckAuthQuery(
     undefined,
     {
@@ -24,54 +12,14 @@ const RedirectProtectedRoutes = () => {
       refetchOnReconnect: false,
     }
   );
+  const location = useLocation();
 
-  const [refreshToken, { isLoading: isRefreshing }] = useRefreshTokenMutation();
+  if (isAuthLoading) return <PageLoading />;
 
-  const [refreshFailed, setRefreshFailed] = useState<boolean>(false);
-
-  const [isLoadingState, setIsLoadingState] = useState<boolean>(false);
-
-  useEffect(() => {
-    const refreshAuthToken = async () => {
-      try {
-        setIsLoadingState(true);
-        const tokenResponse = await refreshToken().unwrap();
-        dispatch(setCredentials({ accessToken: tokenResponse.access_token }));
-        setRefreshFailed(false);
-      } catch (error) {
-        console.error("Token refresh failed: ", error);
-        dispatch(clearCredentials());
-        setRefreshFailed(true);
-      } finally {
-        setIsLoadingState(false);
-      }
-    };
-    if (accessToken && isTokenExpired(accessToken)) {
-      console.log("Token expired Attempting to refresh");
-      refreshAuthToken();
-    }
-    if (isAuthError && !refreshFailed && isLoggedIn && !isRefreshing) {
-      refreshAuthToken();
-    }
-  }, [
-    accessToken,
-    dispatch,
-    isAuthError,
-    isLoggedIn,
-    isRefreshing,
-    refreshFailed,
-    refreshToken,
-  ]);
-
-  if (isLoadingState && (isAuthLoading || isRefreshing)) {
-    return <PageLoading />;
-  }
-
-  if (isAuthError && refreshFailed) {
+  if (isAuthError)
     return (
       <Navigate to="admin/login" replace state={{ from: location.pathname }} />
     );
-  }
 
   return (
     <>

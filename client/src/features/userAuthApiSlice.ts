@@ -1,35 +1,21 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import {
   UserCreateRequest,
   UserResponse,
   Body_auth_login,
   Token,
 } from "@/client";
-import { RootState } from "@/app/store";
 import { clearCredentials, setCredentials } from "./accessTokenApiSlice";
+import { baseQueryWithReauth } from "./baseQuery";
 
 export const userAuthApi = createApi({
   reducerPath: "userAuthApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: "/api/auth",
-    credentials: "include",
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.accessToken;
-
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      } else {
-        console.warn("No token found!"); // Add a warning if no token is available
-      }
-
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ["Session", "Register"],
   endpoints: (builder) => ({
     register: builder.mutation<UserResponse, UserCreateRequest>({
       query: (credentials) => ({
-        url: "/register",
+        url: "/auth/register",
         method: "POST",
         body: credentials,
       }),
@@ -37,7 +23,7 @@ export const userAuthApi = createApi({
     }),
     login: builder.mutation<Token, Body_auth_login>({
       query: (loginData) => ({
-        url: "/login",
+        url: "/auth/login",
         method: "POST",
         body: new URLSearchParams({
           grant_type: loginData.grant_type || "password",
@@ -64,21 +50,21 @@ export const userAuthApi = createApi({
 
     checkAuth: builder.query<{ status: string; user: UserResponse }, void>({
       query: () => ({
-        url: "/checkauth",
+        url: "/auth/checkauth",
         method: "GET",
       }),
       providesTags: [{ type: "Session" }],
     }),
     refreshToken: builder.mutation<Token, void>({
       query: () => ({
-        url: "/refresh",
+        url: "/auth/refresh",
         method: "POST",
       }),
       invalidatesTags: [{ type: "Session" }],
     }),
     logout: builder.mutation<{ message: string }, void>({
       query: () => ({
-        url: "/logout",
+        url: "/auth/logout",
         method: "POST",
       }),
       invalidatesTags: [{ type: "Session" }],
@@ -93,7 +79,7 @@ export const userAuthApi = createApi({
     }),
     googleLogin: builder.mutation<Token, { token: string }>({
       query: ({ token }) => ({
-        url: "/google/login",
+        url: "/auth/google/login",
         method: "POST",
         body: { token },
       }),

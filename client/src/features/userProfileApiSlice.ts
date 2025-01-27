@@ -1,31 +1,19 @@
-import { RootState } from "@/app/store";
 import {
   UpdateContactInfoRequest,
   UpdateProfileRequest,
   UserResponse,
 } from "@/client";
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseQueryWithReauth } from "./baseQuery";
 
 export const userProfileApiSlice = createApi({
   reducerPath: "userProfileApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: "/api/profile",
-    credentials: "include",
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.accessToken;
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      } else {
-        console.warn("No token found!"); // Add a warning if no token is available
-      }
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ["Profile"],
   endpoints: (builder) => ({
     getProfile: builder.query<UserResponse, void>({
       query: () => ({
-        url: "/",
+        url: "/profile/",
         method: "GET",
       }),
       providesTags: [{ type: "Profile" }],
@@ -35,7 +23,7 @@ export const userProfileApiSlice = createApi({
       { profileDetails: UpdateProfileRequest; currentPassword: string }
     >({
       query: ({ profileDetails, currentPassword }) => ({
-        url: "/",
+        url: "/profile/",
         method: "PUT",
         body: {
           profile_details: profileDetails,
@@ -49,7 +37,7 @@ export const userProfileApiSlice = createApi({
       { contactInfo: UpdateContactInfoRequest; currentPassword: string }
     >({
       query: ({ contactInfo, currentPassword }) => ({
-        url: "/update-contact-info",
+        url: "/profile/update-contact-info",
         method: "PUT",
         body: {
           contact_info: contactInfo,
@@ -60,7 +48,7 @@ export const userProfileApiSlice = createApi({
     }),
     updateProfileImage: builder.mutation<UserResponse, FormData>({
       query: (formData) => ({
-        url: "/update-profile-img",
+        url: "/profile/update-profile-img",
         method: "POST",
         body: formData,
       }),

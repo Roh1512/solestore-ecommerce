@@ -1,33 +1,20 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import {
   CategoryCreateRequest,
   CategoryResponse,
   SuccessMessage,
 } from "@/client";
-import { RootState } from "@/app/store";
 import { CBQueryParams } from "@/types/queryTypes";
+import { baseQueryWithReauth } from "./beseQuery";
 
 export const categoryApi = createApi({
   reducerPath: "categoryApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: "/api/admin/category",
-    credentials: "include",
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.accessToken;
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      } else {
-        console.warn("No token found");
-        headers.set("Authorization", "Bearer");
-      }
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ["Category"],
   endpoints: (builder) => ({
     getCategories: builder.query<CategoryResponse[], CBQueryParams>({
       query: (params) => ({
-        url: "/",
+        url: "/admin/category/",
         method: "GET",
         params: {
           search: params.search,
@@ -41,8 +28,9 @@ export const categoryApi = createApi({
     }),
     deleteCategory: builder.mutation<SuccessMessage, { categoryId: string }>({
       query: ({ categoryId }) => ({
-        url: `/${categoryId}`,
+        url: `/admin/category/${categoryId}`,
         method: "DELETE",
+        credentials: "include",
       }),
       invalidatesTags: [{ type: "Category" }],
     }),
@@ -51,17 +39,19 @@ export const categoryApi = createApi({
       { categoryId: string; data: CategoryCreateRequest }
     >({
       query: ({ categoryId, data }) => ({
-        url: `/${categoryId}`,
+        url: `/admin/category/${categoryId}`,
         method: "PUT",
         body: data,
+        credentials: "include",
       }),
       invalidatesTags: [{ type: "Category" }],
     }),
     createCategory: builder.mutation<CategoryResponse, CategoryCreateRequest>({
       query: (data) => ({
-        url: "/",
+        url: "/admin/category/",
         method: "POST",
         body: data,
+        credentials: "include",
       }),
       invalidatesTags: [{ type: "Category" }],
     }),

@@ -189,7 +189,8 @@ async def admin_refresh_token_route(request: Request, response: Response):
     try:
         admin_refresh_token = request.cookies.get(
             settings.ADMIN_REFRESH_COOKIE_NAME)
-        if not add_admin_refresh_token:
+        if not admin_refresh_token:
+            print("NO REFRESH COOKIE")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Unauthorized",
@@ -202,12 +203,14 @@ async def admin_refresh_token_route(request: Request, response: Response):
         )
         admin_id: str = payload.get("sub")
         if not admin_id:
+            print("NOT ADMIN ID")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Unauthorized",
                 headers={"WWW-Authenticate": "Bearer"}
             )
         if not await admin_refresh_token_is_saved(str(admin_id), refresh_token=admin_refresh_token):
+            print("REFRESH TOKEN NOT SAVED")
             response.delete_cookie(
                 settings.ADMIN_REFRESH_COOKIE_NAME
             )
@@ -219,6 +222,7 @@ async def admin_refresh_token_route(request: Request, response: Response):
         admin = await get_admin_details(admin_id)
 
         if not admin:
+            print("ADMIN NOT FOUND")
             response.delete_cookie(
                 settings.ADMIN_REFRESH_COOKIE_NAME
             )
@@ -245,17 +249,20 @@ async def admin_refresh_token_route(request: Request, response: Response):
             token_type="bearer"
         )
     except HTTPException as e:
+        print("ERROR HTTP: ", e)
         raise HTTPException(
             status_code=e.status_code,
             detail=e.detail,
         ) from e
     except jwt.PyJWTError as e:
+        print("ERROR JWT: ", e)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Unauthorized",
             headers={"WWW-Authenticate": "Bearer"}
         ) from e
     except Exception as e:
+        print("ERROR UNKNOWN: ", e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error during admin token refresh",

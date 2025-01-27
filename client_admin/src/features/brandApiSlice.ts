@@ -1,29 +1,17 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import { BrandCreateRequest, BrandResponse, SuccessMessage } from "@/client";
-import { RootState } from "@/app/store";
+
 import { CBQueryParams } from "@/types/queryTypes";
+import { baseQueryWithReauth } from "./beseQuery";
 
 export const brandApi = createApi({
   reducerPath: "brandApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: "/api/admin/brand",
-    credentials: "include",
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.accessToken;
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      } else {
-        console.warn("No token found");
-        headers.set("Authorization", "Bearer");
-      }
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ["Brand"],
   endpoints: (builder) => ({
     getBrands: builder.query<BrandResponse[], CBQueryParams>({
       query: (params) => ({
-        url: "/",
+        url: "/admin/brand/",
         method: "GET",
         params: {
           search: params.search,
@@ -32,13 +20,15 @@ export const brandApi = createApi({
           sort_by: params.sort_by,
           sort_order: params.sort_order,
         },
+        credentials: "include",
       }),
       providesTags: [{ type: "Brand" }],
     }),
     deleteBrand: builder.mutation<SuccessMessage, { brandId: string }>({
       query: ({ brandId }) => ({
-        url: `/${brandId}`,
+        url: `/admin/brand/${brandId}`,
         method: "DELETE",
+        credentials: "include",
       }),
       invalidatesTags: [{ type: "Brand" }],
     }),
@@ -50,14 +40,16 @@ export const brandApi = createApi({
         url: `/${brandId}`,
         method: "PUT",
         body: data,
+        credentials: "include",
       }),
       invalidatesTags: [{ type: "Brand" }],
     }),
     createBrand: builder.mutation<BrandResponse, BrandCreateRequest>({
       query: (data) => ({
-        url: "/",
+        url: "/admin/brand/",
         method: "POST",
         body: data,
+        credentials: "include",
       }),
       invalidatesTags: [{ type: "Brand" }],
     }),

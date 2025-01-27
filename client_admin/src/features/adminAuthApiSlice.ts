@@ -1,29 +1,16 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import { Token, Body_admin_admin_login, AdminResponse } from "@/client";
-import { RootState } from "@/app/store";
 import { clearCredentials, setCredentials } from "./adminAuthSlice";
+import { baseQueryWithReauth } from "./beseQuery";
 
 export const adminAuthApi = createApi({
   reducerPath: "adminAuthApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: "/api/admin/auth",
-    credentials: "include",
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.accessToken;
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      } else {
-        console.warn("No token found");
-        headers.set("Authorization", "Bearer");
-      }
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ["Session", "Register"],
   endpoints: (builder) => ({
     login: builder.mutation<Token, Body_admin_admin_login>({
       query: (loginData) => ({
-        url: "/login",
+        url: "/admin/auth/login",
         method: "POST",
         body: new URLSearchParams({
           grant_type: loginData.grant_type || "password",
@@ -50,8 +37,9 @@ export const adminAuthApi = createApi({
     }),
     checkAuth: builder.query<{ status: string; admin: AdminResponse }, void>({
       query: () => ({
-        url: "/checkauth",
+        url: "/admin/auth/checkauth",
         method: "GET",
+        credentials: "include",
       }),
       providesTags: [{ type: "Session" }],
     }),
@@ -59,6 +47,7 @@ export const adminAuthApi = createApi({
       query: () => ({
         url: "/refresh",
         method: "POST",
+        credentials: "include",
       }),
       invalidatesTags: [{ type: "Session" }],
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
@@ -73,8 +62,9 @@ export const adminAuthApi = createApi({
     }),
     logout: builder.mutation<{ message: string }, void>({
       query: () => ({
-        url: "/logout",
+        url: "/admin/auth/logout",
         method: "POST",
+        credentials: "include",
       }),
       invalidatesTags: [{ type: "Session" }],
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
