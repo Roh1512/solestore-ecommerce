@@ -1,10 +1,14 @@
 // src/app/useCurrentState.ts
-import { useSelector } from "react-redux";
+import { useAppSelector } from "./hooks";
 import { RootState } from "@/app/store";
 
-export const useCurrentState = () => {
-  const auth = useSelector((state: RootState) => state.auth);
-  const user = useSelector((state: RootState) => state.userAuthApi);
+export const useCurrentAuthState = () => {
+  const isLoggedIn = useAppSelector(
+    (state: RootState) => state.auth.isLoggedIn
+  );
+  const accessToken = useAppSelector(
+    (state: RootState) => state.auth.accessToken
+  );
 
-  return { auth, user };
+  return { isLoggedIn, accessToken };
 };

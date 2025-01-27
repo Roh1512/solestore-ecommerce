@@ -1,10 +1,10 @@
-import { useCurrentState } from "@/app/useCurrentState";
+import { useCurrentAuthState } from "@/app/useCurrentState";
 import LogoLink from "../../../Logo/LogoLink";
 import ThemeToggle from "../../../Theme/ToggleTheme";
 import { Link } from "react-router-dom";
 
 const HeaderStore = () => {
-  const { isLoggedIn, accessToken } = useCurrentState().auth;
+  const { isLoggedIn, accessToken } = useCurrentAuthState();
   return (
     <header className="navbar">
       <div className="flex-1">

@@ -18,7 +18,7 @@ const RedirectProtectedRoutes = () => {
 
   if (isAuthError)
     return (
-      <Navigate to="admin/login" replace state={{ from: location.pathname }} />
+      <Navigate to="/admin/login" replace state={{ from: location.pathname }} />
     );
 
   return (
