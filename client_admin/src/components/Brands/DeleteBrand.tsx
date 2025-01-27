@@ -3,17 +3,46 @@ import { closeModal, openModal } from "@/utils/modal_utils";
 import { Trash2 } from "lucide-react";
 import ButtonLoading from "../Loading/ButtonLoading";
 import IconLoading from "../Loading/IconLoading";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
+import { getApiErrorMessage, isApiError } from "@/utils/errorHandler";
+import { useDeleteBrandMutation } from "@/features/brandApiSlice";
 
 type Props = {
   brand: BrandResponse;
-  onDelete: (brandId: string) => void;
-  isLoading: boolean;
   deleteBrandId: string;
 };
 
 const DeleteBrand = (props: Props) => {
   const modalId = `deleteModal-${props.brand.id}`; // Unique modal ID for each brand
-  const isLoading = props.isLoading && props.deleteBrandId === props.brand.id;
+  const [deleteBrand, { data, isLoading, isSuccess, isError, error }] =
+    useDeleteBrandMutation();
+
+  const isDeleteLoading = isLoading && props.deleteBrandId === props.brand.id;
+
+  const handleDeleteBrand = async () => {
+    try {
+      const res = await deleteBrand({ brandId: props.deleteBrandId }).unwrap();
+      console.log(res);
+      closeModal(modalId);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success(data?.message || "Brand deleted");
+    }
+    if (isError && error) {
+      if (isApiError(error)) {
+        const errorMessage = getApiErrorMessage(error);
+        toast.error(errorMessage);
+      } else {
+        toast.error("Error deleting brand");
+      }
+    }
+  }, [data?.message, error, isError, isSuccess]);
 
   return (
     <>
@@ -23,7 +52,7 @@ const DeleteBrand = (props: Props) => {
         aria-label="Delete"
         onClick={() => openModal(modalId)}
       >
-        {isLoading ? <IconLoading /> : <Trash2 />}
+        {isDeleteLoading ? <IconLoading /> : <Trash2 />}
       </button>
 
       {/* Modal */}
@@ -50,14 +79,8 @@ const DeleteBrand = (props: Props) => {
 
             {/* Action Buttons */}
             <div className="modal-action">
-              <button
-                className="btn btn-error"
-                onClick={() => {
-                  props.onDelete(props.brand.id);
-                  closeModal(modalId);
-                }}
-              >
-                {isLoading ? <ButtonLoading text="Deleting" /> : "Delete"}
+              <button className="btn btn-error" onClick={handleDeleteBrand}>
+                {isDeleteLoading ? <ButtonLoading text="Deleting" /> : "Delete"}
               </button>
               <button
                 className="btn btn-ghost"

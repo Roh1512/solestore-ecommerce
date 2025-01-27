@@ -14,6 +14,7 @@ import AlertText from "../ErrorElements/AlertText";
 import AlertMessage from "../ErrorElements/AlertMessage";
 import { z } from "zod";
 import { toast } from "react-toastify";
+import SuccessText from "../SuccessElements/SuccessText";
 
 const addCategorySchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -31,12 +32,14 @@ const AddCategory = () => {
   const [zodErrors, setZodErrors] = useState<Record<string, string>>({});
 
   const [apiError, setApiError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const [createCategory, { isLoading, isError, error, isSuccess, data }] =
     useCreateCategoryMutation();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setApiError(null);
+    setSuccessMessage(null);
     const { name, value } = e.target;
     setCategoryDetails((prev) => ({
       ...prev,
@@ -48,6 +51,7 @@ const AddCategory = () => {
     setCategoryDetails(initialCategory);
     setZodErrors({});
     setApiError(null);
+    setSuccessMessage(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -55,6 +59,7 @@ const AddCategory = () => {
     e.stopPropagation();
     setZodErrors({});
     setApiError(null);
+    setSuccessMessage(null);
 
     const validationResult = addCategorySchema.safeParse(categoryDetails);
 
@@ -98,6 +103,7 @@ const AddCategory = () => {
       }
     }
     if (isSuccess) {
+      setSuccessMessage(`Added category: ${data?.title}`);
       toast.success(`Added category: ${data?.title}`);
     }
   }, [data?.title, error, isError, isSuccess]);
@@ -160,6 +166,7 @@ const AddCategory = () => {
                   // onChange={handleChange}
                   value={categoryDetails.title}
                   onChange={handleChange}
+                  disabled={isLoading}
                 />
               </label>
               {zodErrors.title && <AlertText message={zodErrors.title} />}
@@ -168,6 +175,12 @@ const AddCategory = () => {
             {apiError && typeof apiError === "string" && (
               <AlertMessage message={apiError} />
             )}
+
+            {successMessage && typeof successMessage === "string" && (
+              <SuccessText message={successMessage} />
+            )}
+
+            {!successMessage && !apiError && <br />}
 
             <button
               type="submit"

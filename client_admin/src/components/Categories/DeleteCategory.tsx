@@ -3,18 +3,48 @@ import IconLoading from "../Loading/IconLoading";
 import { closeModal, openModal } from "@/utils/modal_utils";
 import ButtonLoading from "../Loading/ButtonLoading";
 import { Trash2 } from "lucide-react";
+import { useDeleteCategoryMutation } from "@/features/categoryApiSlice";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
+import { getApiErrorMessage, isApiError } from "@/utils/errorHandler";
 
 type Props = {
   category: CategoryResponse;
-  onDelete: (categoryId: string) => void;
-  isLoading: boolean;
   deleteCategoryId: string;
 };
 
 const DeleteCategory = (props: Props) => {
   const modalId = `deleteModal=${props.category.id}`;
-  const isLoading =
-    props.isLoading && props.deleteCategoryId === props.category.id;
+  const [deleteCategory, { data, isLoading, isSuccess, isError, error }] =
+    useDeleteCategoryMutation();
+  const isDeleteLoading =
+    isLoading && props.deleteCategoryId === props.category.id;
+
+  const handleDeleteCategory = async () => {
+    try {
+      const res = await deleteCategory({
+        categoryId: props.category.id,
+      }).unwrap();
+      console.log(res);
+      closeModal(modalId);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success(data?.message || "Brand deleted");
+    }
+    if (isError && error) {
+      if (isApiError(error)) {
+        const errorMessage = getApiErrorMessage(error);
+        toast.error(errorMessage);
+      } else {
+        toast.error("Error deleting brand");
+      }
+    }
+  }, [data?.message, error, isError, isSuccess]);
 
   return (
     <>
@@ -24,7 +54,7 @@ const DeleteCategory = (props: Props) => {
         aria-label="Delete"
         onClick={() => openModal(modalId)}
       >
-        {isLoading ? <IconLoading /> : <Trash2 />}
+        {isDeleteLoading ? <IconLoading /> : <Trash2 />}
       </button>
 
       {/* Modal */}
@@ -51,14 +81,8 @@ const DeleteCategory = (props: Props) => {
 
             {/* Action Buttons */}
             <div className="modal-action">
-              <button
-                className="btn btn-error"
-                onClick={() => {
-                  props.onDelete(props.category.id);
-                  closeModal(modalId);
-                }}
-              >
-                {isLoading ? <ButtonLoading text="Deleting" /> : "Delete"}
+              <button className="btn btn-error" onClick={handleDeleteCategory}>
+                {isDeleteLoading ? <ButtonLoading text="Deleting" /> : "Delete"}
               </button>
               <button
                 className="btn btn-ghost"

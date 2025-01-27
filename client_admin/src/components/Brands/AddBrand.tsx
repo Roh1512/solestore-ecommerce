@@ -31,11 +31,14 @@ const AddBrand = () => {
 
   const [apiError, setApiError] = useState<string | null>(null);
 
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
   const [createBrand, { isLoading, isError, error, isSuccess, data }] =
     useCreateBrandMutation();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setApiError(null);
+    setSuccessMessage(null);
     const { name, value } = e.target;
     setBrandDetails((prev) => ({
       ...prev,
@@ -47,6 +50,7 @@ const AddBrand = () => {
     setBrandDetails(initialBrand);
     setZodErrors({});
     setApiError(null);
+    setSuccessMessage(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,6 +58,7 @@ const AddBrand = () => {
     e.stopPropagation();
     setZodErrors({});
     setApiError(null);
+    setSuccessMessage(null);
 
     const validationResult = addBrandSchema.safeParse(brandDetails);
 
@@ -98,6 +103,7 @@ const AddBrand = () => {
     }
     if (isSuccess) {
       toast.success(`Added brand: ${data?.title}`);
+      setSuccessMessage(`Added brand: ${data?.title}`);
     }
   }, [data?.title, error, isError, isSuccess]);
 
@@ -159,6 +165,7 @@ const AddBrand = () => {
                   // onChange={handleChange}
                   value={brandDetails.title}
                   onChange={handleChange}
+                  disabled={isLoading}
                 />
               </label>
               {zodErrors.title && <AlertText message={zodErrors.title} />}
@@ -167,6 +174,12 @@ const AddBrand = () => {
             {apiError && typeof apiError === "string" && (
               <AlertMessage message={apiError} />
             )}
+
+            {successMessage && typeof successMessage === "string" && (
+              <p className="text-green-700">{successMessage}</p>
+            )}
+
+            {!successMessage && !apiError && <br aria-label="hidden" />}
 
             <button
               type="submit"

@@ -37,7 +37,7 @@ export const brandApi = createApi({
       { brandId: string; data: BrandCreateRequest }
     >({
       query: ({ brandId, data }) => ({
-        url: `/${brandId}`,
+        url: `/admin/brand/${brandId}`,
         method: "PUT",
         body: data,
         credentials: "include",

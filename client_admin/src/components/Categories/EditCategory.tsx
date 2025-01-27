@@ -84,6 +84,8 @@ const EditCategory = (props: Props) => {
         categoryId: props.category.id,
         data: categoryDetails,
       }).unwrap();
+      closeModal(modalId);
+      resetForm();
       console.log("Category edit response: ", response);
     } catch (error) {
       console.error("Error editing category: ", error);
@@ -162,6 +164,7 @@ const EditCategory = (props: Props) => {
                   placeholder="Enter Brand title"
                   value={categoryDetails.title || ""}
                   onChange={handleChange}
+                  disabled={isLoading}
                 />
               </label>
               {zodErrors.title && <AlertText message={zodErrors.title} />}

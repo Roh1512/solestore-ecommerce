@@ -164,6 +164,7 @@ const EditBrand = (props: Props) => {
                   placeholder="Enter Brand title"
                   value={brandDetails.title || ""}
                   onChange={handleChange}
+                  disabled={isLoading}
                 />
               </label>
               {zodErrors.title && <AlertText message={zodErrors.title} />}
