@@ -9,7 +9,7 @@ import {
   isApiError,
   isFieldValidationError,
 } from "@/utils/errorHandler";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -21,7 +21,7 @@ const LoginPage = () => {
     grant_type: "password",
   });
 
-  const [login, { isLoading, isError, isSuccess, error }] = useLoginMutation();
+  const [login, { isLoading }] = useLoginMutation();
 
   const [validationErrors, setValidationErrors] = useState<
     ValidationErrorDisplay[]
@@ -35,21 +35,9 @@ const LoginPage = () => {
     try {
       const response = await login(loginData).unwrap();
       console.log("Login successful:", response);
+      navigate("/admin/dashboard");
     } catch (error) {
       console.error("Login error:", error);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLoginData({ ...loginData, [e.target.name]: e.target.value });
-    setApiError(null);
-    setValidationErrors((prevErrors) =>
-      prevErrors.filter((err) => err.field !== e.target.name)
-    );
-  };
-
-  useEffect(() => {
-    if (isError && error) {
       if (isFieldValidationError(error)) {
         const errors = getValidationErrors(error);
         setValidationErrors(errors);
@@ -63,10 +51,15 @@ const LoginPage = () => {
         toast.error("Error logging in");
       }
     }
-    if (isSuccess) {
-      navigate("/admin/dashboard");
-    }
-  }, [error, isError, isSuccess, navigate]);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLoginData({ ...loginData, [e.target.name]: e.target.value });
+    setApiError(null);
+    setValidationErrors((prevErrors) =>
+      prevErrors.filter((err) => err.field !== e.target.name)
+    );
+  };
 
   const getValidationMessage = (field: string) => {
     const error = validationErrors.find((err) => err.field === field);

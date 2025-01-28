@@ -10,10 +10,7 @@ const RedirectUnprotectedRoutes = () => {
     isLoading: isAuthLoading,
     isError,
     isSuccess,
-  } = useCheckAuthQuery(undefined, {
-    refetchOnFocus: false,
-    refetchOnReconnect: false,
-  });
+  } = useCheckAuthQuery();
 
   if (isAuthLoading) {
     return <PageLoading />;

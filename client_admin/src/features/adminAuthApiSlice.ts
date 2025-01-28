@@ -10,7 +10,7 @@ export const adminAuthApi = createApi({
   endpoints: (builder) => ({
     login: builder.mutation<Token, Body_admin_admin_login>({
       query: (loginData) => ({
-        url: "/admin/auth/login",
+        url: "/auth/login",
         method: "POST",
         body: new URLSearchParams({
           grant_type: loginData.grant_type || "password",
@@ -37,7 +37,7 @@ export const adminAuthApi = createApi({
     }),
     checkAuth: builder.query<{ status: string; admin: AdminResponse }, void>({
       query: () => ({
-        url: "/admin/auth/checkauth",
+        url: "/auth/checkauth",
         method: "GET",
         credentials: "include",
       }),
@@ -45,7 +45,7 @@ export const adminAuthApi = createApi({
     }),
     refreshToken: builder.mutation<Token, void>({
       query: () => ({
-        url: "/refresh",
+        url: "/auth/refresh",
         method: "POST",
         credentials: "include",
       }),
@@ -62,7 +62,7 @@ export const adminAuthApi = createApi({
     }),
     logout: builder.mutation<{ message: string }, void>({
       query: () => ({
-        url: "/admin/auth/logout",
+        url: "/auth/logout",
         method: "POST",
         credentials: "include",
       }),

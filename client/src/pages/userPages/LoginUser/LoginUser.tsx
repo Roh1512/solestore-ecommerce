@@ -1,5 +1,5 @@
 import { Body_auth_login } from "@/client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useLoginMutation } from "@/features/userAuthApiSlice";
 import { useAppDispatch } from "@/app/hooks";
 import { setCredentials } from "@/features/accessTokenApiSlice";
@@ -28,7 +28,7 @@ const LoginUser = () => {
   >([]);
   const [apiError, setApiError] = useState<string | null>(null);
 
-  const [login, { isLoading, isError, isSuccess, error }] = useLoginMutation();
+  const [login, { isLoading }] = useLoginMutation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -40,21 +40,9 @@ const LoginUser = () => {
       const response = await login(loginData).unwrap();
       console.log("Login successful:", response);
       dispatch(setCredentials({ accessToken: response.access_token }));
+      navigate("/login");
     } catch (error) {
       console.error("Login error:", error);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLoginData({ ...loginData, [e.target.name]: e.target.value });
-    setApiError(null);
-    setValidationErrors((prevErrors) =>
-      prevErrors.filter((err) => err.field !== e.target.name)
-    );
-  };
-
-  useEffect(() => {
-    if (isError && error) {
       if (isFieldValidationError(error)) {
         const errors = getValidationErrors(error);
         setValidationErrors(errors);
@@ -68,10 +56,15 @@ const LoginUser = () => {
         toast.error("Error logging in");
       }
     }
-    if (isSuccess) {
-      navigate("/shop");
-    }
-  }, [isError, isSuccess, navigate, error]);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLoginData({ ...loginData, [e.target.name]: e.target.value });
+    setApiError(null);
+    setValidationErrors((prevErrors) =>
+      prevErrors.filter((err) => err.field !== e.target.name)
+    );
+  };
 
   const getValidationMessage = (field: string) => {
     const error = validationErrors.find((err) => err.field === field);

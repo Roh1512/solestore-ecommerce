@@ -11,7 +11,7 @@ export const brandApi = createApi({
   endpoints: (builder) => ({
     getBrands: builder.query<BrandResponse[], CBQueryParams>({
       query: (params) => ({
-        url: "/admin/brand/",
+        url: "/brand/",
         method: "GET",
         params: {
           search: params.search,
@@ -26,7 +26,7 @@ export const brandApi = createApi({
     }),
     deleteBrand: builder.mutation<SuccessMessage, { brandId: string }>({
       query: ({ brandId }) => ({
-        url: `/admin/brand/${brandId}`,
+        url: `/brand/${brandId}`,
         method: "DELETE",
         credentials: "include",
       }),
@@ -37,7 +37,7 @@ export const brandApi = createApi({
       { brandId: string; data: BrandCreateRequest }
     >({
       query: ({ brandId, data }) => ({
-        url: `/admin/brand/${brandId}`,
+        url: `/brand/${brandId}`,
         method: "PUT",
         body: data,
         credentials: "include",
@@ -46,7 +46,7 @@ export const brandApi = createApi({
     }),
     createBrand: builder.mutation<BrandResponse, BrandCreateRequest>({
       query: (data) => ({
-        url: "/admin/brand/",
+        url: "/brand/",
         method: "POST",
         body: data,
         credentials: "include",

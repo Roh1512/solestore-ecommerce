@@ -9,7 +9,7 @@ import { RootState } from "@/app/store";
 import { clearCredentials, setCredentials } from "./adminAuthSlice";
 
 const baseQueryWithAuth = fetchBaseQuery({
-  baseUrl: "/api", // Adjust this according to your API base URL
+  baseUrl: "/api/admin", // Adjust this according to your API base URL
   credentials: "include",
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.accessToken;
@@ -25,6 +25,12 @@ export const baseQueryWithReauth: BaseQueryFn<
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
+  const url = typeof args === "string" ? args : args.url;
+  console.log("URL: ", url);
+
+  if (url.includes("/auth/login")) {
+    return await baseQueryWithAuth(args, api, extraOptions);
+  }
   let result = await baseQueryWithAuth(args, api, extraOptions);
 
   if (result.error && result.error.status === 401) {
@@ -34,7 +40,7 @@ export const baseQueryWithReauth: BaseQueryFn<
     try {
       const refreshResult = await baseQueryWithAuth(
         {
-          url: "/admin/auth/refresh",
+          url: "/auth/refresh",
           method: "POST",
           credentials: "include",
         },

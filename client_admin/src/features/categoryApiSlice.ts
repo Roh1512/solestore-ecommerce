@@ -14,7 +14,7 @@ export const categoryApi = createApi({
   endpoints: (builder) => ({
     getCategories: builder.query<CategoryResponse[], CBQueryParams>({
       query: (params) => ({
-        url: "/admin/category/",
+        url: "/category/",
         method: "GET",
         params: {
           search: params.search,
@@ -28,7 +28,7 @@ export const categoryApi = createApi({
     }),
     deleteCategory: builder.mutation<SuccessMessage, { categoryId: string }>({
       query: ({ categoryId }) => ({
-        url: `/admin/category/${categoryId}`,
+        url: `/category/${categoryId}`,
         method: "DELETE",
         credentials: "include",
       }),
@@ -39,7 +39,7 @@ export const categoryApi = createApi({
       { categoryId: string; data: CategoryCreateRequest }
     >({
       query: ({ categoryId, data }) => ({
-        url: `/admin/category/${categoryId}`,
+        url: `/category/${categoryId}`,
         method: "PUT",
         body: data,
         credentials: "include",
@@ -48,7 +48,7 @@ export const categoryApi = createApi({
     }),
     createCategory: builder.mutation<CategoryResponse, CategoryCreateRequest>({
       query: (data) => ({
-        url: "/admin/category/",
+        url: "/category/",
         method: "POST",
         body: data,
         credentials: "include",

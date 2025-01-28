@@ -9,7 +9,7 @@ export const profileApi = createApi({
   endpoints: (builder) => ({
     getProfile: builder.query<AdminResponse, void>({
       query: () => ({
-        url: "/admin/profile/",
+        url: "/profile/",
         method: "GET",
         credentials: "include",
       }),
@@ -20,7 +20,7 @@ export const profileApi = createApi({
       { profileDetails: AdminUpdateRequest; currentPassword: string }
     >({
       query: ({ profileDetails, currentPassword }) => ({
-        url: "/admin/profile/",
+        url: "/profile/",
         method: "PUT",
         body: {
           profile_details: profileDetails,
@@ -33,7 +33,7 @@ export const profileApi = createApi({
     }),
     updateProfileImage: builder.mutation<AdminResponse, FormData>({
       query: (formData) => ({
-        url: "/admin/profile/update-profile-img",
+        url: "/profile/update-profile-img",
         method: "POST",
         body: formData,
         credentials: "include",
