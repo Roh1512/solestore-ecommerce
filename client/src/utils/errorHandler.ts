@@ -50,7 +50,17 @@ export const getValidationErrors = (
 
 export const getApiErrorMessage = (error: unknown): string | null => {
   if (isApiError(error)) {
-    return error.data.detail; // Extract the detail message from the API error
+    return typeof error.data.detail === "string" ? error.data.detail : null; // Extract the detail message from the API error
   }
   return null; // Return null if the error doesn't match the ApiError structure
+};
+
+export const fieldErrorsToZodErrors = (errors: ValidationErrorDisplay[]) => {
+  console.log("Field errors: ", errors);
+
+  const newErrors: Record<string, string> = {};
+  errors.forEach(({ field, message }) => {
+    newErrors[field] = message;
+  });
+  return newErrors;
 };

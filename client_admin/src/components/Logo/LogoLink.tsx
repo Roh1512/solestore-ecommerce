@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import logo from "@/assets/soleStoreLogoSmall.svg";
+import { memo } from "react";
 
 type Props = {
   to: string | null;
@@ -17,4 +18,4 @@ const LogoLink = (props: Props) => {
   );
 };
 
-export default LogoLink;
+export default memo(LogoLink);

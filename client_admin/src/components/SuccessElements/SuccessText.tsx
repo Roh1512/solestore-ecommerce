@@ -1,4 +1,5 @@
 import { CircleCheck } from "lucide-react";
+import { memo } from "react";
 
 type Props = {
   message: string;
@@ -12,4 +13,4 @@ const SuccessText = (props: Props) => {
   );
 };
 
-export default SuccessText;
+export default memo(SuccessText);

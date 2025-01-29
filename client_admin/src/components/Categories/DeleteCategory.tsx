@@ -4,7 +4,7 @@ import { closeModal, openModal } from "@/utils/modal_utils";
 import ButtonLoading from "../Loading/ButtonLoading";
 import { Trash2 } from "lucide-react";
 import { useDeleteCategoryMutation } from "@/features/categoryApiSlice";
-import { useEffect } from "react";
+import { memo, useCallback, useEffect } from "react";
 import { toast } from "react-toastify";
 import { getApiErrorMessage, isApiError } from "@/utils/errorHandler";
 
@@ -20,7 +20,7 @@ const DeleteCategory = (props: Props) => {
   const isDeleteLoading =
     isLoading && props.deleteCategoryId === props.category.id;
 
-  const handleDeleteCategory = async () => {
+  const handleDeleteCategory = useCallback(async () => {
     try {
       const res = await deleteCategory({
         categoryId: props.category.id,
@@ -30,7 +30,7 @@ const DeleteCategory = (props: Props) => {
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [deleteCategory, modalId, props.category.id]);
 
   useEffect(() => {
     if (isSuccess) {
@@ -98,4 +98,4 @@ const DeleteCategory = (props: Props) => {
   );
 };
 
-export default DeleteCategory;
+export default memo(DeleteCategory);

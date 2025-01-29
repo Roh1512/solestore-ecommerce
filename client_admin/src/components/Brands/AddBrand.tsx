@@ -6,11 +6,10 @@ import {
   isApiError,
   isFieldValidationError,
 } from "@/utils/errorHandler";
-import { useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { z } from "zod";
 import ButtonLoading from "../Loading/ButtonLoading";
-import AlertMessage from "../ErrorElements/AlertMessage";
 import AlertText from "../ErrorElements/AlertText";
 import { PenLine, Plus } from "lucide-react";
 import { closeModal, openModal } from "@/utils/modal_utils";
@@ -21,9 +20,11 @@ const addBrandSchema = z.object({
 
 const AddBrand = () => {
   const modalId = "add-brand-modal";
-  const initialBrand = {
-    title: "",
-  };
+  const initialBrand = useMemo(() => {
+    return {
+      title: "",
+    };
+  }, []);
   const [brandDetails, setBrandDetails] =
     useState<BrandCreateRequest>(initialBrand);
 
@@ -36,51 +37,55 @@ const AddBrand = () => {
   const [createBrand, { isLoading, isError, error, isSuccess, data }] =
     useCreateBrandMutation();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setApiError(null);
     setSuccessMessage(null);
+    setZodErrors({});
     const { name, value } = e.target;
     setBrandDetails((prev) => ({
       ...prev,
       [name]: value === "" ? null : value,
     }));
-  };
+  }, []);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setBrandDetails(initialBrand);
     setZodErrors({});
     setApiError(null);
     setSuccessMessage(null);
-  };
+  }, [initialBrand]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setZodErrors({});
-    setApiError(null);
-    setSuccessMessage(null);
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setZodErrors({});
+      setApiError(null);
+      setSuccessMessage(null);
 
-    const validationResult = addBrandSchema.safeParse(brandDetails);
+      const validationResult = addBrandSchema.safeParse(brandDetails);
 
-    if (!validationResult.success) {
-      const errors: Record<string, string> = {};
-      validationResult.error.errors.forEach((err) => {
-        if (err.path[0]) {
-          errors[err.path[0] as string] = err.message;
-        }
-      });
-      setZodErrors(errors);
-      return;
-    }
+      if (!validationResult.success) {
+        const errors: Record<string, string> = {};
+        validationResult.error.errors.forEach((err) => {
+          if (err.path[0]) {
+            errors[err.path[0] as string] = err.message;
+          }
+        });
+        setZodErrors(errors);
+        return;
+      }
 
-    try {
-      const response = await createBrand(brandDetails).unwrap;
-      console.log("Brand add response: ", response);
-      resetForm();
-    } catch (error) {
-      console.error("Error adding brand: ", error);
-    }
-  };
+      try {
+        const response = await createBrand(brandDetails).unwrap;
+        console.log("Brand add response: ", response);
+        resetForm();
+      } catch (error) {
+        console.error("Error adding brand: ", error);
+      }
+    },
+    [brandDetails, createBrand, resetForm]
+  );
 
   useEffect(() => {
     if (isError && error) {
@@ -134,7 +139,7 @@ const AddBrand = () => {
       </button>
 
       <dialog id={modalId} className="modal">
-        <div className="modal-box">
+        <div className="modal-box min-h-">
           <button
             type="button"
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
@@ -148,11 +153,13 @@ const AddBrand = () => {
 
           <h3>Add Brand</h3>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="">
             <div className="mb-4">
               <label
                 htmlFor="title"
-                className="input input-bordered flex items-center gap-2"
+                className={`input input-bordered flex items-center gap-2 ${
+                  zodErrors.title ? "input-error" : null
+                }`}
               >
                 <PenLine />
                 <input
@@ -170,17 +177,13 @@ const AddBrand = () => {
               </label>
               {zodErrors.title && <AlertText message={zodErrors.title} />}
             </div>
-
             {apiError && typeof apiError === "string" && (
-              <AlertMessage message={apiError} />
+              <AlertText message={apiError} />
             )}
-
             {successMessage && typeof successMessage === "string" && (
               <p className="text-green-700">{successMessage}</p>
             )}
-
-            {!successMessage && !apiError && <br aria-label="hidden" />}
-
+            {apiError || successMessage ? null : <br />}
             <button
               type="submit"
               className="mt-3 btn btn-primary w-full"
@@ -195,4 +198,4 @@ const AddBrand = () => {
   );
 };
 
-export default AddBrand;
+export default memo(AddBrand);

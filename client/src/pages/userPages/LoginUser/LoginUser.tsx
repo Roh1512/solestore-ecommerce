@@ -1,8 +1,7 @@
 import { Body_auth_login } from "@/client";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useLoginMutation } from "@/features/userAuthApiSlice";
-import { useAppDispatch } from "@/app/hooks";
-import { setCredentials } from "@/features/accessTokenApiSlice";
+
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
 import { ValidationErrorDisplay } from "@/types/errorTypes";
@@ -29,54 +28,53 @@ const LoginUser = () => {
   const [apiError, setApiError] = useState<string | null>(null);
 
   const [login, { isLoading }] = useLoginMutation();
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setApiError(null);
-    setValidationErrors([]);
-    try {
-      const response = await login(loginData).unwrap();
-      console.log("Login successful:", response);
-      dispatch(setCredentials({ accessToken: response.access_token }));
-      navigate("/login");
-    } catch (error) {
-      console.error("Login error:", error);
-      if (isFieldValidationError(error)) {
-        const errors = getValidationErrors(error);
-        setValidationErrors(errors);
+  const handleLogin = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setApiError(null);
+      setValidationErrors([]);
+      try {
+        const response = await login(loginData).unwrap();
+        console.log("Login successful:", response);
+        navigate("/login");
+      } catch (error) {
+        console.error("Login error:", error);
+        if (isFieldValidationError(error)) {
+          const errors = getValidationErrors(error);
+          setValidationErrors(errors);
+        }
+        if (isApiError(error)) {
+          const message = getApiErrorMessage(error);
+          setApiError(message);
+          toast.error(message);
+        } else {
+          setApiError("Error logging in");
+          toast.error("Error logging in");
+        }
       }
-      if (isApiError(error)) {
-        const message = getApiErrorMessage(error);
-        setApiError(message);
-        toast.error(message);
-      } else {
-        setApiError("Error logging in");
-        toast.error("Error logging in");
-      }
-    }
-  };
+    },
+    [login, loginData, navigate]
+  );
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLoginData({ ...loginData, [e.target.name]: e.target.value });
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setLoginData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setApiError(null);
     setValidationErrors((prevErrors) =>
       prevErrors.filter((err) => err.field !== e.target.name)
     );
-  };
+  }, []);
 
-  const getValidationMessage = (field: string) => {
-    const error = validationErrors.find((err) => err.field === field);
-    return error ? error.message : null;
-  };
+  const getValidationMessage = (field: string) =>
+    validationErrors.find((err) => err.field === field)?.message || null;
 
   return (
-    <div className="w-full h-full max-w-md p-3 bg-base-300 text-base-content shadow-xl rounded-lg">
+    <div className="w-full h-full max-w-md p-3 bg-base-300 text-base-content shadow-xl rounded-lg mt-4 mb-4">
       <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
       <form onSubmit={handleLogin}>
         <div className="mb-4">
-          <label htmlFor="username" className="form-control w-full max-w-lg">
+          <label htmlFor="username" className="form-control w-full">
             <div className="label text-lg font-medium">
               <span className="label-text">Enter Username or Email</span>
             </div>
@@ -85,7 +83,9 @@ const LoginUser = () => {
             type="text"
             id="username"
             name="username"
-            className="input input-bordered w-full max-w-lg"
+            className={`input input-bordered w-full max-w-lg ${
+              getValidationMessage("username") ? "input-error" : ""
+            }`}
             placeholder="Username or Email"
             value={loginData.username}
             onChange={handleChange}
@@ -99,7 +99,7 @@ const LoginUser = () => {
         </div>
 
         <div className="mb-6">
-          <label htmlFor="password" className="form-control w-full max-w-lg">
+          <label htmlFor="password" className="form-control w-full">
             <div className="label text-lg font-medium">
               <span className="label-text">Password</span>
             </div>
@@ -108,7 +108,9 @@ const LoginUser = () => {
             type="password"
             id="password"
             name="password"
-            className="input input-bordered w-full max-w-lg"
+            className={`input input-bordered w-full max-w-lg ${
+              getValidationMessage("password") ? "input-error" : ""
+            }`}
             placeholder="Enter your password"
             value={loginData.password}
             onChange={handleChange}

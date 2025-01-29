@@ -1,6 +1,7 @@
 import { CategoryResponse } from "@/client";
 import DeleteCategory from "./DeleteCategory";
 import EditCategory from "./EditCategory";
+import { memo } from "react";
 
 type Props = {
   category: CategoryResponse;
@@ -28,4 +29,4 @@ const Category = (props: Props) => {
   );
 };
 
-export default Category;
+export default memo(Category);

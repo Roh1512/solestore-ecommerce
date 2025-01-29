@@ -7,7 +7,7 @@ import {
   PhoneCallIcon,
   KeyRound,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { useUpdateProfileMutation } from "@/features/profileApiSLice";
 
@@ -56,13 +56,15 @@ const passwordSchema = z.object({
 const EditProfile = (props: Props) => {
   const admin: AdminResponse = props.admin;
 
-  const initialAdminDetails: AdminUpdateRequest = {
-    username: admin?.username || "",
-    name: admin?.name || "",
-    email: admin?.email || "",
-    password: "",
-    phone: admin?.phone || "",
-  };
+  const initialAdminDetails: AdminUpdateRequest = useMemo(() => {
+    return {
+      username: admin?.username || "",
+      name: admin?.name || "",
+      email: admin?.email || "",
+      password: "",
+      phone: admin?.phone || "",
+    };
+  }, [admin]);
   const [adminDetails, setAdminDetails] =
     useState<AdminUpdateRequest>(initialAdminDetails);
   const [currentPassword, setCurrentPassword] = useState<string>("");
@@ -77,83 +79,89 @@ const EditProfile = (props: Props) => {
   const [updateProfile, { isLoading, isError, error }] =
     useUpdateProfileMutation();
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setAdminDetails(initialAdminDetails);
     setZodErrors({});
     setCurrentPassword("");
     setCurrentPasswordError({});
     setApiError(null);
-  };
+  }, [initialAdminDetails]);
 
-  const handleDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setApiError(null);
-    const { name, value } = e.target;
-    setAdminDetails((prev) => ({
-      ...prev,
-      [name]:
-        value === "" && (name === "phone" || name === "password")
-          ? null
-          : value,
-    }));
-  };
+  const handleDetailsChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setApiError(null);
+      const { name, value } = e.target;
+      setAdminDetails((prev) => ({
+        ...prev,
+        [name]:
+          value === "" && (name === "phone" || name === "password")
+            ? null
+            : value,
+      }));
+    },
+    []
+  );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-    setZodErrors({});
-    setCurrentPasswordError({});
+      setZodErrors({});
+      setCurrentPasswordError({});
 
-    // Validate using Zod schema
-    const result = updateAdminSchema.safeParse(adminDetails);
-    if (!result.success) {
-      // Collect Zod errors
-      const errors: Record<string, string> = {};
-      result.error.errors.forEach((err) => {
-        if (err.path[0]) {
-          errors[err.path[0] as string] = err.message;
-        }
-      });
-      setZodErrors(errors);
-      return;
-    }
-
-    const currentPasswordResult = passwordSchema.safeParse({
-      current_password: currentPassword,
-    });
-
-    if (!currentPasswordResult.success) {
-      const errors: Record<string, string> = {};
-      currentPasswordResult.error.errors.forEach((err) => {
-        if (err.path[0]) {
-          errors[err.path[0] as string] = err.message;
-        }
-      });
-      setCurrentPasswordError(errors); // Set the current password error
-      return;
-    }
-
-    try {
-      const profileDetails = adminDetails;
-      const response = await updateProfile({
-        profileDetails,
-        currentPassword,
-      }).unwrap();
-      console.log(response);
-      toast.success("Profile updated");
-      const modal = document.getElementById(
-        "my_modal_2"
-      ) as HTMLDialogElement | null;
-      if (modal) {
-        modal.close(); // Close the modal
+      // Validate using Zod schema
+      const result = updateAdminSchema.safeParse(adminDetails);
+      if (!result.success) {
+        // Collect Zod errors
+        const errors: Record<string, string> = {};
+        result.error.errors.forEach((err) => {
+          if (err.path[0]) {
+            errors[err.path[0] as string] = err.message;
+          }
+        });
+        setZodErrors(errors);
+        return;
       }
 
-      // Optionally reset the form after successful update
-      resetForm();
-    } catch (error) {
-      console.error("Error updating profile", error);
-    }
-  };
+      const currentPasswordResult = passwordSchema.safeParse({
+        current_password: currentPassword,
+      });
+
+      if (!currentPasswordResult.success) {
+        const errors: Record<string, string> = {};
+        currentPasswordResult.error.errors.forEach((err) => {
+          if (err.path[0]) {
+            errors[err.path[0] as string] = err.message;
+          }
+        });
+        setCurrentPasswordError(errors); // Set the current password error
+        return;
+      }
+
+      try {
+        const profileDetails = adminDetails;
+        const response = await updateProfile({
+          profileDetails,
+          currentPassword,
+        }).unwrap();
+        console.log(response);
+        toast.success("Profile updated");
+        const modal = document.getElementById(
+          "my_modal_2"
+        ) as HTMLDialogElement | null;
+        if (modal) {
+          modal.close(); // Close the modal
+        }
+
+        // Optionally reset the form after successful update
+        resetForm();
+      } catch (error) {
+        console.error("Error updating profile", error);
+      }
+    },
+    [adminDetails, currentPassword, resetForm, updateProfile]
+  );
 
   useEffect(() => {
     if (isError && error) {
@@ -384,4 +392,4 @@ const EditProfile = (props: Props) => {
   );
 };
 
-export default EditProfile;
+export default memo(EditProfile);

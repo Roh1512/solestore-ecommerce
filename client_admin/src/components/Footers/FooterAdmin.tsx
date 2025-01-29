@@ -1,4 +1,5 @@
 import LogoLink from "@components/Logo/LogoLink";
+import { memo } from "react";
 
 const FooterAdmin = () => {
   return (
@@ -9,4 +10,4 @@ const FooterAdmin = () => {
   );
 };
 
-export default FooterAdmin;
+export default memo(FooterAdmin);

@@ -1,4 +1,5 @@
 import { CircleAlert } from "lucide-react";
+import { memo } from "react";
 type Props = { message: string };
 const AlertText = (props: Props) => {
   return (
@@ -12,4 +13,4 @@ const AlertText = (props: Props) => {
   );
 };
 
-export default AlertText;
+export default memo(AlertText);

@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 const PageLoading = () => {
   return (
     <div className="bg-base-200 flex items-center justify-center min-h-screen">
@@ -15,4 +17,4 @@ const PageLoading = () => {
   );
 };
 
-export default PageLoading;
+export default memo(PageLoading);

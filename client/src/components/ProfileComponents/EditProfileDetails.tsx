@@ -7,7 +7,7 @@ import {
   isFieldValidationError,
 } from "@/utils/errorHandler";
 import { Edit2, KeyRound, MailIcon, SignatureIcon, User2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { z } from "zod";
 import AlertText from "../ErrorElements/AlertText";
@@ -16,7 +16,7 @@ import { closeModal, openModal } from "@/utils/modal_utils";
 
 const updateProfileSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters").trim(),
-  name: z.string().min(3, "Name must be at least 3 characters").trim(),
+  name: z.string().min(1, "Name must be at least 3 characters").trim(),
   email: z.string().email("Invalid email address").trim(),
   password: z
     .string()
@@ -40,12 +40,14 @@ type Props = {
 
 const EditProfileDetails = (props: Props) => {
   const user = props.user;
-  const initialUserDetails: UpdateProfileRequest = {
-    username: user?.username || "",
-    name: user?.name || "",
-    email: user?.email || "",
-    password: "",
-  };
+  const initialUserDetails: UpdateProfileRequest = useMemo(() => {
+    return {
+      username: user?.username || "",
+      name: user?.name || "",
+      email: user?.email || "",
+      password: "",
+    };
+  }, [user]);
   const modalId = "edit_profile_modal";
   const [userDetails, setUserDetails] =
     useState<UpdateProfileRequest>(initialUserDetails);
@@ -61,78 +63,91 @@ const EditProfileDetails = (props: Props) => {
   const [updateProfileDetails, { isLoading, isError, error }] =
     useUpdateProfileDetailsMutation();
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setUserDetails(initialUserDetails);
     setZodErrors({});
     setCurrentPassword("");
     setCurrentPasswordError({});
     setApiError(null);
-  };
+  }, [initialUserDetails]);
 
-  const handleDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setApiError(null);
-    const { name, value } = e.target;
-    setUserDetails((prev) => ({
-      ...prev,
-      [name]: value === "" && name === "password" ? null : value,
-    }));
-  };
+  const handleDetailsChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setApiError(null);
+      const { name, value } = e.target;
+      setUserDetails((prev) => ({
+        ...prev,
+        [name]: value === "" && name === "password" ? null : value,
+      }));
+    },
+    []
+  );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-    setZodErrors({});
-    setCurrentPasswordError({});
+      setZodErrors({});
+      setCurrentPasswordError({});
 
-    if (JSON.stringify(userDetails) === JSON.stringify(initialUserDetails)) {
-      toast.info("No change detected");
-      closeModal(modalId);
-      return;
-    }
+      if (JSON.stringify(userDetails) === JSON.stringify(initialUserDetails)) {
+        toast.info("No change detected");
+        closeModal(modalId);
+        return;
+      }
 
-    const result = updateProfileSchema.safeParse(userDetails);
-    if (!result.success) {
-      const errors: Record<string, string> = {};
-      result.error.errors.forEach((err) => {
-        if (err.path[0]) {
-          errors[err.path[0] as string] = err.message;
-        }
+      const result = updateProfileSchema.safeParse(userDetails);
+      if (!result.success) {
+        const errors: Record<string, string> = {};
+        result.error.errors.forEach((err) => {
+          if (err.path[0]) {
+            errors[err.path[0] as string] = err.message;
+          }
+        });
+        setZodErrors(errors);
+        return;
+      }
+
+      const currentPasswordResult = passwordSchema.safeParse({
+        current_password: currentPassword,
       });
-      setZodErrors(errors);
-      return;
-    }
 
-    const currentPasswordResult = passwordSchema.safeParse({
-      current_password: currentPassword,
-    });
+      if (!currentPasswordResult.success && !user.google_id) {
+        const errors: Record<string, string> = {};
+        currentPasswordResult.error.errors.forEach((err) => {
+          if (err.path[0]) {
+            errors[err.path[0] as string] = err.message;
+          }
+        });
+        setCurrentPasswordError(errors); // Set the current password error
+        return;
+      }
 
-    if (!currentPasswordResult.success && !user.google_id) {
-      const errors: Record<string, string> = {};
-      currentPasswordResult.error.errors.forEach((err) => {
-        if (err.path[0]) {
-          errors[err.path[0] as string] = err.message;
-        }
-      });
-      setCurrentPasswordError(errors); // Set the current password error
-      return;
-    }
+      try {
+        const profileDetails = userDetails;
+        const response = await updateProfileDetails({
+          profileDetails,
+          currentPassword,
+        }).unwrap();
+        console.log(response);
+        toast.success("Profile updated");
 
-    try {
-      const profileDetails = userDetails;
-      const response = await updateProfileDetails({
-        profileDetails,
-        currentPassword,
-      }).unwrap();
-      console.log(response);
-      toast.success("Profile updated");
-
-      closeModal(modalId);
-      resetForm();
-    } catch (error) {
-      console.error("Error updating profile", error);
-    }
-  };
+        closeModal(modalId);
+        resetForm();
+      } catch (error) {
+        console.error("Error updating profile", error);
+      }
+    },
+    [
+      currentPassword,
+      initialUserDetails,
+      resetForm,
+      updateProfileDetails,
+      user.google_id,
+      userDetails,
+    ]
+  );
 
   useEffect(() => {
     if (isError && error) {
@@ -322,4 +337,4 @@ const EditProfileDetails = (props: Props) => {
   );
 };
 
-export default EditProfileDetails;
+export default memo(EditProfileDetails);

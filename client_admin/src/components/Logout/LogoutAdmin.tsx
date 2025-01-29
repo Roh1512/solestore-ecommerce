@@ -1,6 +1,6 @@
 import { useLogoutMutation } from "@/features/adminAuthApiSlice";
 import { LogOut } from "lucide-react";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import ButtonLoading from "../Loading/ButtonLoading";
@@ -9,7 +9,7 @@ const LogoutAdmin = () => {
   const navigate = useNavigate();
   const [logoutMutation, { isLoading, isSuccess }] = useLogoutMutation();
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     try {
       await logoutMutation().unwrap();
       window.location.reload();
@@ -17,7 +17,7 @@ const LogoutAdmin = () => {
       console.error("Logout error: ", error);
       toast.error("Error logging out");
     }
-  };
+  }, [logoutMutation]);
 
   useEffect(() => {
     if (isSuccess) {

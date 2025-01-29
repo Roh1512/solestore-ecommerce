@@ -1,11 +1,12 @@
 import { useLogoutMutation } from "@/features/userAuthApiSlice";
 import { toast } from "react-toastify";
 import { LogOut } from "lucide-react";
+import { memo, useCallback } from "react";
 
 const LogoutButton = () => {
   const [logoutMutation, { isLoading }] = useLogoutMutation();
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     try {
       await logoutMutation().unwrap(); // Execute logout mutation
       window.location.reload();
@@ -13,7 +14,7 @@ const LogoutButton = () => {
       console.error("Logout error:", err);
       toast.error("Error logging out");
     }
-  };
+  }, [logoutMutation]);
 
   return (
     <button
@@ -32,4 +33,4 @@ const LogoutButton = () => {
   );
 };
 
-export default LogoutButton;
+export default memo(LogoutButton);

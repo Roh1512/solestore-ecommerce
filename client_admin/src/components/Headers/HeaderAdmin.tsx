@@ -1,6 +1,7 @@
 import { useCurrentAuthState } from "@/app/useCurrentState";
 import LogoLink from "@components/Logo/LogoLink";
 import ThemeToggle from "@components/theme/ToggleTheme";
+import { memo } from "react";
 import { Link } from "react-router-dom";
 
 const HeaderAdmin = () => {
@@ -23,4 +24,4 @@ const HeaderAdmin = () => {
   );
 };
 
-export default HeaderAdmin;
+export default memo(HeaderAdmin);

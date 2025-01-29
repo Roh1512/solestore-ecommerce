@@ -46,7 +46,7 @@ class UpdateProfileRequest(BaseModel):
     '''User profile update request'''
     username: Optional[str] = Field(
         None,
-        min_length=3,
+        min_length=5,
         max_length=30,
         pattern="^[a-zA-Z0-9_]+$",
         description="Username must be 3-30 characters long and can only contain letters, numbers, and underscores."
@@ -57,7 +57,7 @@ class UpdateProfileRequest(BaseModel):
     )
     name: Optional[str] = Field(
         None,
-        min_length=1,
+        min_length=5,
         max_length=50,
         description="Name must be between 1 and 50 characters."
     )
@@ -114,9 +114,9 @@ class UserCreateRequest(BaseModel):
     )
     name: Optional[str] = Field(
         None,
-        min_length=1,
+        min_length=5,
         max_length=50,
-        description="Name must be between 1 and 50 characters."
+        description="Name must be between 5 and 50 characters."
     )
     address: Optional[str] = Field(
         None,

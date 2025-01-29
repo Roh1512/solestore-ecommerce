@@ -2,6 +2,7 @@ import { useCurrentAuthState } from "@/app/useCurrentState";
 import LogoLink from "../../../Logo/LogoLink";
 import ThemeToggle from "../../../Theme/ToggleTheme";
 import { Link } from "react-router-dom";
+import { memo } from "react";
 
 const HeaderStore = () => {
   const { isLoggedIn, accessToken } = useCurrentAuthState();
@@ -23,4 +24,4 @@ const HeaderStore = () => {
   );
 };
 
-export default HeaderStore;
+export default memo(HeaderStore);

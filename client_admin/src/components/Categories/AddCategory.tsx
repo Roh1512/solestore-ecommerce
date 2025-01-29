@@ -1,7 +1,7 @@
 import { PenLine, Plus } from "lucide-react";
 import { closeModal, openModal } from "@/utils/modal_utils";
 import { useCreateCategoryMutation } from "@/features/categoryApiSlice";
-import React, { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, memo } from "react";
 import { CategoryCreateRequest } from "@/client";
 import {
   getApiErrorMessage,
@@ -23,9 +23,9 @@ const addCategorySchema = z.object({
 const AddCategory = () => {
   const modalId = "add-category-modal";
 
-  const initialCategory = {
-    title: "",
-  };
+  const initialCategory = useMemo(() => {
+    return { title: "" };
+  }, []);
   const [categoryDetails, setCategoryDetails] =
     useState<CategoryCreateRequest>(initialCategory);
 
@@ -37,7 +37,7 @@ const AddCategory = () => {
   const [createCategory, { isLoading, isError, error, isSuccess, data }] =
     useCreateCategoryMutation();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setApiError(null);
     setSuccessMessage(null);
     const { name, value } = e.target;
@@ -45,43 +45,46 @@ const AddCategory = () => {
       ...prev,
       [name]: value === "" ? null : value,
     }));
-  };
+  }, []);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setCategoryDetails(initialCategory);
     setZodErrors({});
     setApiError(null);
     setSuccessMessage(null);
-  };
+  }, [initialCategory]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setZodErrors({});
-    setApiError(null);
-    setSuccessMessage(null);
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setZodErrors({});
+      setApiError(null);
+      setSuccessMessage(null);
 
-    const validationResult = addCategorySchema.safeParse(categoryDetails);
+      const validationResult = addCategorySchema.safeParse(categoryDetails);
 
-    if (!validationResult.success) {
-      const errors: Record<string, string> = {};
-      validationResult.error.errors.forEach((err) => {
-        if (err.path[0]) {
-          errors[err.path[0] as string] = err.message;
-        }
-      });
-      setZodErrors(errors);
-      return;
-    }
+      if (!validationResult.success) {
+        const errors: Record<string, string> = {};
+        validationResult.error.errors.forEach((err) => {
+          if (err.path[0]) {
+            errors[err.path[0] as string] = err.message;
+          }
+        });
+        setZodErrors(errors);
+        return;
+      }
 
-    try {
-      const response = await createCategory(categoryDetails).unwrap;
-      console.log("Category add response: ", response);
-      resetForm();
-    } catch (error) {
-      console.error("Error adding category: ", error);
-    }
-  };
+      try {
+        const response = await createCategory(categoryDetails).unwrap();
+        console.log("Category add response: ", response);
+        resetForm();
+      } catch (error) {
+        console.error("Error adding category: ", error);
+      }
+    },
+    [categoryDetails, createCategory, resetForm]
+  );
 
   useEffect(() => {
     if (isError && error) {
@@ -196,4 +199,4 @@ const AddCategory = () => {
   );
 };
 
-export default AddCategory;
+export default memo(AddCategory);

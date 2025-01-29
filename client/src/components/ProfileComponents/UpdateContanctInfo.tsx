@@ -8,7 +8,7 @@ import {
 } from "@/utils/errorHandler";
 import { closeModal, openModal } from "@/utils/modal_utils";
 import { HomeIcon, KeyRound, PhoneCallIcon, ReceiptText } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { z } from "zod";
 import AlertText from "../ErrorElements/AlertText";
@@ -45,10 +45,12 @@ const passwordSchema = z.object({
 const UpdateContanctInfo = (props: Props) => {
   const modalId = "update_info_modal";
   const user: UserResponse = props.user;
-  const initialContactInfo: UpdateContactInfoRequest = {
-    phone: user?.phone || "",
-    address: user?.address || "",
-  };
+  const initialContactInfo: UpdateContactInfoRequest = useMemo(() => {
+    return {
+      phone: user?.phone || "",
+      address: user?.address || "",
+    };
+  }, [user]);
   const [contactInfo, setContactInfo] =
     useState<UpdateContactInfoRequest>(initialContactInfo);
   const [currentPassword, setCurrentPassword] = useState<string>("");
@@ -63,80 +65,91 @@ const UpdateContanctInfo = (props: Props) => {
   const [updateContactInfo, { isLoading, isError, error }] =
     useUpdateContactInfoMutation();
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setContactInfo(initialContactInfo);
     setZodErrors({});
     setCurrentPassword("");
     setCurrentPasswordError({});
     setApiError(null);
-  };
+  }, [initialContactInfo]);
 
-  const handleDetailsChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setApiError(null);
-    const { name, value } = e.target;
-    setContactInfo((prev) => ({
-      ...prev,
-      [name]: value === "" ? null : value,
-    }));
-  };
+  const handleDetailsChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setApiError(null);
+      const { name, value } = e.target;
+      setContactInfo((prev) => ({
+        ...prev,
+        [name]: value === "" ? null : value,
+      }));
+    },
+    []
+  );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-    if (JSON.stringify(contactInfo) === JSON.stringify(initialContactInfo)) {
-      toast.info("No change detected");
-      closeModal(modalId);
-      return;
-    }
+      if (JSON.stringify(contactInfo) === JSON.stringify(initialContactInfo)) {
+        toast.info("No change detected");
+        closeModal(modalId);
+        return;
+      }
 
-    setZodErrors({});
-    setCurrentPasswordError({});
-    setApiError(null);
+      setZodErrors({});
+      setCurrentPasswordError({});
+      setApiError(null);
 
-    const result = updateContanctInfoSchema.safeParse(contactInfo);
-    if (!result.success) {
-      // Collect Zod errors
-      const errors: Record<string, string> = {};
-      result.error.errors.forEach((err) => {
-        if (err.path[0]) {
-          errors[err.path[0] as string] = err.message;
-        }
+      const result = updateContanctInfoSchema.safeParse(contactInfo);
+      if (!result.success) {
+        // Collect Zod errors
+        const errors: Record<string, string> = {};
+        result.error.errors.forEach((err) => {
+          if (err.path[0]) {
+            errors[err.path[0] as string] = err.message;
+          }
+        });
+        setZodErrors(errors);
+        return;
+      }
+
+      const currentPasswordResult = passwordSchema.safeParse({
+        current_password: currentPassword,
       });
-      setZodErrors(errors);
-      return;
-    }
 
-    const currentPasswordResult = passwordSchema.safeParse({
-      current_password: currentPassword,
-    });
+      if (!currentPasswordResult.success && !props.user.google_id) {
+        const errors: Record<string, string> = {};
+        currentPasswordResult.error.errors.forEach((err) => {
+          if (err.path[0]) {
+            errors[err.path[0] as string] = err.message;
+          }
+        });
+        setCurrentPasswordError(errors); // Set the current password error//
+        return;
+      }
 
-    if (!currentPasswordResult.success && !props.user.google_id) {
-      const errors: Record<string, string> = {};
-      currentPasswordResult.error.errors.forEach((err) => {
-        if (err.path[0]) {
-          errors[err.path[0] as string] = err.message;
-        }
-      });
-      setCurrentPasswordError(errors); // Set the current password error//
-      return;
-    }
-
-    try {
-      const response = await updateContactInfo({
-        contactInfo,
-        currentPassword,
-      }).unwrap();
-      console.log(response);
-      toast.success("Contact info updated");
-      resetForm();
-      closeModal(modalId);
-    } catch (error) {
-      console.error("Error updating contact info: ", error);
-    }
-  };
+      try {
+        const response = await updateContactInfo({
+          contactInfo,
+          currentPassword,
+        }).unwrap();
+        console.log(response);
+        toast.success("Contact info updated");
+        resetForm();
+        closeModal(modalId);
+      } catch (error) {
+        console.error("Error updating contact info: ", error);
+      }
+    },
+    [
+      contactInfo,
+      currentPassword,
+      initialContactInfo,
+      props.user.google_id,
+      resetForm,
+      updateContactInfo,
+    ]
+  );
 
   useEffect(() => {
     if (isError && error) {
@@ -275,4 +288,4 @@ const UpdateContanctInfo = (props: Props) => {
   );
 };
 
-export default UpdateContanctInfo;
+export default memo(UpdateContanctInfo);

@@ -3,10 +3,8 @@ import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 import { useGoogleLoginMutation } from "@/features/userAuthApiSlice";
 import { useNavigate } from "react-router";
 import { useEffect } from "react";
-import { useTheme } from "@/context/ThemeContext";
 
 const GoogleLoginButton = () => {
-  const { theme } = useTheme();
   const [googleLogin, { isSuccess }] = useGoogleLoginMutation();
   const navigate = useNavigate();
   const handleSuccess = async (response: CredentialResponse) => {
@@ -40,19 +38,26 @@ const GoogleLoginButton = () => {
   }, [isSuccess, navigate]);
 
   return (
-    <GoogleLogin
-      onSuccess={handleSuccess}
-      onError={handleError}
-      useOneTap
-      theme={theme === "lofi" ? "filled_black" : "filled_blue"}
-      text="continue_with"
-      containerProps={{
-        className: "shadow-lg w-fit m-auto",
+    <div
+      style={{
+        transform: "scale(1.2)",
+        transformOrigin: "center",
+        padding: "2rem",
       }}
-      logo_alignment="center"
-      size="large"
-      shape="pill"
-    />
+    >
+      <GoogleLogin
+        onSuccess={handleSuccess}
+        onError={handleError}
+        useOneTap
+        theme="outline"
+        text="signin_with"
+        containerProps={{
+          className: "w-full m-auto",
+        }}
+        logo_alignment="left"
+        size="large"
+      />
+    </div>
   );
 };
 

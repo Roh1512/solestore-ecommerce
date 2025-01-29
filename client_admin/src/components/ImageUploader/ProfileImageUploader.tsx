@@ -1,5 +1,5 @@
 import { useUpdateProfileImageMutation } from "@/features/profileApiSLice";
-import { useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import AlertText from "../ErrorElements/AlertText";
 import { getApiErrorMessage, isApiError } from "@/utils/errorHandler";
@@ -34,10 +34,10 @@ const ProfileImageUploader = () => {
 
   // Reset image and preview when component mounts (optional, can be removed if unnecessary)
 
-  const removeImage = () => {
+  const removeImage = useCallback(() => {
     setImage(null);
     setPreview(null);
-  };
+  }, []);
 
   useEffect(() => {
     if (isSuccess) {
@@ -51,7 +51,7 @@ const ProfileImageUploader = () => {
     }
   }, [error, isError, isSuccess]);
 
-  const handleUpload = async () => {
+  const handleUpload = useCallback(async () => {
     if (!image) return;
 
     const formData = new FormData();
@@ -74,7 +74,7 @@ const ProfileImageUploader = () => {
     } catch (error) {
       console.error("Upload error:", error);
     }
-  };
+  }, [image, removeImage, updateProfileImage]);
 
   return (
     <div className="p-4 border rounded-md">
@@ -128,4 +128,4 @@ const ProfileImageUploader = () => {
   );
 };
 
-export default ProfileImageUploader;
+export default memo(ProfileImageUploader);

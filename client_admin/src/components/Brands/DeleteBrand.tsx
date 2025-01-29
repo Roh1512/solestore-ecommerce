@@ -3,7 +3,7 @@ import { closeModal, openModal } from "@/utils/modal_utils";
 import { Trash2 } from "lucide-react";
 import ButtonLoading from "../Loading/ButtonLoading";
 import IconLoading from "../Loading/IconLoading";
-import { useEffect } from "react";
+import { memo, useCallback, useEffect } from "react";
 import { toast } from "react-toastify";
 import { getApiErrorMessage, isApiError } from "@/utils/errorHandler";
 import { useDeleteBrandMutation } from "@/features/brandApiSlice";
@@ -20,7 +20,7 @@ const DeleteBrand = (props: Props) => {
 
   const isDeleteLoading = isLoading && props.deleteBrandId === props.brand.id;
 
-  const handleDeleteBrand = async () => {
+  const handleDeleteBrand = useCallback(async () => {
     try {
       const res = await deleteBrand({ brandId: props.deleteBrandId }).unwrap();
       console.log(res);
@@ -28,7 +28,7 @@ const DeleteBrand = (props: Props) => {
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [deleteBrand, modalId, props.deleteBrandId]);
 
   useEffect(() => {
     if (isSuccess) {
@@ -96,4 +96,4 @@ const DeleteBrand = (props: Props) => {
   );
 };
 
-export default DeleteBrand;
+export default memo(DeleteBrand);

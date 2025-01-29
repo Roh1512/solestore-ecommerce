@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 type Props = {
   text: string;
 };
@@ -11,4 +13,4 @@ const ButtonLoading = (props: Props) => {
   );
 };
 
-export default ButtonLoading;
+export default memo(ButtonLoading);

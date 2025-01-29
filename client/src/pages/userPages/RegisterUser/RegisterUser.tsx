@@ -1,20 +1,26 @@
 import { UserCreateRequest } from "@/client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
 import { useRegisterMutation } from "@/features/userAuthApiSlice";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
-import { getApiErrorMessage, isApiError } from "@/utils/errorHandler";
+import {
+  getApiErrorMessage,
+  getValidationErrors,
+  isApiError,
+  isFieldValidationError,
+} from "@/utils/errorHandler";
 import AlertMessage from "@/components/ErrorElements/AlertMessage";
 import GoogleLoginButton from "@/components/Google/GoogleLoginButton";
 import { Link } from "react-router-dom";
+import AlertText from "@/components/ErrorElements/AlertText";
 
 // Define a Zod schema for user input
 const userCreateSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters").trim(),
-  name: z.string().min(3, "Full name must be at least 3 characters").trim(),
+  name: z.string().min(5, "Full name must be at least 5 characters").trim(),
   email: z.string().email("Invalid email address").trim(),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
   address: z
     .string()
     .trim()
@@ -51,127 +57,200 @@ const RegisterUser = () => {
 
   const [register, { isLoading, isError, error }] = useRegisterMutation();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrors({});
-    setApiError(null);
+  console.log("ZOD ERRORS: ", errors);
 
-    // Ensure phone and address are `null` if empty
-    const normalizedUserDetails = {
-      ...userDetails,
-      phone: userDetails.phone === "" ? null : userDetails.phone,
-      address: userDetails.address === "" ? null : userDetails.address,
-    };
-
-    // Validate the user details
-    const validationResult = userCreateSchema.safeParse(normalizedUserDetails);
-
-    if (!validationResult.success) {
-      // Collect errors from Zod validation
-      const fieldErrors: Record<string, string> = {};
-      validationResult.error.errors.forEach((error) => {
-        if (error.path[0]) {
-          fieldErrors[error.path[0] as string] = error.message;
-        }
-      });
-
-      setErrors(fieldErrors);
-      console.log(userDetails);
-    } else {
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
       setErrors({});
-      console.log("Validated User Details:", validationResult.data);
+      setApiError(null);
 
-      // Proceed with your registration logic
-      // For example: send `validationResult.data` to the backend
-      try {
-        const response = await register(normalizedUserDetails).unwrap();
-        console.log("Registration successful: ", response);
-        toast.success("User registered successfully. Continue to login.");
-        navigate("/login");
-      } catch (error) {
-        console.log("Register Error: ", error);
+      // Ensure phone and address are `null` if empty
+      const normalizedUserDetails = {
+        ...userDetails,
+        phone: userDetails.phone === "" ? null : userDetails.phone,
+        address: userDetails.address === "" ? null : userDetails.address,
+      };
+
+      // Validate the user details
+      const validationResult = userCreateSchema.safeParse(
+        normalizedUserDetails
+      );
+
+      if (!validationResult.success) {
+        // Collect errors from Zod validation
+        const fieldErrors: Record<string, string> = {};
+        validationResult.error.errors.forEach((error) => {
+          if (error.path[0]) {
+            fieldErrors[error.path[0] as string] = error.message;
+          }
+        });
+
+        setErrors(fieldErrors);
+        console.log(userDetails);
+      } else {
+        setErrors({});
+        console.log("Validated User Details:", validationResult.data);
+
+        // Proceed with your registration logic
+        // For example: send `validationResult.data` to the backend
+        try {
+          const response = await register(normalizedUserDetails).unwrap();
+          console.log("Registration successful: ", response);
+          toast.success("User registered successfully. Continue to login.");
+          navigate("/login");
+        } catch (error) {
+          console.log("Register Error: ", error);
+        }
       }
-    }
-  };
+    },
+    [navigate, register, userDetails]
+  );
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setApiError(null);
-    const { name, value } = e.target;
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setApiError(null);
+      const { name, value } = e.target;
 
-    setUserDetails((prev) => ({
-      ...prev,
-      [name]:
-        value === "" && (name === "phone" || name === "address") ? null : value,
-    }));
-  };
+      setUserDetails((prev) => ({
+        ...prev,
+        [name]:
+          value === "" && (name === "phone" || name === "address")
+            ? null
+            : value,
+      }));
+    },
+    []
+  );
 
   useEffect(() => {
     if (isError && error) {
+      if (isFieldValidationError(error)) {
+        const errors = getValidationErrors(error);
+        const newErrors: Record<string, string> = {};
+        errors.forEach(({ field, message }) => {
+          newErrors[field] = message;
+        });
+
+        setErrors((prev) => ({ ...prev, ...newErrors }));
+      }
       if (isApiError(error)) {
         const errorMessage = getApiErrorMessage(error);
         setApiError(errorMessage);
+      } else {
+        setApiError("Error registering user");
       }
     }
   }, [error, isError]);
 
   return (
     <>
-      <GoogleLoginButton />
-      <div className="mt-2 card w-full max-w-md bg-base-300 shadow-xl pt-2">
+      <div className="mt-4 mb-4 card w-full max-w-md bg-base-300 shadow-xl pt-2">
         <div className="card-body">
           <h2 className="card-title text-2xl font-bold text-center mb-3 m-auto">
             Register
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {[
-              {
-                name: "username",
-                label: "Username",
-                type: "text",
-                required: true,
-              },
-              {
-                name: "name",
-                label: "Full Name",
-                type: "text",
-                required: true,
-              },
-              { name: "email", label: "Email", type: "email", required: true },
-              {
-                name: "password",
-                label: "Password",
-                type: "password",
-                required: true,
-              },
-              { name: "phone", label: "Phone", type: "tel" },
-            ].map((field) => (
-              <div key={field.name} className="form-control">
-                <label className="label">
-                  <span className="label-text">{field.label}</span>
-                </label>
-                <input
-                  type={field.type}
-                  name={field.name}
-                  value={
-                    userDetails[field.name as keyof UserCreateRequest] ?? ""
-                  }
-                  onChange={handleChange}
-                  placeholder={`Enter ${field.label.toLowerCase()}`}
-                  className={`input input-bordered w-full ${
-                    errors[field.name] ? "input-error" : ""
-                  }`}
-                  required={field.required ? field.required : false}
-                />
-                {errors[field.name] && (
-                  <p className="text-error text-sm mt-1">
-                    {errors[field.name]}
-                  </p>
-                )}
-              </div>
-            ))}
+            <div className="form-control">
+              <label htmlFor="username" className="label">
+                <span className="label-text">Username</span>
+              </label>
+              <input
+                type="text"
+                name="username"
+                className={`input input-bordered w-full ${
+                  errors.username ? "input-error" : ""
+                }`}
+                required
+                value={userDetails.username}
+                onChange={handleChange}
+                placeholder="Enter username"
+              />
+              {errors.username && typeof errors.username === "string" && (
+                <AlertText message={errors.username} />
+              )}
+            </div>
+
+            <div className="form-control">
+              <label htmlFor="email" className="label">
+                <span className="label-text">Email</span>
+              </label>
+              <input
+                type="email"
+                name="email"
+                className={`input input-bordered w-full ${
+                  errors.email ? "input-error" : ""
+                }`}
+                required
+                value={userDetails.email}
+                onChange={handleChange}
+                placeholder="Enter email address"
+              />
+              {errors.email && typeof errors.email === "string" && (
+                <AlertText message={errors.email} />
+              )}
+            </div>
+
+            <div className="form-control">
+              <label htmlFor="name" className="label">
+                <span className="label-text">Full name</span>
+              </label>
+              <input
+                type="text"
+                name="name"
+                className={`input input-bordered w-full ${
+                  errors.name ? "input-error" : ""
+                }`}
+                required
+                value={userDetails.name || ""}
+                onChange={handleChange}
+                placeholder="Enter full name"
+              />
+              {errors.name && typeof errors.name === "string" && (
+                <AlertText message={errors.name} />
+              )}
+            </div>
+
+            <div className="form-control">
+              <label htmlFor="password" className="label">
+                <span className="label-text">Password</span>
+              </label>
+              <input
+                type="password"
+                name="password"
+                className={`input input-bordered w-full ${
+                  errors.password ? "input-error" : ""
+                }`}
+                required
+                value={userDetails.password}
+                onChange={handleChange}
+                placeholder="Enter password"
+              />
+              {errors.password && typeof errors.password === "string" && (
+                <AlertText message={errors.password} />
+              )}
+            </div>
+
+            <div className="form-control">
+              <label htmlFor="phone" className="label">
+                <span className="label-text">Phone number</span>
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                className={`input input-bordered w-full ${
+                  errors.phone ? "input-error" : ""
+                }`}
+                required
+                value={userDetails.phone || ""}
+                onChange={handleChange}
+                placeholder="Enter Phone number"
+              />
+              {errors.phone && typeof errors.phone === "string" && (
+                <AlertText message={errors.phone} />
+              )}
+            </div>
 
             <div className="form-control">
               <label className="label">
@@ -186,8 +265,8 @@ const RegisterUser = () => {
                   errors.address ? "textarea-error" : ""
                 }`}
               />
-              {errors.address && (
-                <p className="text-error text-sm mt-1">{errors.address}</p>
+              {errors.address && typeof errors.address === "string" && (
+                <AlertText message={errors.address} />
               )}
             </div>
 
@@ -204,6 +283,7 @@ const RegisterUser = () => {
           {apiError && (
             <AlertMessage message={apiError || "Error registering user"} />
           )}
+          <GoogleLoginButton />
         </div>
         <div className="text-center">
           <p className="text-lg mb-2">

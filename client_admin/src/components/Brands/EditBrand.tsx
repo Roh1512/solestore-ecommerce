@@ -4,7 +4,7 @@ import { Edit, PenLine } from "lucide-react";
 import ButtonLoading from "../Loading/ButtonLoading";
 import IconLoading from "../Loading/IconLoading";
 import { z } from "zod";
-import React, { useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useEditBrandMutation } from "@/features/brandApiSlice";
 import { toast } from "react-toastify";
 import {
@@ -14,7 +14,6 @@ import {
   isFieldValidationError,
 } from "@/utils/errorHandler";
 import AlertText from "../ErrorElements/AlertText";
-import AlertMessage from "../ErrorElements/AlertMessage";
 
 type Props = {
   brand: BrandResponse;
@@ -22,14 +21,16 @@ type Props = {
 };
 
 const editBrandSchema = z.object({
-  title: z.string().min(1, { message: "Title is required" }),
+  title: z.string().min(1, { message: "Title is required" }).nullable(),
 });
 
 const EditBrand = (props: Props) => {
   const modalId = `editModal-${props.brand.id}`;
-  const initialBrand = {
-    title: props?.brand?.title || "",
-  };
+  const initialBrand = useMemo(() => {
+    return {
+      title: props?.brand?.title || "",
+    };
+  }, [props?.brand]);
   const [brandDetails, setBrandDetails] =
     useState<BrandCreateRequest>(initialBrand);
 
@@ -39,58 +40,63 @@ const EditBrand = (props: Props) => {
 
   const [editBrand, { isLoading, isError, error }] = useEditBrandMutation();
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setBrandDetails(initialBrand);
     setZodErrors({});
     setApiError(null);
-  };
+  }, [initialBrand]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  console.log("ZOD ERRORS: ", zodErrors);
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setApiError(null);
     const { name, value } = e.target;
     setBrandDetails((prev) => ({
       ...prev,
       [name]: value === "" ? null : value,
     }));
-  };
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setZodErrors({});
-    setApiError(null);
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
+      setZodErrors({});
+      setApiError(null);
 
-    if (brandDetails === initialBrand) {
-      toast.info("No change detected");
-      closeModal(modalId);
-      return;
-    }
+      if (brandDetails === initialBrand) {
+        toast.info("No change detected");
+        closeModal(modalId);
+        return;
+      }
 
-    const validationResult = editBrandSchema.safeParse(brandDetails);
+      const validationResult = editBrandSchema.safeParse(brandDetails);
 
-    if (!validationResult.success) {
-      const errors: Record<string, string> = {};
-      validationResult.error.errors.forEach((err) => {
-        if (err.path[0]) {
-          errors[err.path[0] as string] = err.message;
-        }
-      });
-      setZodErrors(errors);
-      return;
-    }
+      if (!validationResult.success) {
+        const errors: Record<string, string> = {};
+        validationResult.error.errors.forEach((err) => {
+          if (err.path[0]) {
+            errors[err.path[0] as string] = err.message;
+          }
+        });
+        setZodErrors(errors);
+        return;
+      }
 
-    try {
-      const response = await editBrand({
-        brandId: props.brand.id,
-        data: brandDetails,
-      }).unwrap();
-      console.log("Brand edit response: ", response);
-      closeModal(modalId);
-      resetForm();
-    } catch (error) {
-      console.error("Error editing brand: ", error);
-    }
-  };
+      try {
+        const response = await editBrand({
+          brandId: props.brand.id,
+          data: brandDetails,
+        }).unwrap();
+        console.log("Brand edit response: ", response);
+        closeModal(modalId);
+        resetForm();
+      } catch (error) {
+        console.error("Error editing brand: ", error);
+      }
+    },
+    [brandDetails, editBrand, initialBrand, modalId, props.brand.id, resetForm]
+  );
 
   useEffect(() => {
     if (isError && error) {
@@ -165,14 +171,17 @@ const EditBrand = (props: Props) => {
                   value={brandDetails.title || ""}
                   onChange={handleChange}
                   disabled={isLoading}
+                  required
                 />
               </label>
               {zodErrors.title && <AlertText message={zodErrors.title} />}
             </div>
 
             {apiError && typeof apiError === "string" && (
-              <AlertMessage message={apiError} />
+              <AlertText message={apiError} />
             )}
+
+            {apiError ? null : <br />}
 
             <button
               type="submit"
@@ -188,4 +197,4 @@ const EditBrand = (props: Props) => {
   );
 };
 
-export default EditBrand;
+export default memo(EditBrand);

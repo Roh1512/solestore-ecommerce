@@ -7,7 +7,7 @@ import {
   isFieldValidationError,
 } from "@/utils/errorHandler";
 import { closeModal, openModal } from "@/utils/modal_utils";
-import React, { useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify/unstyled";
 import { z } from "zod";
 import ButtonLoading from "../Loading/ButtonLoading";
@@ -27,9 +27,11 @@ const editCategorySchema = z.object({
 
 const EditCategory = (props: Props) => {
   const modalId = `editModal-${props.category.id}`;
-  const initialCategory = {
-    title: props?.category?.title || "",
-  };
+  const initialCategory = useMemo(() => {
+    return {
+      title: props?.category?.title || "",
+    };
+  }, [props?.category]);
   const [categoryDetails, setCategoryDetails] =
     useState<CategoryCreateRequest>(initialCategory);
 
@@ -40,57 +42,67 @@ const EditCategory = (props: Props) => {
   const [editCategory, { isLoading, isError, error }] =
     useEditCategoryMutation();
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setCategoryDetails(initialCategory);
     setZodErrors({});
     setApiError(null);
-  };
+  }, [initialCategory]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setApiError(null);
     const { name, value } = e.target;
     setCategoryDetails((prev) => ({
       ...prev,
       [name]: value === "" ? null : value,
     }));
-  };
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setZodErrors({});
-    setApiError(null);
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
+      setZodErrors({});
+      setApiError(null);
 
-    if (categoryDetails === initialCategory) {
-      toast.info("No change detected");
-      closeModal(modalId);
-    }
+      if (categoryDetails === initialCategory) {
+        toast.info("No change detected");
+        closeModal(modalId);
+      }
 
-    const validationResult = editCategorySchema.safeParse(categoryDetails);
+      const validationResult = editCategorySchema.safeParse(categoryDetails);
 
-    if (!validationResult.success) {
-      const errors: Record<string, string> = {};
-      validationResult.error.errors.forEach((err) => {
-        if (err.path[0]) {
-          errors[err.path[0] as string] = err.message;
-        }
-      });
-      setZodErrors(errors);
-      return;
-    }
+      if (!validationResult.success) {
+        const errors: Record<string, string> = {};
+        validationResult.error.errors.forEach((err) => {
+          if (err.path[0]) {
+            errors[err.path[0] as string] = err.message;
+          }
+        });
+        setZodErrors(errors);
+        return;
+      }
 
-    try {
-      const response = await editCategory({
-        categoryId: props.category.id,
-        data: categoryDetails,
-      }).unwrap();
-      closeModal(modalId);
-      resetForm();
-      console.log("Category edit response: ", response);
-    } catch (error) {
-      console.error("Error editing category: ", error);
-    }
-  };
+      try {
+        const response = await editCategory({
+          categoryId: props.category.id,
+          data: categoryDetails,
+        }).unwrap();
+        closeModal(modalId);
+        resetForm();
+        console.log("Category edit response: ", response);
+      } catch (error) {
+        console.error("Error editing category: ", error);
+      }
+    },
+    [
+      categoryDetails,
+      editCategory,
+      initialCategory,
+      modalId,
+      props.category.id,
+      resetForm,
+    ]
+  );
 
   useEffect(() => {
     if (isError && error) {
@@ -188,4 +200,4 @@ const EditCategory = (props: Props) => {
   );
 };
 
-export default EditCategory;
+export default memo(EditCategory);

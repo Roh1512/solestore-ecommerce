@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { BrandResponse } from "@/client";
 import DeleteBrand from "./DeleteBrand";
 import EditBrand from "./EditBrand";
@@ -21,4 +21,4 @@ const Brand: React.FC<Props> = ({ brand }) => {
   );
 };
 
-export default Brand;
+export default memo(Brand);

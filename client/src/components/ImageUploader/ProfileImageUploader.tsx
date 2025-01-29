@@ -1,5 +1,5 @@
 import { useUpdateProfileImageMutation } from "@/features/userProfileApiSlice";
-import { useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import ButtonLoading from "../Loading/ButtonLoading";
 import { toast } from "react-toastify";
@@ -31,37 +31,40 @@ const ProfileImageUploader = () => {
     maxFiles: 1,
   });
 
-  const removeImage = () => {
+  const removeImage = useCallback(() => {
     setImage(null);
     setPreview(null);
-  };
+  }, []);
 
-  const handleUpload = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!image) return;
-    setApiError(null);
-
-    const formData = new FormData();
-    formData.append("file", image);
-
-    try {
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
-      const response = await updateProfileImage(formData).unwrap();
-      console.log("Updated image: ", response);
-      removeImage();
+  const handleUpload = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!image) return;
       setApiError(null);
-      const modal = document.getElementById(
-        "profile_img_modal"
-      ) as HTMLDialogElement | null;
-      if (modal) {
-        modal.close();
+
+      const formData = new FormData();
+      formData.append("file", image);
+
+      try {
+        for (const [key, value] of formData.entries()) {
+          console.log(`${key}:`, value);
+        }
+        const response = await updateProfileImage(formData).unwrap();
+        console.log("Updated image: ", response);
+        removeImage();
+        setApiError(null);
+        const modal = document.getElementById(
+          "profile_img_modal"
+        ) as HTMLDialogElement | null;
+        if (modal) {
+          modal.close();
+        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    },
+    [image, removeImage, updateProfileImage]
+  );
 
   useEffect(() => {
     if (isSuccess) {
@@ -127,4 +130,4 @@ const ProfileImageUploader = () => {
   );
 };
 
-export default ProfileImageUploader;
+export default memo(ProfileImageUploader);
