@@ -1,6 +1,8 @@
 import { Navigate, Outlet } from "react-router";
 import { useCheckAuthQuery } from "@/features/userAuthApiSlice";
 import PageLoading from "../Loading/PageLoading";
+import { Suspense } from "react";
+import { ErrorBoundary } from "../ErrorElements/ErrorBoundary";
 
 const RedirectIfLoggedIn = () => {
   const {
@@ -18,7 +20,13 @@ const RedirectIfLoggedIn = () => {
   }
 
   if (isAuthError || (isAuthSuccess && authData?.status !== "authenticated")) {
-    return <Outlet />;
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={<PageLoading />}>
+          <Outlet />
+        </Suspense>
+      </ErrorBoundary>
+    );
   }
 
   if (isAuthSuccess && authData?.status === "authenticated") {

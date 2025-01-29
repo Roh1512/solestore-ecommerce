@@ -3,6 +3,8 @@ import HeaderAdmin from "../Headers/HeaderAdmin";
 import FooterAdmin from "../Footers/FooterAdmin";
 import { useCheckAuthQuery } from "@/features/adminAuthApiSlice";
 import PageLoading from "../Loading/PageLoading";
+import { Suspense } from "react";
+import { ErrorBoundary } from "../ErrorElements/ErrorBoundary";
 
 const RedirectUnprotectedRoutes = () => {
   const {
@@ -19,13 +21,15 @@ const RedirectUnprotectedRoutes = () => {
   if (isError || (isSuccess && authData?.status !== "authenticated")) {
     // Allow access to unprotected routes
     return (
-      <>
-        <HeaderAdmin />
-        <main className="flex flex-col items-center justify-center">
-          <Outlet />
-        </main>
-        <FooterAdmin />
-      </>
+      <ErrorBoundary>
+        <Suspense fallback={<PageLoading />}>
+          <HeaderAdmin />
+          <main className="flex flex-col items-center justify-center">
+            <Outlet />
+          </main>
+          <FooterAdmin />
+        </Suspense>
+      </ErrorBoundary>
     );
   }
 

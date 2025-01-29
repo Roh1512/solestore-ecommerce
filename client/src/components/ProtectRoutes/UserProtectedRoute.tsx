@@ -4,6 +4,8 @@ import { useCheckAuthQuery } from "@/features/userAuthApiSlice";
 import HeaderStore from "../headersAndFooters/headers/headersStore/HeaderStore";
 import FooterStore from "../headersAndFooters/footersStore/FooterStore";
 import PageLoading from "../Loading/PageLoading";
+import { Suspense } from "react";
+import { ErrorBoundary } from "../ErrorElements/ErrorBoundary";
 
 const UserProtectedRoute = () => {
   const location = useLocation();
@@ -25,13 +27,15 @@ const UserProtectedRoute = () => {
   }
 
   return (
-    <>
-      <HeaderStore />
-      <main className="flex-1">
-        <Outlet />
-      </main>
-      <FooterStore />
-    </>
+    <ErrorBoundary>
+      <Suspense fallback={<PageLoading />}>
+        <HeaderStore />
+        <main className="flex-1">
+          <Outlet />
+        </main>
+        <FooterStore />
+      </Suspense>
+    </ErrorBoundary>
   );
 };
 

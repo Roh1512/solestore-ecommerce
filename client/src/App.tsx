@@ -1,27 +1,45 @@
+import { lazy } from "react";
+
 import {
   createBrowserRouter,
   createRoutesFromElements,
   Route,
   RouterProvider,
-} from "react-router";
+} from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import LandingPage from "./pages/landingPage/LandingPage";
-import RegisterUser from "./pages/userPages/RegisterUser/RegisterUser";
-import LoginUser from "./pages/userPages/LoginUser/LoginUser";
-import NotFound from "./components/NotFound/NotFound";
+
+import UserAuthLayout from "./components/Layouts/UserAuthLayout/UserAuthLayout";
+import { useTheme } from "./context/ThemeContext";
+
+const LandingPage = lazy(() => import("@pages/landingPage/LandingPage"));
+const RegisterUser = lazy(
+  () => import("@pages/userPages/RegisterUser/RegisterUser")
+);
+const LoginUser = lazy(() => import("@pages/userPages/LoginUser/LoginUser"));
+const NotFound = lazy(() => import("@components/NotFound/NotFound"));
+const ProfilePage = lazy(() => import("@pages/Profile/ProfilePage"));
+const ErrorElement = lazy(
+  () => import("@components/ErrorElements/ErrorElement")
+);
+
 import UserProtectedRoute from "./components/ProtectRoutes/UserProtectedRoute";
 import { Link } from "react-router-dom";
 import RedirectIfLoggedIn from "./components/RedirectWrapper/RedirectIfLoggedIn";
-import UserAuthLayout from "./components/Layouts/UserAuthLayout/UserAuthLayout";
-import { useTheme } from "./context/ThemeContext";
-import ProfilePage from "./pages/Profile/ProfilePage";
 import PageLoading from "./components/Loading/PageLoading";
+import SuspenseWrapper from "./components/SuspenseWrapper/SuspenseWrapper";
 
 const routes = createBrowserRouter(
   createRoutesFromElements(
     <>
       {/* UserAuthLayout wrapping RegisterUser and LoginUser */}
-      <Route element={<RedirectIfLoggedIn />}>
+      <Route
+        element={<RedirectIfLoggedIn />}
+        errorElement={
+          <SuspenseWrapper>
+            <ErrorElement />
+          </SuspenseWrapper>
+        }
+      >
         <Route path="/" element={<LandingPage />} />
         <Route element={<UserAuthLayout />}>
           <Route path="/register" element={<RegisterUser />} />
@@ -30,7 +48,14 @@ const routes = createBrowserRouter(
       </Route>
 
       {/* Protected Routes */}
-      <Route element={<UserProtectedRoute />}>
+      <Route
+        element={<UserProtectedRoute />}
+        errorElement={
+          <SuspenseWrapper>
+            <ErrorElement />
+          </SuspenseWrapper>
+        }
+      >
         <Route
           path="/shop"
           element={
@@ -48,7 +73,15 @@ const routes = createBrowserRouter(
         <Route path="/loading" element={<PageLoading />} />
       </Route>
 
-      <Route path="*" element={<NotFound />} />
+      <Route
+        path="*"
+        element={
+          <SuspenseWrapper>
+            <NotFound />
+          </SuspenseWrapper>
+          // The NotFound route doesn’t need to be wrapped in ErrorBoundary and Suspense unless it’s lazy-loaded or might throw an error. Since it’s a static component, you can simplify it.
+        }
+      />
     </>
   )
 );
