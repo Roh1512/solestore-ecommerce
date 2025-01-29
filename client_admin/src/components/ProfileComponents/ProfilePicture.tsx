@@ -16,6 +16,7 @@ const ProfilePicture = memo((props: Props) => {
     <div className="relative w-24 h-24">
       {/* Profile Image */}
       <img
+        loading="lazy"
         src={props?.admin?.profile_img_url || default_profile_img}
         alt={`${props?.admin?.username}'s profile`}
         className="rounded-full w-24 h-24 border-4 border-base-100 shadow-lg object-cover"

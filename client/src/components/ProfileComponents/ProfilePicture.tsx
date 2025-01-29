@@ -18,6 +18,7 @@ const ProfilePicture = (props: Props) => {
       <img
         src={props.image_url || default_profile_img}
         alt={`profile image`}
+        loading="lazy"
         className="rounded-full w-24 h-24 border-4 border-base-100 shadow-lg object-cover"
         onClick={modalOpen}
         crossOrigin="anonymous"
