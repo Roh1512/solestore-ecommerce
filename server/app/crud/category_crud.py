@@ -11,7 +11,7 @@ async def get_categories(
     limit: int = 10,
     sort_by: SortBy = "title",
     sort_order: SortOrder = "asc"
-) -> CategoryResponse:
+):
     '''Function to get categories by queries'''
     try:
         query = {}

@@ -17,7 +17,7 @@ from app.admin_app.admin_crud_operations.admin_crud import create_admin
     scope="function",
     loop_scope="function"
 )
-async def setup_bd():
+async def setup_db():
     '''Set up database for testing'''
     client: AsyncIOMotorClient = AsyncIOMotorClient(
         settings.MONGODB_URI

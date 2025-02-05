@@ -21,7 +21,12 @@ router = APIRouter()
     status_code=status.HTTP_201_CREATED,
     description="Create a new admin and sign up"
 )
-async def create_new_admin(admin: AdminCreateRequest):
+async def create_new_admin(admin: AdminCreateRequest, logged_in_admin: Annotated[dict, Depends(get_current_admin)]):
+    if not logged_in_admin["role"] == AdminRole.ADMIN:
+        raise HTTPException(
+            status_code=403,
+            detail="You are not authorized for this action"
+        )
     try:
         existing_admin = await Admin.find_one(
             Or(Admin.username == admin.username,

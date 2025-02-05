@@ -5,6 +5,7 @@ from app.admin_app.admin_routes.admin_auth_routes import router as admin_auth_ro
 from app.admin_app.admin_routes.admin_profile_route import router as admin_profile_router
 from app.admin_app.admin_routes.admin_brand_routes import router as admin_brand_routes
 from app.admin_app.admin_routes.admin_category_routes import router as admin_category_routes
+from app.admin_app.admin_routes.all_admin_routes import router as all_admin_routes
 
 admin_router = APIRouter()
 
@@ -36,4 +37,10 @@ admin_router.include_router(
     admin_category_routes,
     prefix="/category",
     tags=["admin_category"]
+)
+
+admin_router.include_router(
+    all_admin_routes,
+    prefix="/admincrud",
+    tags=["admin-crud"]
 )

@@ -51,7 +51,7 @@ async def category_create(
 ):
     if not admin["role"] == AdminRole.ADMIN:
         raise HTTPException(
-            status_code=401,
+            status_code=403,
             detail="You are not authorized for this action"
         )
     if not category or category.title == "":
@@ -85,7 +85,7 @@ async def category_update(
 ):
     if not admin["role"] == AdminRole.ADMIN:
         raise HTTPException(
-            status_code=401,
+            status_code=403,
             detail="You are not authorized for this action"
         )
     try:
@@ -113,7 +113,7 @@ async def category_delete(
 ):
     if not admin["role"] == AdminRole.ADMIN:
         raise HTTPException(
-            status_code=401,
+            status_code=403,
             detail="You are not authorized for this action"
         )
     try:

@@ -116,6 +116,8 @@ export type HTTPValidationError = {
 
 export type SortBy = 'title' | 'date';
 
+export type SortByAdmin = 'username' | 'email' | 'name' | 'date';
+
 export type SortOrder = 'desc' | 'asc';
 
 export type SuccessMessage = {
@@ -177,7 +179,7 @@ export type UserCreateRequest = {
      */
     password: string;
     /**
-     * Name must be between 1 and 50 characters.
+     * Name must be between 5 and 50 characters.
      */
     name?: (string | null);
     /**
@@ -472,3 +474,28 @@ export type AdminCategoryDeleteData = {
 export type AdminCategoryDeleteResponse = (SuccessMessage);
 
 export type AdminCategoryDeleteError = (HTTPValidationError);
+
+export type AdminGetAdminsData = {
+    query?: {
+        limit?: number;
+        role?: (AdminRole | null);
+        search?: (string | null);
+        skip?: number;
+        sort_by?: SortByAdmin;
+        sort_order?: SortOrder;
+    };
+};
+
+export type AdminGetAdminsResponse = (Array<AdminResponse>);
+
+export type AdminGetAdminsError = (HTTPValidationError);
+
+export type AdminGetAdminData = {
+    path: {
+        admin_id: string;
+    };
+};
+
+export type AdminGetAdminResponse = (AdminResponse);
+
+export type AdminGetAdminError = (HTTPValidationError);

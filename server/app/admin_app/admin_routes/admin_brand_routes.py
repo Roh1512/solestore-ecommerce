@@ -1,6 +1,6 @@
 '''Admin brand routes'''
 
-from typing import Optional, Annotated
+from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
 
@@ -10,7 +10,7 @@ from app.model.brand_models import BrandCreateRequest, BrandResponse
 from app.admin_app.admin_crud_operations.brand_crud import create_brand, edit_brand,  delete_brand
 from app.crud.brand_crud import get_brands
 
-from app.utilities.query_models import SortBy, SortOrder, CBQueryParams
+from app.utilities.query_models import CBQueryParams
 
 
 router = APIRouter()
@@ -48,7 +48,7 @@ async def brand_create(admin: Annotated[dict, Depends(get_current_admin)], brand
     '''Brand create route'''
     if not admin["role"] == AdminRole.ADMIN:
         raise HTTPException(
-            status_code=401,
+            status_code=403,
             detail="You are not authorized for this action"
         )
     if not brand or brand.title == "":
@@ -77,7 +77,7 @@ async def brand_create(admin: Annotated[dict, Depends(get_current_admin)], brand
 async def brand_update(admin: Annotated[dict, Depends(get_current_admin)], brand: BrandCreateRequest, brand_id: str):
     if not admin["role"] == AdminRole.ADMIN:
         raise HTTPException(
-            status_code=401,
+            status_code=403,
             detail="You are not authorized for this action"
         )
     try:
@@ -99,7 +99,7 @@ async def brand_update(admin: Annotated[dict, Depends(get_current_admin)], brand
 async def brand_delete(admin: Annotated[dict, Depends(get_current_admin)], brand_id: str):
     if not admin["role"] == AdminRole.ADMIN:
         raise HTTPException(
-            status_code=401,
+            status_code=403,
             detail="You are not authorized for this action"
         )
     try:

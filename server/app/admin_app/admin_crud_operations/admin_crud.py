@@ -1,20 +1,13 @@
-from app.admin_app.admin_models.admin import Admin, AdminCreateRequest, AdminRole
+from app.admin_app.admin_models.admin import Admin, AdminCreateRequest, AdminRole, AdminResponse
 from beanie import PydanticObjectId
 from app.utilities.password_utils import hash_password, verify_password
 from fastapi import HTTPException, status
 from bson import ObjectId
 from datetime import datetime, timezone
 from pymongo.errors import DuplicateKeyError
-from pydantic import ValidationError
-from cloudinary.uploader import upload, destroy
-from cloudinary.exceptions import Error as CloudinaryError
-from PIL import Image
-import io
+
 from beanie.operators import And
-
-
-from asyncio import get_event_loop
-from functools import partial
+from app.utilities.query_models import AdminQueryParams, SortByAdmin, SortOrder
 
 
 async def create_admin(admin_data: dict):
@@ -42,6 +35,57 @@ async def create_admin(admin_data: dict):
         else:
             print("A duplicate key error occurred")
             raise ValueError("A duplicate key error occurred") from e
+
+
+async def get_all_admins(
+    search: str = None,
+    skip: int = 0,
+    limit: int = 10,
+    sort_by: SortByAdmin = "date",
+    sort_order: SortOrder = "asc",
+    role: str = None
+):
+    try:
+        query = {}
+        if search:
+            query["username"] = {"$regex": search, "$options": "i"}
+        if role:
+            if role not in ["ADMIN", "PRODUCT_MANAGER", "ORDER_MANAGER"]:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Invalid role filter"
+                )
+            query["role"] = role
+        order = -1 if sort_order == SortOrder.desc else 1
+
+        if sort_by not in ["date", "username", "email", "name"]:
+            raise HTTPException(
+                status_code=400, detail="Invalid sort_by field")
+        if sort_by == "date":
+            sort_by = "created_at"
+
+        results: list[AdminResponse] = (
+            await Admin.find(query)
+            .sort((sort_by, order))
+            .skip(skip)
+            .limit(limit)
+            .to_list()
+        )
+
+        admin_list = []
+
+        for result in results:
+            result_dict = result.model_dump(
+                exclude=["password", "refresh_tokens"])
+            result_dict["id"] = str(result.id)
+            admin_list.append(result_dict)
+        return admin_list
+
+    except HTTPException as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=e.detail
+        ) from e
 
 
 async def get_admin_details(admin_id: str):
