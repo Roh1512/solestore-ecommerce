@@ -46,8 +46,6 @@ const EditBrand = (props: Props) => {
     setApiError(null);
   }, [initialBrand]);
 
-  console.log("ZOD ERRORS: ", zodErrors);
-
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setApiError(null);
     const { name, value } = e.target;

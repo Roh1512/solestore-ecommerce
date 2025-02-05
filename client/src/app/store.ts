@@ -15,6 +15,8 @@ export const store = configureStore({
     getDefaultMiddleware()
       .prepend(userAuthApi.middleware)
       .prepend(userProfileApiSlice.middleware),
+
+  // devTools: false //in production
 });
 
 export type RootState = ReturnType<typeof store.getState>;
