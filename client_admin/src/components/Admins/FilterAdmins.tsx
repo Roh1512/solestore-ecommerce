@@ -4,9 +4,10 @@ import { ListFilter } from "lucide-react";
 type Props = {
   updateParams: (newParams: { role?: string }) => void;
   removeParam: (param: string) => void;
+  role: AdminRole | null;
 };
 
-const FilterAdmins = ({ updateParams, removeParam }: Props) => {
+const FilterAdmins = ({ updateParams, removeParam, role }: Props) => {
   return (
     <div className="dropdown dropdown-bottom dropdown-end text-2xl">
       <div
@@ -28,17 +29,19 @@ const FilterAdmins = ({ updateParams, removeParam }: Props) => {
               type="radio"
               name="sort-option"
               className="radio"
+              checked={!role}
               onChange={() => removeParam("role")}
             />
           </label>
         </div>
         <div className="form-control">
           <label className="label cursor-pointer bg-base-200 flex">
-            <span className="label-text text-md font-bold">ADMIN</span>
+            <span className="label-text text-md font-bold">Admins</span>
             <input
               type="radio"
               name="sort-option"
               className="radio"
+              checked={role === AdminRole.ADMIN}
               onChange={() =>
                 updateParams({
                   role: AdminRole.ADMIN,
@@ -54,6 +57,7 @@ const FilterAdmins = ({ updateParams, removeParam }: Props) => {
               type="radio"
               name="sort-option"
               className="radio"
+              checked={role === AdminRole.ORDER_MANAGER}
               onChange={() =>
                 updateParams({
                   role: AdminRole.ORDER_MANAGER,
@@ -71,6 +75,7 @@ const FilterAdmins = ({ updateParams, removeParam }: Props) => {
               type="radio"
               name="sort-option"
               className="radio"
+              checked={role === AdminRole.PRODUCT_MANAGER}
               onChange={() =>
                 updateParams({
                   role: AdminRole.PRODUCT_MANAGER,

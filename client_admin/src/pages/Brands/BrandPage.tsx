@@ -100,7 +100,11 @@ const BrandsPage: React.FC = () => {
           />
           <Search className="w-6 h-6" />
         </label>
-        <Sort updateParams={updateParams} />
+        <Sort
+          updateParams={updateParams}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+        />
       </div>
       <div className="overflow-x-auto grid sm:grid-cols-1 md:grid-cols-2 gap-7 lg:grid-cols-3 flex-1">
         {brands &&

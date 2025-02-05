@@ -45,7 +45,9 @@ export const allAdminsApi = createApi({
         method: "GET",
         credentials: "include",
       }),
-      providesTags: (result, error, _id) => [{ type: "Admin", _id }],
+      providesTags: (_result, _error, { adminId }) => [
+        { type: "Admin", id: adminId },
+      ],
     }),
   }),
 });

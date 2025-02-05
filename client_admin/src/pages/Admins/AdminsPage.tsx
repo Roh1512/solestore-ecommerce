@@ -45,9 +45,10 @@ const AdminsPage = () => {
       const updatedParams = new URLSearchParams(searchParams);
 
       if (newParams.page) updatedParams.set("page", newParams.page);
-      if (newParams.sortBy) updatedParams.set("sortBy", newParams.sortBy);
+      if (newParams.sortBy)
+        updatedParams.set("sortBy", newParams.sortBy as SortByAdmin);
       if (newParams.sortOrder)
-        updatedParams.set("sortOrder", newParams.sortOrder);
+        updatedParams.set("sortOrder", newParams.sortOrder as SortOrder);
       if (newParams.role) updatedParams.set("role", newParams.role);
 
       setSearchParams(updatedParams);
@@ -116,17 +117,25 @@ const AdminsPage = () => {
           <input
             type="text"
             className="grow"
-            placeholder="Search brands"
-            aria-label="Search brands"
+            placeholder="Search Admins"
+            aria-label="Search admins"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <Search className="w-6 h-6" />
         </label>
       </div>
-      <div>
-        <SortAdmins updateParams={updateParams} />
-        <FilterAdmins updateParams={updateParams} removeParam={removeParam} />
+      <div className="w-full max-w-96 flex items-center justify-between">
+        <SortAdmins
+          updateParams={updateParams}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+        />
+        <FilterAdmins
+          updateParams={updateParams}
+          removeParam={removeParam}
+          role={role}
+        />
       </div>
       <div className="overflow-x-auto grid sm:grid-cols-1 md:grid-cols-2 gap-7 lg:grid-cols-3 flex-1">
         {admins &&

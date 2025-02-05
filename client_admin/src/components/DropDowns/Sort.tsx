@@ -14,9 +14,11 @@ type Props = {
     sortBy?: string;
     sortOrder?: string;
   }) => void;
+  sortBy: SortBy | null;
+  sortOrder: SortOrder | null;
 };
 
-const Sort = memo(({ updateParams }: Props) => {
+const Sort = memo(({ updateParams, sortBy, sortOrder }: Props) => {
   return (
     <div className="dropdown dropdown-bottom dropdown-end text-2xl">
       <div tabIndex={0} role="button" className="btn btn-primary m-1">
@@ -36,7 +38,7 @@ const Sort = memo(({ updateParams }: Props) => {
               type="radio"
               name="sort-option"
               className="radio"
-              defaultChecked
+              checked={sortBy === SortBy.Date && sortOrder === SortOrder.Desc}
               onChange={() =>
                 updateParams({
                   sortBy: SortBy.Date,
@@ -54,6 +56,7 @@ const Sort = memo(({ updateParams }: Props) => {
               type="radio"
               name="sort-option"
               className="radio "
+              checked={sortBy === SortBy.Date && sortOrder === SortOrder.Asc}
               onChange={() =>
                 updateParams({
                   sortBy: SortBy.Date,
@@ -73,6 +76,7 @@ const Sort = memo(({ updateParams }: Props) => {
               type="radio"
               name="sort-option"
               className="radio "
+              checked={sortBy === SortBy.Title && sortOrder === SortOrder.Asc}
               onChange={() =>
                 updateParams({
                   sortBy: SortBy.Title,
@@ -92,6 +96,7 @@ const Sort = memo(({ updateParams }: Props) => {
               type="radio"
               name="sort-option"
               className="radio "
+              checked={sortBy === SortBy.Title && sortOrder === SortOrder.Desc}
               onChange={() =>
                 updateParams({
                   sortBy: SortBy.Title,

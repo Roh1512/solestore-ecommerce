@@ -90,14 +90,18 @@ const CategoriesPage = () => {
           <input
             type="text"
             className="grow"
-            placeholder="Search brands"
-            aria-label="Search brands"
+            placeholder="Search categories"
+            aria-label="Search categories"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <Search className="w-6 h-6" />
         </label>
-        <Sort updateParams={updateParams} />
+        <Sort
+          updateParams={updateParams}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+        />
         <AddCategory />
       </div>
       <div className="overflow-x-auto grid sm:grid-cols-1 md:grid-cols-2 gap-7 lg:grid-cols-3 flex-1">

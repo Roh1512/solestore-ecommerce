@@ -17,6 +17,8 @@ const Dashboard = lazy(() => import("@pages/Dashboard/Dashboard"));
 const BrandsPage = lazy(() => import("@pages/Brands/BrandPage"));
 const CategoriesPage = lazy(() => import("@pages/Categories/CategoriesPage"));
 const ProfilePage = lazy(() => import("@pages/profile/ProfilePage"));
+const AdminsPage = lazy(() => import("@pages/Admins/AdminsPage"));
+const AdminByIdPage = lazy(() => import("@pages/Admins/AdminByIdPage"));
 const NotFound = lazy(() => import("@components/ErrorElements/NotFound"));
 const ErrorElement = lazy(
   () => import("@components/ErrorElements/ErrorElement")
@@ -26,8 +28,6 @@ import RedirectUnprotectedRoutes from "@components/RedirectWrappers/RedirectUnpr
 import RedirectProtectedRoutes from "./components/RedirectWrappers/RedirectProtectedRoutes";
 import PageLoading from "./components/Loading/PageLoading";
 import SuspenseWrapper from "./components/Wrappers/SuspenseWrapper";
-import AdminsPage from "./pages/Admins/AdminsPage";
-import AdminByIdPage from "./pages/Admins/AdminByIdPage";
 
 const routes = createBrowserRouter(
   createRoutesFromElements(
