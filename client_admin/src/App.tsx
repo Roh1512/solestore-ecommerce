@@ -26,6 +26,8 @@ import RedirectUnprotectedRoutes from "@components/RedirectWrappers/RedirectUnpr
 import RedirectProtectedRoutes from "./components/RedirectWrappers/RedirectProtectedRoutes";
 import PageLoading from "./components/Loading/PageLoading";
 import SuspenseWrapper from "./components/Wrappers/SuspenseWrapper";
+import AdminsPage from "./pages/Admins/AdminsPage";
+import AdminByIdPage from "./pages/Admins/AdminByIdPage";
 
 const routes = createBrowserRouter(
   createRoutesFromElements(
@@ -54,6 +56,8 @@ const routes = createBrowserRouter(
         <Route path="/admin/profile" element={<ProfilePage />} />
         <Route path="/admin/brands" element={<BrandsPage />} />
         <Route path="/admin/categories" element={<CategoriesPage />} />
+        <Route path="/admin/admins" element={<AdminsPage />} />
+        <Route path="/admin/admins/:adminId" element={<AdminByIdPage />} />
         <Route path="/admin/loading" element={<PageLoading />} />
       </Route>
       <Route

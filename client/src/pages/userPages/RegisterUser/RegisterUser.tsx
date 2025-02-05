@@ -57,8 +57,6 @@ const RegisterUser = () => {
 
   const [register, { isLoading, isError, error }] = useRegisterMutation();
 
-  console.log("ZOD ERRORS: ", errors);
-
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();

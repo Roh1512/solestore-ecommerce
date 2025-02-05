@@ -10,7 +10,8 @@ export const isApiError = (error: unknown): error is ApiError => {
     error !== null &&
     "data" in error &&
     typeof (error as ApiError).data &&
-    "detail" in (error as ApiError).data
+    "detail" in (error as ApiError).data &&
+    typeof (error as ApiError).data.detail === "string"
   );
 };
 
