@@ -1,5 +1,6 @@
 import { AdminResponse } from "@/client";
 import { default_profile_img } from "@/utils/default_images";
+import { CheckCircle } from "lucide-react";
 import { memo } from "react";
 import { Link } from "react-router-dom";
 
@@ -27,7 +28,11 @@ const AdminCard = memo(({ admin }: Props) => {
       </figure>
       <div className="card-body h-min py-3">
         <h2 className="card-title">@{admin?.username}</h2>
-        <p>{admin?.name}</p>
+        {/* Role */}
+        <div className="badge badge-primary badge-md flex items-center mx-auto">
+          <CheckCircle className="w-4 h-4 mr-2" />
+          {admin?.role}
+        </div>
         <div className="card-actions justify-end">
           <Link
             to={`/admin/admins/${admin?._id}`}

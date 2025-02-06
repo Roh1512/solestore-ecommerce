@@ -32,7 +32,8 @@ const SortAdmins = memo(({ updateParams, sortBy, sortOrder }: Props) => {
             <span className="label-text text-md font-bold">Latest</span>
             <input
               type="radio"
-              name="latest"
+              name="sortoption"
+              id="latest"
               className="radio"
               checked={
                 sortBy === SortByAdmin.date && sortOrder === SortOrder.Desc
@@ -55,7 +56,8 @@ const SortAdmins = memo(({ updateParams, sortBy, sortOrder }: Props) => {
             <span className="label-text text-md font-bold">Oldest</span>
             <input
               type="radio"
-              name="oldest"
+              name="sortoption"
+              id="oldest"
               className="radio"
               checked={
                 sortBy === SortByAdmin.date && sortOrder === SortOrder.Asc
@@ -79,7 +81,8 @@ const SortAdmins = memo(({ updateParams, sortBy, sortOrder }: Props) => {
             </span>
             <input
               type="radio"
-              name="username-asc"
+              name="sortoption"
+              id="username-asc"
               className="radio"
               checked={
                 sortBy === SortByAdmin.username && sortOrder === SortOrder.Asc
@@ -96,14 +99,15 @@ const SortAdmins = memo(({ updateParams, sortBy, sortOrder }: Props) => {
         <div className="form-control">
           <label
             className="label cursor-pointer bg-base-200 flex"
-            htmlFor="username-asc"
+            htmlFor="username-desc"
           >
             <span className="label-text text-md font-bold">
               Username [Z to A]
             </span>
             <input
               type="radio"
-              name="username-"
+              name="sortoption"
+              id="username-desc"
               className="radio"
               checked={
                 sortBy === SortByAdmin.username && sortOrder === SortOrder.Desc

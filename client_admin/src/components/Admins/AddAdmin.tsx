@@ -177,6 +177,7 @@ const AddAdmin = memo(() => {
                   value={adminDetails.username}
                   onChange={handleChange}
                   disabled={isLoading}
+                  autoComplete="username"
                 />
               </label>
               {zodErrors.username && <AlertText message={zodErrors.username} />}
@@ -201,6 +202,7 @@ const AddAdmin = memo(() => {
                   value={adminDetails.email}
                   onChange={handleChange}
                   disabled={isLoading}
+                  autoComplete="email"
                 />
               </label>
               {zodErrors.email && <AlertText message={zodErrors.email} />}
@@ -225,6 +227,7 @@ const AddAdmin = memo(() => {
                   value={adminDetails.name || ""}
                   onChange={handleChange}
                   disabled={isLoading}
+                  autoComplete="name"
                 />
               </label>
               {zodErrors.name && <AlertText message={zodErrors.name} />}
@@ -249,6 +252,7 @@ const AddAdmin = memo(() => {
                   value={adminDetails.password || ""}
                   onChange={handleChange}
                   disabled={isLoading}
+                  autoComplete="new-password"
                 />
               </label>
               {zodErrors.password && <AlertText message={zodErrors.password} />}

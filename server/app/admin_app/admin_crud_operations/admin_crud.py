@@ -4,10 +4,15 @@ from app.utilities.password_utils import hash_password, verify_password
 from fastapi import HTTPException, status
 from bson import ObjectId
 from datetime import datetime, timezone
+
 from pymongo.errors import DuplicateKeyError
+from pymongo.results import DeleteResult
 
 from beanie.operators import And
 from app.utilities.query_models import AdminQueryParams, SortByAdmin, SortOrder
+
+from app.utilities.response_message_models import SuccessMessage
+from app.utilities.cloudinary_utils import delete_image_from_cloudinary
 
 
 async def create_admin(admin_data: dict):
@@ -287,6 +292,11 @@ async def update_admin_details(admin_id, details: AdminCreateRequest, current_pa
 
 async def update_admin_role(admin_id: str, new_role: AdminRole):
     try:
+        if not ObjectId.is_valid(admin_id):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid admin ID"
+            )
         admin_to_update = await Admin.get(ObjectId(admin_id))
         if not admin_to_update:
             raise HTTPException(
@@ -312,4 +322,48 @@ async def update_admin_role(admin_id: str, new_role: AdminRole):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error during admin role updation"
+        ) from e
+
+
+async def delete_admin(admin_id: str):
+    try:
+        if not ObjectId.is_valid(admin_id):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid admin ID"
+            )
+        admin_found = await Admin.get(PydanticObjectId(admin_id))
+        if not admin_found:
+            raise HTTPException(
+                status_code=404,
+                detail="Admin not found"
+            )
+        if admin_found.profile_img_url and admin_found.profile_img_public_id:
+            await delete_image_from_cloudinary(str(admin_found.profile_img_public_id))
+        result: DeleteResult = await Admin.find_one(
+            Admin.id == PydanticObjectId(admin_id)
+        ).delete()
+        print("Deleted Count: ", result.deleted_count)
+
+        if not result.deleted_count or result.deleted_count <= 0:
+            raise HTTPException(
+                status_code=404,
+                detail="Admin not found"
+            )
+        return SuccessMessage(
+            message="Admin deleted"
+        )
+
+    except HTTPException as e:
+        print("Error deleting admin")
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=e.detail
+        ) from e
+
+    except Exception as e:
+        print(f"Error deleting admin: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error deleting admin"
         ) from e

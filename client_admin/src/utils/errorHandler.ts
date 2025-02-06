@@ -6,12 +6,13 @@ import {
 
 export const isApiError = (error: unknown): error is ApiError => {
   return (
-    typeof error === "object" &&
-    error !== null &&
-    "data" in error &&
-    typeof (error as ApiError).data &&
-    "detail" in (error as ApiError).data &&
-    typeof (error as ApiError).data.detail === "string"
+    typeof error === "object" && // Check if error is an object
+    error !== null && // Ensure error is not null
+    "data" in error && // Check if error has 'data' property
+    typeof (error as ApiError).data === "object" && // Ensure data is an object
+    (error as ApiError).data !== null && // Ensure data is not null
+    "detail" in (error as ApiError).data && // Check if data has 'detail'
+    typeof (error as ApiError).data.detail === "string" // Ensure detail is a string
   );
 };
 

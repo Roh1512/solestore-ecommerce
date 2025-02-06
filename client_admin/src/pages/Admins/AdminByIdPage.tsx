@@ -1,3 +1,5 @@
+import DeleteAdmin from "@/components/Admins/DeleteAdmin";
+import UpdateRole from "@/components/Admins/UpdateRole";
 import PageLoading from "@/components/Loading/PageLoading";
 import { useGetAdminQuery } from "@/features/allAdminsApiSlice";
 import { default_profile_img } from "@/utils/default_images";
@@ -59,7 +61,10 @@ const AdminByIdPage = () => {
           </div>
           <div className="flex justify-between border-b pb-2">
             <span className="font-semibold">Role:</span>
-            <span>{admin.role}</span>
+            <div className="flex gap-2 items-center justify-center">
+              <UpdateRole admin={admin} />
+              <span>{admin.role}</span>
+            </div>
           </div>
           <div className="flex justify-between border-b pb-2">
             <span className="font-semibold">Phone:</span>
@@ -74,6 +79,12 @@ const AdminByIdPage = () => {
             <span>{new Date(admin.updated_at).toLocaleString()}</span>
           </div>
         </div>
+        <br />
+        <DeleteAdmin
+          text="Delete Admin"
+          admin={admin}
+          deleteAdminId={admin._id}
+        />
       </div>
     </div>
   );

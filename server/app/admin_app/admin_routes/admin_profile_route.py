@@ -75,6 +75,11 @@ async def update_admin_role_route(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Only an admin can update roles"
             )
+        if str(admin["id"]) == str(admin_id):
+            raise HTTPException(
+                status_code=400,
+                detail="Cannot update the role of currently logged in admin"
+            )
         return await update_admin_role(admin_id, body.role)
     except HTTPException as e:
         print(f"Error updating admin role: {e}")

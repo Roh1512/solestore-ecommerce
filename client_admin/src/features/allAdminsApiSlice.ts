@@ -1,6 +1,11 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "./beseQuery";
-import { AdminResponse, AdminCreateRequest } from "@/client";
+import {
+  AdminResponse,
+  AdminCreateRequest,
+  AdminRoleUpdateRequest,
+  SuccessMessage,
+} from "@/client";
 import { AdminQueryParams } from "@/types/queryTypes";
 
 export const allAdminsApi = createApi({
@@ -49,8 +54,39 @@ export const allAdminsApi = createApi({
         { type: "Admin", id: adminId },
       ],
     }),
+    updateAdminRole: builder.mutation<
+      AdminResponse,
+      { body: AdminRoleUpdateRequest; adminId: string }
+    >({
+      query: ({ adminId, body }) => ({
+        url: `/profile/update-admin-role/${adminId}`,
+        method: "PUT",
+        credentials: "include",
+        body: body,
+      }),
+      invalidatesTags: (_result, _error, { adminId }) => [
+        { type: "Admin", id: adminId },
+        { type: "Admin", id: "List" },
+      ],
+    }),
+    deleteAdmin: builder.mutation<SuccessMessage, { adminId: string }>({
+      query: ({ adminId }) => ({
+        url: `/admincrud/${adminId}`,
+        method: "DELETE",
+        credentials: "include",
+      }),
+      invalidatesTags: (_result, _error, { adminId }) => [
+        { type: "Admin", id: adminId },
+        { type: "Admin", id: "List" },
+      ],
+    }),
   }),
 });
 
-export const { useRegisterAdminMutation, useGetAdminQuery, useGetAdminsQuery } =
-  allAdminsApi;
+export const {
+  useRegisterAdminMutation,
+  useGetAdminQuery,
+  useGetAdminsQuery,
+  useUpdateAdminRoleMutation,
+  useDeleteAdminMutation,
+} = allAdminsApi;
