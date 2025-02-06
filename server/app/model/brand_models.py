@@ -22,6 +22,10 @@ class BrandResponse(BaseModel):
         json_encoders={PydanticObjectId: str, ObjectId: str}
     )
 
+    @classmethod
+    def from_mongo(cls, brand):
+        return cls(id=str(brand.id), title=brand.title, created_at=brand.created_at, updated_at=brand.updated_at)
+
 
 class BrandCreateRequest(BaseModel):
     '''Create brand request model'''

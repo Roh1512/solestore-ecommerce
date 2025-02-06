@@ -1,4 +1,6 @@
-from typing import Optional, List, Annotated
+'''Models for category'''
+
+from typing import Annotated
 from datetime import datetime, timezone
 from pydantic import BaseModel, ConfigDict, field_validator, Field
 from beanie import Document, PydanticObjectId, Indexed, before_event, Save
@@ -16,6 +18,10 @@ class CategoryResponse(BaseModel):
         arbitrary_types_allowed=True,
         json_encoders={PydanticObjectId: str, ObjectId: str}
     )
+
+    @classmethod
+    def from_mongo(cls, category):
+        return cls(id=str(category.id), title=category.title, updated_at=category.updated_at)
 
 
 class CategoryCreateRequest(BaseModel):
