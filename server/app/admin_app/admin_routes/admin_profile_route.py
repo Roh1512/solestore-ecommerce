@@ -61,11 +61,10 @@ async def update_admin_profile_details(admin: Annotated[dict, Depends(get_curren
         ) from e
 
 
-@router.put("/update-admin-role/{admin_id}", status_code=200, response_model=AdminResponse)
+@router.put("/update-admin-role", status_code=200, response_model=AdminResponse)
 async def update_admin_role_route(
     admin: Annotated[dict, Depends(get_current_admin)],
     body: AdminRoleUpdateRequest,
-    admin_id: str
 ):
     try:
         current_admin_role = AdminRole(admin["role"])
@@ -75,12 +74,7 @@ async def update_admin_role_route(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Only an admin can update roles"
             )
-        if str(admin["id"]) == str(admin_id):
-            raise HTTPException(
-                status_code=400,
-                detail="Cannot update the role of currently logged in admin"
-            )
-        return await update_admin_role(admin_id, body.role)
+        return await update_admin_role(str(admin["id"]), body.role)
     except HTTPException as e:
         print(f"Error updating admin role: {e}")
         raise HTTPException(

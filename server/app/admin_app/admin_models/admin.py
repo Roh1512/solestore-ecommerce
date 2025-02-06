@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr, ConfigDict, field_validator
+from pydantic import BaseModel, Field, EmailStr, ConfigDict, field_validator, model_validator
 from beanie import Document, PydanticObjectId, Indexed
 from datetime import datetime, timezone
 from typing import Optional, List

@@ -103,8 +103,6 @@ const UpdateRole = memo(({ admin }: Props) => {
       if (isApiError(error)) {
         const errorMessage = getApiErrorMessage(error);
         setApiError(errorMessage);
-      } else {
-        setApiError("Error registering admin");
       }
     }
   }, [error, isError]);

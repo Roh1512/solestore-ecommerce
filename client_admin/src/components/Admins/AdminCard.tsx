@@ -26,17 +26,17 @@ const AdminCard = memo(({ admin }: Props) => {
           className="rounded-full w-20 h-20"
         />
       </figure>
-      <div className="card-body h-min py-3">
-        <h2 className="card-title">@{admin?.username}</h2>
+      <div className="card-body h-min py-3 m-auto justify-center">
+        <h2 className="card-title text-center mx-auto">@{admin?.username}</h2>
         {/* Role */}
         <div className="badge badge-primary badge-md flex items-center mx-auto">
           <CheckCircle className="w-4 h-4 mr-2" />
           {admin?.role}
         </div>
-        <div className="card-actions justify-end">
+        <div className="card-actions items-center justify-end">
           <Link
             to={`/admin/admins/${admin?._id}`}
-            className="btn btn-sm btn-neutral btn-outline"
+            className="btn btn-sm bg-secondary text-secondary-content hover:bg-primary rounded-lg"
           >
             View profile
           </Link>

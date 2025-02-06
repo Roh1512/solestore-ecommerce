@@ -59,7 +59,7 @@ export const allAdminsApi = createApi({
       { body: AdminRoleUpdateRequest; adminId: string }
     >({
       query: ({ adminId, body }) => ({
-        url: `/profile/update-admin-role/${adminId}`,
+        url: `/admincrud/update-role/${adminId}`,
         method: "PUT",
         credentials: "include",
         body: body,

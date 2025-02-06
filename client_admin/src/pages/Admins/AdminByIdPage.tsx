@@ -40,6 +40,7 @@ const AdminByIdPage = () => {
               <img
                 src={optimizedImageUrl}
                 alt={`${admin.username}'s profile`}
+                loading="eager"
               />
             </div>
           </div>

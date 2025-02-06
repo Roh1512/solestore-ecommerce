@@ -5,8 +5,8 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, status, Depends
 
 from app.admin_app.admin_utilities.admin_auth_utils import get_current_admin
-from app.admin_app.admin_crud_operations.admin_crud import get_all_admins, get_admin_details, delete_admin
-from app.admin_app.admin_models.admin import AdminResponse, AdminRole
+from app.admin_app.admin_crud_operations.admin_crud import get_all_admins, get_admin_details, delete_admin, update_admin_role
+from app.admin_app.admin_models.admin import AdminResponse, AdminRole, AdminRoleUpdateRequest
 from app.utilities.query_models import AdminQueryParams
 from app.utilities.response_message_models import SuccessMessage
 
@@ -58,6 +58,40 @@ async def get_admin(
         raise HTTPException(
             status_code=500,
             detail="Unexpected error fetching admin"
+        ) from e
+
+
+@router.put("/update-role/{admin_id}", status_code=200, response_model=AdminResponse)
+async def update_other_admin_role(
+    admin: Annotated[dict, Depends(get_current_admin)],
+    body: AdminRoleUpdateRequest,
+    admin_id: str
+):
+    '''Update role route'''
+    try:
+        current_admin_role = AdminRole(admin["role"])
+        if current_admin_role != AdminRole.ADMIN:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only an admin can update roles"
+            )
+        if str(admin["id"]) == str(admin_id):
+            raise HTTPException(
+                status_code=400,
+                detail="Cannot update the role of currently logged in admin"
+            )
+        return await update_admin_role(str(admin_id), body.role)
+    except HTTPException as e:
+        print(f"Error updating another admin's role: {e}")
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=e.detail
+        ) from e
+    except Exception as e:
+        print(f"Unexpected Error updating another admin's role: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error during another admin's role updation"
         ) from e
 
 

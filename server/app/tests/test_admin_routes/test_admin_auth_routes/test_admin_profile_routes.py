@@ -388,8 +388,7 @@ class TestAdminUpdateRole:
 
             # Test with invalid role
             response = await client.put(
-                f"/api/admin/profile/update-admin-role/{
-                    login_admin['admin_id']}",
+                "/api/admin/profile/update-admin-role",
                 headers=auth_headers,
                 json={
                     "role": "ADM"  # Invalid role value
@@ -414,8 +413,7 @@ class TestAdminUpdateRole:
 
             # Test with valid role
             response = await client.put(
-                f"/api/admin/profile/update-admin-role/{
-                    login_admin['admin_id']}",
+                "/api/admin/profile/update-admin-role",
                 headers=auth_headers,
                 json={
                     "role": "ORDER_MANAGER"  # Valid role from AdminRole enum
@@ -445,8 +443,7 @@ class TestAdminUpdateRole:
 
             # Try to update role when not an ADMIN
             response = await client.put(
-                f"/api/admin/profile/update-admin-role/{
-                    login_admin['admin_id']}",
+                "/api/admin/profile/update-admin-role",
                 headers=auth_headers,
                 json={
                     "role": "ORDER_MANAGER"

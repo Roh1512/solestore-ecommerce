@@ -11,6 +11,8 @@ from pymongo.results import DeleteResult
 from beanie.operators import And
 from app.utilities.query_models import AdminQueryParams, SortByAdmin, SortOrder
 
+from pydantic import ValidationError
+
 from app.utilities.response_message_models import SuccessMessage
 from app.utilities.cloudinary_utils import delete_image_from_cloudinary
 
@@ -317,11 +319,11 @@ async def update_admin_role(admin_id: str, new_role: AdminRole):
         updated_admin_dict["id"] = str(admin_to_update.id)
         return updated_admin_dict
 
-    except Exception as e:
-        print(f"Error in update_admin_role: {str(e)}")
+    except ValidationError as e:
+        print(e)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error during admin role updation"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=e["detail"]
         ) from e
 
 
