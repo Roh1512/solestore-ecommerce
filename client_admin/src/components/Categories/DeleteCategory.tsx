@@ -34,14 +34,14 @@ const DeleteCategory = (props: Props) => {
 
   useEffect(() => {
     if (isSuccess) {
-      toast.success(data?.message || "Brand deleted");
+      toast.success(data?.message || "Category deleted");
     }
     if (isError && error) {
       if (isApiError(error)) {
         const errorMessage = getApiErrorMessage(error);
         toast.error(errorMessage);
       } else {
-        toast.error("Error deleting brand");
+        toast.error("Error deleting category");
       }
     }
   }, [data?.message, error, isError, isSuccess]);

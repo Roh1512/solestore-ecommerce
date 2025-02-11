@@ -12,6 +12,11 @@ class Size(BaseModel):
     stock: int = 0
 
 
+class Image(BaseModel):
+    url: str
+    public_id: str
+
+
 class Product(Document):
     title: Annotated[str, Indexed()]
     description: Optional[str] = None
@@ -20,7 +25,7 @@ class Product(Document):
                                description="The brand associated with the product")
     category: Link[Category] = Field(
         ..., description="The category associated with the product")
-    images: List[str] = Field(default_factory=list)
+    images: List[Image] = []
     sizes: List[Size] = Field(default_factory=lambda: [
                               Size(size=size, stock=0) for size in range(7, 13)])
     created_at: datetime = Field(
@@ -48,10 +53,25 @@ class ProductCreateRequest(BaseModel):
     price: float = Field(..., gt=0, description="Price must be greater than 0")
     brand: str = Field(..., description="Brand ID")
     category: str = Field(..., description="Category ID")
-    images: List[str] = Field(default_factory=list)
     sizes: Optional[List[Size]] = None
 
     model_config = ConfigDict(from_attributes=True, extra="forbid")
+
+    @field_validator("brand")
+    @classmethod
+    def validate_brand(cls, value):
+        '''Validate brand'''
+        if not value or value == None or value == "":
+            raise ValueError("Please select a brand")
+        return value
+
+    @field_validator("category")
+    @classmethod
+    def validate_category(cls, value):
+        '''Validate category'''
+        if not value or value == None or value == "":
+            raise ValueError("Please select a category")
+        return value
 
     @field_validator('price')
     @classmethod
@@ -67,9 +87,33 @@ class ProductCreateRequest(BaseModel):
         '''Ensure that all sizes in the array are between 7 and 12'''
         if value:
             for size in value:
-                if not (7 < size.size < 12):
+                if not (7 < size.size <= 12):
                     raise ValueError(
                         f"Size {size.size} must be between 7 and 12")
+        return value
+
+
+class ProductDetailsRequest(BaseModel):
+    '''Product create request body'''
+    title: str
+    description: Optional[str] = Field(
+        None,
+        min_length=5,
+        max_length=100,
+        description="Description must be at least 5 characters long"
+    )
+    price: float = Field(..., gt=0, description="Price must be greater than 0")
+    brand: str = Field(..., description="Brand ID")
+    category: str = Field(..., description="Category ID")
+
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+
+    @field_validator('price')
+    @classmethod
+    def validate_price(cls,  value):
+        '''Validate price'''
+        if value <= 0:
+            raise ValueError("Price must be greater than 0")
         return value
 
 
@@ -80,7 +124,7 @@ class ProductResponse(BaseModel):
     price: float
     brand: BrandResponse
     category: CategoryResponse
-    images: List[str]
+    images: List[Image] = []
     sizes: List[Size]
     created_at: datetime
     updated_at: datetime

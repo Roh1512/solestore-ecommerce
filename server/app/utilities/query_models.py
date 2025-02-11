@@ -42,6 +42,11 @@ class SortByAdmin(str, Enum):
     date = "date"
 
 
+class SortByProduct(str, Enum):
+    PRICE = "price",
+    DATE = "date"
+
+
 class AdminQueryParams(BaseModel):
     '''Query params for all admin route'''
     search: Optional[str] = None
@@ -57,3 +62,18 @@ class AdminQueryParams(BaseModel):
     sort_by: SortByAdmin = SortBy.date
     sort_order: SortOrder = SortOrder.desc
     role: AdminRole | None = None
+
+
+class ProductQueryParams(BaseModel):
+    '''Product query params '''
+    search: Optional[str] = None
+    page: int = Field(
+        default=1,
+        ge=1,
+        description="Page number"
+    )
+    sort_order: SortOrder = SortOrder.desc
+    sort_by: SortByProduct = SortByProduct.DATE
+    category: Optional[str] = None
+    brand: Optional[str] = None
+    size: Optional[int] = None
