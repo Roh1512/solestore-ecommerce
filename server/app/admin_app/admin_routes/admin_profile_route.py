@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 router = APIRouter()
 
 
+@router.get("", status_code=status.HTTP_200_OK, response_model=AdminResponse)
 @router.get("/", status_code=status.HTTP_200_OK, response_model=AdminResponse)
 async def get_admin_profile_details(admin: Annotated[dict, Depends(get_current_admin)]):
     try:
@@ -29,6 +30,7 @@ async def get_admin_profile_details(admin: Annotated[dict, Depends(get_current_a
         ) from e
 
 
+@router.put("", status_code=status.HTTP_200_OK, response_model=AdminResponse)
 @router.put("/", status_code=status.HTTP_200_OK, response_model=AdminResponse)
 async def update_admin_profile_details(admin: Annotated[dict, Depends(get_current_admin)], profile_details: AdminUpdateRequest, current_password: Annotated[str, Body(embed=True)]):
     if not current_password:

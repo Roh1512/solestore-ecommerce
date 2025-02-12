@@ -14,6 +14,7 @@ from app.utilities.query_models import SortBy, SortOrder, CBQueryParams
 router = APIRouter()
 
 
+@router.get("", status_code=200, response_model=list[CategoryResponse])
 @router.get("/", status_code=200, response_model=list[CategoryResponse])
 async def get_all_categories(
     user: Annotated[dict, Depends(get_current_user)],

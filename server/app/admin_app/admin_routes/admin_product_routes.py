@@ -1,22 +1,28 @@
 '''Admin Product routes'''
 
-from asyncio import gather
-from typing import Annotated, List
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, status, UploadFile, File, Form
+from fastapi import APIRouter, Depends, status, UploadFile, File, Body
 from fastapi.exceptions import HTTPException
 
-from beanie import PydanticObjectId
 
-from app.admin_app.admin_crud_operations.product_crud import add_product, add_images_product, get_products
+from app.admin_app.admin_crud_operations.product_crud import (
+    add_product,
+    add_images_product,
+    get_products,
+    get_product_by_id,
+    update_product_details,
+    delete_images_product
+)
 from app.admin_app.admin_utilities.admin_auth_utils import get_current_admin
 from app.admin_app.admin_models.admin import AdminRole
-from app.model.product_models import ProductCreateRequest, ProductResponse
-from app.utilities.query_models import SortByProduct, SortOrder, ProductQueryParams
+from app.model.product_models import ProductCreateRequest, ProductResponse, ProductDetailsRequest, DeleteImagesRequest
+from app.utilities.query_models import ProductQueryParams
 
 router = APIRouter()
 
 
+@router.get("", status_code=200, response_model=list[ProductResponse])
 @router.get("/", status_code=200, response_model=list[ProductResponse])
 async def get_all_products_admin(
     admin: Annotated[dict, Depends(get_current_admin)],
@@ -47,13 +53,14 @@ async def get_all_products_admin(
         ) from e
 
 
+@router.post("", status_code=201, response_model=ProductResponse)
 @router.post("/", status_code=201, response_model=ProductResponse)
 async def product_create(
     admin: Annotated[dict, Depends(get_current_admin)],
     product: ProductCreateRequest
 ):
     '''Add product route'''
-    if not admin["role"] == AdminRole.ADMIN:
+    if admin["role"] not in {AdminRole.ADMIN, AdminRole.PRODUCT_MANAGER}:
         raise HTTPException(
             status_code=403,
             detail="You are not authorized for this action"
@@ -81,14 +88,61 @@ async def product_create(
         ) from e
 
 
+@router.get("/{product_id}", status_code=200, response_model=ProductResponse)
+async def product_by_id(
+    admin: Annotated[dict, Depends(get_current_admin)],
+    product_id: str,
+):
+    try:
+        return await get_product_by_id(product_id)
+    except Exception as e:
+        print(f"Error fetching product: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Error fetching product"
+        ) from e
+
+
+@router.put("/{product_id}", status_code=200, response_model=ProductResponse)
+async def prodcut_details_update(
+    admin: Annotated[dict, Depends(get_current_admin)],
+    product_id: str,
+    product_data: ProductDetailsRequest
+):
+    '''Update product details route'''
+    try:
+        if admin["role"] not in {AdminRole.ADMIN, AdminRole.PRODUCT_MANAGER}:
+            raise HTTPException(
+                status_code=403,
+                detail="You are not authorized for this action"
+            )
+        return await update_product_details(product_data=product_data, product_id=product_id)
+    except HTTPException as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=e.detail
+        ) from e
+    except Exception as e:
+        print(f"Unexpected Error editing product: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Unexpected Error editing product"
+        ) from e
+
+
 @router.put("/{product_id}/add-image", status_code=201, response_model=ProductResponse)
 async def add_images(
     admin: Annotated[dict, Depends(get_current_admin)],
     product_id: str,
     images: list[UploadFile] = File(...),
 ):
+    '''Add image product route'''
     try:
-        print("A")
+        if admin["role"] not in {AdminRole.ADMIN, AdminRole.PRODUCT_MANAGER}:
+            raise HTTPException(
+                status_code=403,
+                detail="You are not authorized for this action"
+            )
         for image in images:
             if image.content_type.lower() not in ["image/jpeg", "image/png", "image/jpg",]:
                 raise HTTPException(
@@ -107,4 +161,34 @@ async def add_images(
         raise HTTPException(
             status_code=500,
             detail="Unexpected error adding product images"
+        ) from e
+
+
+@router.put("/{product_id}/delete-images", status_code=200, response_model=ProductResponse)
+async def delete_images(
+    admin: Annotated[dict, Depends(get_current_admin)],
+    product_id: str,
+    publid_ids: DeleteImagesRequest
+):
+    '''Delete image product route'''
+    try:
+        if admin["role"] not in {AdminRole.ADMIN, AdminRole.PRODUCT_MANAGER}:
+            raise HTTPException(
+                status_code=403,
+                detail="You are not authorized for this action"
+            )
+        return await delete_images_product(
+            product_id=product_id,
+            public_ids=publid_ids
+        )
+    except HTTPException as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=e.detail
+        )from e
+    except Exception as e:
+        print("Error deleting images: ", e)
+        raise HTTPException(
+            status_code=500,
+            detail="Error deleting images"
         ) from e

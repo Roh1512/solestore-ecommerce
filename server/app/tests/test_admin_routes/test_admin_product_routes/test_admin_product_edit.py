@@ -1,4 +1,4 @@
-'''Test admin product create'''
+'''Test admin product edit'''
 
 import pytest
 from httpx import AsyncClient, ASGITransport
@@ -100,8 +100,8 @@ def product_data_1():
     }
 
 
-class TestAdminProductCreate:
-    '''Test product create'''
+class TestAdminProductEdit:
+    '''Test Product Edit'''
     @pytest_asyncio.fixture(
         scope="function",
         autouse=True
@@ -125,8 +125,9 @@ class TestAdminProductCreate:
             refresh_token = cookies.get(settings.ADMIN_REFRESH_COOKIE_NAME)
             return {"access_token": access_token, "refresh_token": refresh_token}
 
-    @pytest.mark.asyncio
-    async def test_admin_product_create(self, login_admin, product_data_1):
+    @pytest_asyncio.fixture(scope="function",
+                            autouse=True)
+    async def product_added(self, login_admin, product_data_1):
         async with AsyncClient(
             transport=ASGITransport(app=app),
             base_url="http://test"
@@ -137,9 +138,8 @@ class TestAdminProductCreate:
             client.cookies.set(
                 settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
             )
-
             brand_res = await client.get(
-                "/api/admin/brand",
+                "/api/admin/brand/",
                 follow_redirects=True,
                 headers=auth_headers
             )
@@ -147,7 +147,7 @@ class TestAdminProductCreate:
             brands = brand_res.json()
 
             category_res = await client.get(
-                "/api/admin/category",
+                "/api/admin/category/",
                 follow_redirects=True,
                 headers=auth_headers
             )
@@ -161,20 +161,17 @@ class TestAdminProductCreate:
             product_data_1["brand"] = brand_id
 
             create_res = await client.post(
-                "/api/admin/product",
+                "/api/admin/product/",
                 follow_redirects=True,
                 headers=auth_headers,
                 json=product_data_1
             )
             created_product = create_res.json()
-            print("Created: ", created_product)
-            print(created_product)
-            product_details = ProductResponse(**created_product)
-            assert isinstance(product_details, ProductResponse)
             assert create_res.status_code == 201
+            return {"product": created_product}
 
     @pytest.mark.asyncio
-    async def test_admin_product_create_no_brand(self, login_admin, product_data_1):
+    async def test_admin_product_edit_success(self, login_admin, product_added):
         async with AsyncClient(
             transport=ASGITransport(app=app),
             base_url="http://test"
@@ -185,37 +182,84 @@ class TestAdminProductCreate:
             client.cookies.set(
                 settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
             )
+            product = product_added["product"]
+            product_id = str(product["id"])
 
-            category_res = await client.get(
-                "/api/admin/category",
-                follow_redirects=True,
-                headers=auth_headers
-            )
-            assert category_res.status_code == 200
-            categories = category_res.json()
-
-            category_id = str(categories[0]["id"])
-
-            product_data_1["category"] = category_id
-            product_data_1["brand"] = ""
-
-            create_res = await client.post(
-                "/api/admin/product",
-                follow_redirects=True,
+            response = await client.put(
+                f"/api/admin/product/{product_id}",
                 headers=auth_headers,
-                json=product_data_1
+                json={
+                    "description": "new description",
+                    "price": 200,
+                    "title": "New title"
+                }
             )
-            created_product = create_res.json()
-            print("Created: ", created_product)
-            print(created_product)
-            assert create_res.status_code == 422
-            details = created_product["detail"]
-            for detail in details:
+            assert response.status_code == 200
+            assert response.json()["description"] == "new description"
+            assert response.json()["title"] == "New title"
+            assert response.json()["price"] == 200
+
+    @pytest.mark.asyncio
+    async def test_admin_product_edit_invalid_price(self, login_admin, product_added):
+        async with AsyncClient(
+            transport=ASGITransport(app=app),
+            base_url="http://test"
+        ) as client:
+            auth_headers = {
+                "Authorization": f"Bearer {login_admin["access_token"]}"
+            }
+            client.cookies.set(
+                settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
+            )
+            product = product_added["product"]
+            product_id = str(product["id"])
+
+            response = await client.put(
+                f"/api/admin/product/{product_id}",
+                headers=auth_headers,
+                json={
+                    "description": "new description",
+                    "price": -200,
+                    "title": "New title"
+                }
+            )
+            assert response.status_code == 422
+            for detail in response.json()["detail"]:
+                assert "price" in detail["loc"]
+                assert "Input should be greater than 0" in detail["msg"]
+
+    @pytest.mark.asyncio
+    async def test_admin_product_edit_invalid_brand(self, login_admin, product_added):
+        async with AsyncClient(
+            transport=ASGITransport(app=app),
+            base_url="http://test"
+        ) as client:
+            auth_headers = {
+                "Authorization": f"Bearer {login_admin["access_token"]}"
+            }
+            client.cookies.set(
+                settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
+            )
+            product = product_added["product"]
+            product_id = str(product["id"])
+
+            response = await client.put(
+                f"/api/admin/product/{product_id}",
+                headers=auth_headers,
+                json={
+                    "description": "new description",
+                    "price": 200,
+                    "title": "New title",
+                    "brand": "Invalid"
+                }
+            )
+            assert response.status_code == 422
+            for detail in response.json()["detail"]:
                 assert "brand" in detail["loc"]
-                assert "Value error, Please select a brand" in detail["msg"]
+                assert "Value error, Invalid brand ID" in detail["msg"]
 
     @pytest.mark.asyncio
-    async def test_admin_product_create_no_category(self, login_admin, product_data_1):
+    async def test_admin_product_edit_invalid_category(self, login_admin, product_added):
         async with AsyncClient(
             transport=ASGITransport(app=app),
             base_url="http://test"
@@ -226,35 +270,82 @@ class TestAdminProductCreate:
             client.cookies.set(
                 settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
             )
+            product = product_added["product"]
+            product_id = str(product["id"])
 
-            brand_res = await client.get(
-                "/api/admin/brand",
-                follow_redirects=True,
-                headers=auth_headers
-            )
-            assert brand_res.status_code == 200
-            brands = brand_res.json()
-
-            brand_id = str(brands[0]["id"])
-
-            product_data_1["brand"] = brand_id
-            product_data_1["category"] = ""
-
-            create_res = await client.post(
-                "/api/admin/product",
-                follow_redirects=True,
+            response = await client.put(
+                f"/api/admin/product/{product_id}",
                 headers=auth_headers,
-                json=product_data_1
+                json={
+                    "description": "new description",
+                    "price": 200,
+                    "title": "New title",
+                    "category": "Invalid"
+                }
             )
-            created_product = create_res.json()
-            assert create_res.status_code == 422
-            details = created_product["detail"]
-            for detail in details:
+            assert response.status_code == 422
+            for detail in response.json()["detail"]:
                 assert "category" in detail["loc"]
-                assert "Value error, Please select a category" in detail["msg"]
+                assert "Value error, Invalid category ID" in detail["msg"]
 
     @pytest.mark.asyncio
-    async def test_admin_product_create_invalid_category(self, login_admin, product_data_1):
+    async def test_admin_product_edit_brand_not_found(self, login_admin, product_added):
+        async with AsyncClient(
+            transport=ASGITransport(app=app),
+            base_url="http://test"
+        ) as client:
+            auth_headers = {
+                "Authorization": f"Bearer {login_admin["access_token"]}"
+            }
+            client.cookies.set(
+                settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
+            )
+            product = product_added["product"]
+            product_id = str(product["id"])
+
+            response = await client.put(
+                f"/api/admin/product/{product_id}",
+                headers=auth_headers,
+                json={
+                    "description": "new description",
+                    "price": 200,
+                    "title": "New title",
+                    "brand": "678e8e5c7f998e1474047520"
+                }
+            )
+            assert response.status_code == 404
+            assert response.json()["detail"] == "Brand not found"
+
+    @pytest.mark.asyncio
+    async def test_admin_product_edit_category_not_found(self, login_admin, product_added):
+        async with AsyncClient(
+            transport=ASGITransport(app=app),
+            base_url="http://test"
+        ) as client:
+            auth_headers = {
+                "Authorization": f"Bearer {login_admin["access_token"]}"
+            }
+            client.cookies.set(
+                settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
+            )
+            product = product_added["product"]
+            product_id = str(product["id"])
+
+            response = await client.put(
+                f"/api/admin/product/{product_id}",
+                headers=auth_headers,
+                json={
+                    "description": "new description",
+                    "price": 200,
+                    "title": "New title",
+                    "category": "678e8e5c7f998e1474047520"
+                }
+            )
+            assert response.status_code == 404
+            assert response.json()["detail"] == "Category not found"
+
+    @pytest.mark.asyncio
+    async def test_admin_product_edit_invalid_product_id(self, login_admin):
         async with AsyncClient(
             transport=ASGITransport(app=app),
             base_url="http://test"
@@ -266,32 +357,21 @@ class TestAdminProductCreate:
                 settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
             )
 
-            brand_res = await client.get(
-                "/api/admin/brand",
-                follow_redirects=True,
-                headers=auth_headers
-            )
-            assert brand_res.status_code == 200
-            brands = brand_res.json()
-
-            brand_id = str(brands[0]["id"])
-            category_id = "Invalid"
-
-            product_data_1["category"] = category_id
-            product_data_1["brand"] = brand_id
-
-            create_res = await client.post(
-                "/api/admin/product",
-                follow_redirects=True,
+            response = await client.put(
+                "/api/admin/product/invalid",
                 headers=auth_headers,
-                json=product_data_1
+                json={
+                    "description": "new description",
+                    "price": 200,
+                    "title": "New title",
+                    "brand": "678e8e5c7f998e1474047520"
+                }
             )
-            created_product = create_res.json()
-            assert create_res.status_code == 400
-            assert created_product["detail"] == "Invalid category"
+            assert response.status_code == 400
+            assert response.json()["detail"] == "Invalid product ID"
 
     @pytest.mark.asyncio
-    async def test_admin_product_create_invalid_brand(self, login_admin, product_data_1):
+    async def test_admin_product_edit_product_not_found(self, login_admin):
         async with AsyncClient(
             transport=ASGITransport(app=app),
             base_url="http://test"
@@ -303,136 +383,15 @@ class TestAdminProductCreate:
                 settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
             )
 
-            category_res = await client.get(
-                "/api/admin/category",
-                follow_redirects=True,
-                headers=auth_headers
-            )
-            assert category_res.status_code == 200
-            categories = category_res.json()
-
-            brand_id = "Invalid"
-            category_id = str(categories[0]["id"])
-
-            product_data_1["category"] = category_id
-            product_data_1["brand"] = brand_id
-
-            create_res = await client.post(
-                "/api/admin/product",
-                follow_redirects=True,
+            response = await client.put(
+                "/api/admin/product/678e8e5c7f998e1474047520",
                 headers=auth_headers,
-                json=product_data_1
+                json={
+                    "description": "new description",
+                    "price": 200,
+                    "title": "New title",
+                    "brand": "678e8e5c7f998e1474047520"
+                }
             )
-            created_product = create_res.json()
-            print("Created: ", created_product)
-            print(created_product)
-            assert create_res.status_code == 400
-            assert created_product["detail"] == "Invalid brand"
-
-    @pytest.mark.asyncio
-    async def test_admin_product_create_invalid_size(self, login_admin, product_data_1):
-        async with AsyncClient(
-            transport=ASGITransport(app=app),
-            base_url="http://test"
-        ) as client:
-            auth_headers = {
-                "Authorization": f"Bearer {login_admin["access_token"]}"
-            }
-            client.cookies.set(
-                settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
-            )
-
-            brand_res = await client.get(
-                "/api/admin/brand",
-                follow_redirects=True,
-                headers=auth_headers
-            )
-            assert brand_res.status_code == 200
-            brands = brand_res.json()
-
-            category_res = await client.get(
-                "/api/admin/category",
-                follow_redirects=True,
-                headers=auth_headers
-            )
-            assert category_res.status_code == 200
-            categories = category_res.json()
-
-            brand_id = str(brands[0]["id"])
-            category_id = str(categories[0]["id"])
-
-            product_data_1["category"] = category_id
-            product_data_1["brand"] = brand_id
-
-            product_data_1["sizes"] = [
-                {"size": 14, "stock": 220}
-            ]
-
-            create_res = await client.post(
-                "/api/admin/product",
-                follow_redirects=True,
-                headers=auth_headers,
-                json=product_data_1
-            )
-            created_product = create_res.json()
-            print("Created: ", created_product)
-            print(created_product)
-            assert create_res.status_code == 422
-            for detail in created_product["detail"]:
-                assert "sizes" in detail["loc"]
-                assert "Value error, Size 14 must be between 7 and 12" in detail[
-                    "msg"]
-
-    @pytest.mark.asyncio
-    async def test_admin_product_create_invalid_stock(self, login_admin, product_data_1):
-        async with AsyncClient(
-            transport=ASGITransport(app=app),
-            base_url="http://test"
-        ) as client:
-            auth_headers = {
-                "Authorization": f"Bearer {login_admin["access_token"]}"
-            }
-            client.cookies.set(
-                settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
-            )
-
-            brand_res = await client.get(
-                "/api/admin/brand",
-                follow_redirects=True,
-                headers=auth_headers
-            )
-            assert brand_res.status_code == 200
-            brands = brand_res.json()
-
-            category_res = await client.get(
-                "/api/admin/category",
-                follow_redirects=True,
-                headers=auth_headers
-            )
-            assert category_res.status_code == 200
-            categories = category_res.json()
-
-            brand_id = str(brands[0]["id"])
-            category_id = str(categories[0]["id"])
-
-            product_data_1["category"] = category_id
-            product_data_1["brand"] = brand_id
-
-            product_data_1["sizes"] = [
-                {"size": 10, "stock": -20}
-            ]
-
-            create_res = await client.post(
-                "/api/admin/product",
-                follow_redirects=True,
-                headers=auth_headers,
-                json=product_data_1
-            )
-            created_product = create_res.json()
-            print("Created: ", created_product)
-            print(created_product)
-            assert create_res.status_code == 422
-            for detail in created_product["detail"]:
-                assert "sizes" in detail["loc"]
-                assert "Value error, Stock -20 must be greater than or equal to 0" in detail[
-                    "msg"]
+            assert response.status_code == 404
+            assert response.json()["detail"] == "Product not found"

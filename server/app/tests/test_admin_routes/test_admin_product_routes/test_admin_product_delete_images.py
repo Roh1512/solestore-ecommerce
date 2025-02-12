@@ -74,33 +74,7 @@ def login_info():
     }
 
 
-@pytest_asyncio.fixture(scope="function", loop_scope="function")
-def product_data_1():
-    '''Product data 1'''
-    return {
-        "title": "Product1",
-        "description": "Description of product",
-        "price": 221.0,
-        "brand": None,
-        "category": None,
-        "sizes": [
-            {
-                "size": 10,
-                "stock": 10
-            },
-            {
-                "size": 11,
-                "stock": 10
-            },
-            {
-                "size": 12,
-                "stock": 13
-            },
-        ]
-    }
-
-
-class TestAdminProductAddImage:
+class TestAdminProductDeleteImage:
     '''Test product add image'''
     @pytest_asyncio.fixture(
         scope="function",
@@ -125,53 +99,8 @@ class TestAdminProductAddImage:
             refresh_token = cookies.get(settings.ADMIN_REFRESH_COOKIE_NAME)
             return {"access_token": access_token, "refresh_token": refresh_token}
 
-    @pytest_asyncio.fixture(scope="function",
-                            autouse=True)
-    async def product_added(self, login_admin, product_data_1):
-        async with AsyncClient(
-            transport=ASGITransport(app=app),
-            base_url="http://test"
-        ) as client:
-            auth_headers = {
-                "Authorization": f"Bearer {login_admin["access_token"]}"
-            }
-            client.cookies.set(
-                settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
-            )
-            brand_res = await client.get(
-                "/api/admin/brand/",
-                follow_redirects=True,
-                headers=auth_headers
-            )
-            assert brand_res.status_code == 200
-            brands = brand_res.json()
-
-            category_res = await client.get(
-                "/api/admin/category/",
-                follow_redirects=True,
-                headers=auth_headers
-            )
-            assert category_res.status_code == 200
-            categories = category_res.json()
-
-            brand_id = str(brands[0]["id"])
-            category_id = str(categories[0]["id"])
-
-            product_data_1["category"] = category_id
-            product_data_1["brand"] = brand_id
-
-            create_res = await client.post(
-                "/api/admin/product/",
-                follow_redirects=True,
-                headers=auth_headers,
-                json=product_data_1
-            )
-            created_product = create_res.json()
-            assert create_res.status_code == 201
-            return {"product": created_product}
-
     @pytest.mark.asyncio
-    async def test_admin_product_add_image_no_file(self, login_admin, product_added):
+    async def test_admin_product_delete_image_invalid_id(self, login_admin):
         async with AsyncClient(
             transport=ASGITransport(app=app),
             base_url="http://test"
@@ -182,15 +111,40 @@ class TestAdminProductAddImage:
             client.cookies.set(
                 settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
             )
-            product = product_added["product"]
-            product_id = str(product["id"])
 
             response = await client.put(
-                f"/api/admin/product/{product_id}/add-image",
+                "/api/admin/product/invalid/delete-images",
+                headers=auth_headers,
+                follow_redirects=True,
+                json={
+                    "publid_ids": ["123", "345"]
+                }
+            )
+            assert response.status_code == 400
+            assert response.json()["detail"] == "Invalid product ID"
+
+    @pytest.mark.asyncio
+    async def test_admin_product_delete_image_product_not_found(self, login_admin):
+        async with AsyncClient(
+            transport=ASGITransport(app=app),
+            base_url="http://test"
+        ) as client:
+            auth_headers = {
+                "Authorization": f"Bearer {login_admin["access_token"]}"
+            }
+            client.cookies.set(
+                settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
+            )
+
+            response = await client.put(
+                "/api/admin/product/678e8e5c7f998e1474047520/delete-images",
+                json={
+                    "publid_ids": [
+                        "123", "345"
+                    ]
+                },
                 headers=auth_headers,
                 follow_redirects=True
             )
-            assert response.status_code == 422
-            for detail in response.json()["detail"]:
-                assert "images" in detail["loc"]
-                assert "Field required" in detail["msg"]
+            assert response.status_code == 404
+            assert response.json()["detail"] == "Product not found"

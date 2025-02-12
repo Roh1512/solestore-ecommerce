@@ -46,7 +46,7 @@ def custom_generate_unique_id(route: APIRoute):
 
 
 app = FastAPI(lifespan=lifespan,
-              generate_unique_id_function=custom_generate_unique_id)
+              generate_unique_id_function=custom_generate_unique_id, redirect_slashes=True)
 
 
 origins = [

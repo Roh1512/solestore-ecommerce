@@ -17,6 +17,10 @@ class Image(BaseModel):
     public_id: str
 
 
+class DeleteImagesRequest(BaseModel):
+    publid_ids: list[str]
+
+
 class Product(Document):
     title: Annotated[str, Indexed()]
     description: Optional[str] = None
@@ -90,21 +94,70 @@ class ProductCreateRequest(BaseModel):
                 if not (7 < size.size <= 12):
                     raise ValueError(
                         f"Size {size.size} must be between 7 and 12")
+
+            for stock in value:
+                if (stock.stock < 0):
+                    raise ValueError(
+                        f"Stock {stock.stock} must be greater than or equal to 0")
         return value
 
 
-class ProductDetailsRequest(BaseModel):
+class ProductUpdateRequest(BaseModel):
     '''Product create request body'''
-    title: str
+    title: Optional[str] = None
     description: Optional[str] = Field(
         None,
         min_length=5,
         max_length=100,
         description="Description must be at least 5 characters long"
     )
-    price: float = Field(..., gt=0, description="Price must be greater than 0")
-    brand: str = Field(..., description="Brand ID")
-    category: str = Field(..., description="Category ID")
+    price: Optional[float] = Field(
+        None, gt=0, description="Price must be greater than 0")
+
+    brand: Optional[str] = Field(None, description="Brand ID")
+    category: Optional[str] = Field(None, description="Category ID")
+    sizes: Optional[List[Size]] = None
+
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+
+    @field_validator('price')
+    @classmethod
+    def validate_price(cls,  value):
+        '''Validate price'''
+        if value and value <= 0:
+            raise ValueError("Price must be greater than 0")
+        return value
+
+    @field_validator('sizes')
+    @classmethod
+    def validate_sizes(cls, value):
+        '''Ensure that all sizes in the array are between 7 and 12'''
+        if value:
+            for size in value:
+                if not (7 < size.size <= 12):
+                    raise ValueError(
+                        f"Size {size.size} must be between 7 and 12")
+            for stock in value:
+                if not (stock.stock < 0):
+                    raise ValueError(
+                        f"Stock {stock.stock} must be greater than or equal to 0")
+
+        return value
+
+
+class ProductDetailsRequest(BaseModel):
+    '''Product create request body'''
+    title: Optional[str] = None
+    description: Optional[str] = Field(
+        None,
+        min_length=5,
+        max_length=100,
+        description="Description must be at least 5 characters long"
+    )
+    price: Optional[float] = Field(None, gt=0,
+                                   description="Price must be greater than 0")
+    brand: Optional[str] = Field(None, description="Brand ID")
+    category: Optional[str] = Field(None, description="Category ID")
 
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
@@ -114,6 +167,22 @@ class ProductDetailsRequest(BaseModel):
         '''Validate price'''
         if value <= 0:
             raise ValueError("Price must be greater than 0")
+        return value
+
+    @field_validator("brand")
+    @classmethod
+    def validate_brand_id(cls, value):
+        '''Validate brand ID'''
+        if value and not ObjectId.is_valid(value):
+            raise ValueError("Invalid brand ID")
+        return value
+
+    @field_validator("category")
+    @classmethod
+    def validate_category_id(cls, value):
+        '''Validate category ID'''
+        if value and not ObjectId.is_valid(value):
+            raise ValueError("Invalid category ID")
         return value
 
 
@@ -135,6 +204,7 @@ class ProductResponse(BaseModel):
             id=str(product.id),
             title=product.title,
             price=product.price,
+            description=product.description,
             brand=BrandResponse.from_mongo(product.brand),
             category=CategoryResponse.from_mongo(product.category),
             images=product.images,

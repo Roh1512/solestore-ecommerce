@@ -13,7 +13,7 @@ from beanie.operators import And
 from pymongo.errors import DuplicateKeyError
 from pymongo.results import DeleteResult
 
-from app.utilities.cloudinary_utils import update_profile_image
+from app.utilities.cloudinary_utils import update_profile_image, delete_image_from_cloudinary
 
 from app.model.product_models import Product, Size, ProductCreateRequest, ProductResponse, ProductDetailsRequest, Image
 from app.model.brand_models import Brand
@@ -43,6 +43,23 @@ async def get_products(
                 status_code=400,
                 detail="Invalid brand ID"
             )
+
+        if brand or category:
+            brand_data, category_data = await gather(
+                Brand.get(PydanticObjectId(brand)),
+                Category.get(PydanticObjectId(category))
+            )
+            if not brand_data:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Brand not found"
+                )
+            if not category_data:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Category not found"
+                )
+
         query = {}
         if search:
             query["title"] = {"$regex": search, "$options": "i"}
@@ -85,6 +102,28 @@ async def get_products(
         product_responses = [ProductResponse.from_mongo(
             product) for product in products]
         return product_responses
+    except HTTPException as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=e.detail
+        ) from e
+
+
+async def get_product_by_id(product_id: str) -> ProductResponse:
+    try:
+        if not ObjectId.is_valid(product_id):
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid product ID"
+            )
+        product = await Product.get(PydanticObjectId(product_id), fetch_links=True)
+
+        if not product:
+            raise HTTPException(
+                status_code=404,
+                detail="Product not found"
+            )
+        return ProductResponse.from_mongo(product)
     except HTTPException as e:
         raise HTTPException(
             status_code=e.status_code,
@@ -175,12 +214,48 @@ async def add_images_product(product_id: str, images: list[UploadFile]):
         raise HTTPException(status_code=400, detail=e.errors()) from e
 
 
+async def delete_images_product(product_id: str, public_ids: list[str]):
+    try:
+        if not ObjectId.is_valid(product_id):
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid product ID"
+            )
+
+        product = await Product.get(PydanticObjectId(product_id))
+        if not product:
+            raise HTTPException(
+                status_code=404,
+                detail="Product not found"
+            )
+
+        # Delete images from Cloudinary concurrently
+        deletion_tasks = [delete_image_from_cloudinary(
+            public_id) for public_id in public_ids]
+        await gather(*deletion_tasks)
+
+        # Update product's images list by filtering out images with matching public_ids
+        product.images = [
+            img for img in product.images if img.public_id not in public_ids]
+
+        await product.save()
+        await product.fetch_all_links()
+
+        return ProductResponse.from_mongo(product)
+
+    except HTTPException as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=e.detail
+        ) from e
+
+
 async def update_product_details(product_data: ProductDetailsRequest, product_id: str):
     try:
         if not ObjectId.is_valid(product_id):
             raise HTTPException(
                 status_code=400,
-                detail="Invalid product id"
+                detail="Invalid product ID"
             )
 
         product = await Product.get(PydanticObjectId(product_id))
@@ -191,18 +266,21 @@ async def update_product_details(product_data: ProductDetailsRequest, product_id
                 detail="Product not found"
             )
 
-        brand, category = await gather(
-            Brand.get(PydanticObjectId(product_data.brand)),
-            Category.get(PydanticObjectId(product_data.category))
-        )
-        if not brand:
-            raise HTTPException(
-                status_code=404, detail="Brand not found")
-        if not category:
-            raise HTTPException(
-                status_code=404, detail="Category not found")
-        product_data.brand = brand
-        product_data.category = category
+        if product_data.brand:
+            brand = await Brand.get(PydanticObjectId(product_data.brand))
+            if not brand:
+                raise HTTPException(
+                    status_code=404, detail="Brand not found")
+            if brand:
+                product_data.brand = brand
+
+        if product_data.category:
+            category = await Category.get(PydanticObjectId(product_data.category))
+            if not category:
+                raise HTTPException(
+                    status_code=404, detail="Category not found")
+            if category:
+                product_data.category = category
 
         update_data = product_data.model_dump(exclude_unset=True)
 
@@ -210,14 +288,13 @@ async def update_product_details(product_data: ProductDetailsRequest, product_id
             setattr(product, key, value)
         product.updated_at = datetime.now(timezone.utc)
         await product.save()
+        await product.fetch_all_links()
 
-        updated_product_dict = product.model_dump()
-        updated_product_dict["id"] = str(product.id)
-        return updated_product_dict
+        return ProductResponse.from_mongo(product)
     except ValidationError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=e["detail"]
+            detail=e.errors()
         ) from e
     except HTTPException as e:
         print(f"Error editing product: {e}")
