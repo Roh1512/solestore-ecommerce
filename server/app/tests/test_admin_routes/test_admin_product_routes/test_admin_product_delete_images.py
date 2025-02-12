@@ -117,7 +117,7 @@ class TestAdminProductDeleteImage:
                 headers=auth_headers,
                 follow_redirects=True,
                 json={
-                    "publid_ids": ["123", "345"]
+                    "public_ids": ["123", "345"]
                 }
             )
             assert response.status_code == 400
@@ -139,7 +139,7 @@ class TestAdminProductDeleteImage:
             response = await client.put(
                 "/api/admin/product/678e8e5c7f998e1474047520/delete-images",
                 json={
-                    "publid_ids": [
+                    "public_ids": [
                         "123", "345"
                     ]
                 },

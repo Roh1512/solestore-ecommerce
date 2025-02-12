@@ -18,7 +18,7 @@ class Image(BaseModel):
 
 
 class DeleteImagesRequest(BaseModel):
-    publid_ids: list[str]
+    public_ids: list[str]
 
 
 class Product(Document):

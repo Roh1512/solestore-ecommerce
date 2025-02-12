@@ -168,7 +168,7 @@ async def add_images(
 async def delete_images(
     admin: Annotated[dict, Depends(get_current_admin)],
     product_id: str,
-    publid_ids: DeleteImagesRequest
+    public_ids: DeleteImagesRequest
 ):
     '''Delete image product route'''
     try:
@@ -179,7 +179,7 @@ async def delete_images(
             )
         return await delete_images_product(
             product_id=product_id,
-            public_ids=publid_ids
+            public_ids=public_ids.public_ids
         )
     except HTTPException as e:
         raise HTTPException(
