@@ -9,6 +9,9 @@ import { lazy } from "react";
 
 import { useTheme } from "./context/ThemeContext";
 
+import NotFound from "@components/ErrorElements/NotFound";
+import ErrorElement from "@components/ErrorElements/ErrorElement";
+
 const AdminLandingPage = lazy(
   () => import("@pages/LandingPage/AdminLandingPage")
 );
@@ -19,10 +22,8 @@ const CategoriesPage = lazy(() => import("@pages/Categories/CategoriesPage"));
 const ProfilePage = lazy(() => import("@pages/profile/ProfilePage"));
 const AdminsPage = lazy(() => import("@pages/Admins/AdminsPage"));
 const AdminByIdPage = lazy(() => import("@pages/Admins/AdminByIdPage"));
-const NotFound = lazy(() => import("@components/ErrorElements/NotFound"));
-const ErrorElement = lazy(
-  () => import("@components/ErrorElements/ErrorElement")
-);
+const Products = lazy(() => import("@pages/Products/Products"));
+const ProductById = lazy(() => import("@pages/Products/ProductById"));
 
 import RedirectUnprotectedRoutes from "@components/RedirectWrappers/RedirectUnprotectedRoutes";
 import RedirectProtectedRoutes from "./components/RedirectWrappers/RedirectProtectedRoutes";
@@ -56,6 +57,8 @@ const routes = createBrowserRouter(
         <Route path="/admin/profile" element={<ProfilePage />} />
         <Route path="/admin/brands" element={<BrandsPage />} />
         <Route path="/admin/categories" element={<CategoriesPage />} />
+        <Route path="/admin/products" element={<Products />} />
+        <Route path="/admin/products/:productId" element={<ProductById />} />
         <Route path="/admin/admins" element={<AdminsPage />} />
         <Route path="/admin/admins/:adminId" element={<AdminByIdPage />} />
         <Route path="/admin/loading" element={<PageLoading />} />

@@ -17,7 +17,6 @@ from app.utilities.response_message_models import SuccessMessage
 router = APIRouter()
 
 
-@router.get("", status_code=200, response_model=list[CategoryResponse])
 @router.get("/", status_code=200, response_model=list[CategoryResponse])
 async def get_all_categories(
     admin: Annotated[dict, Depends(get_current_admin)],
@@ -45,7 +44,6 @@ async def get_all_categories(
         ) from e
 
 
-@router.post("", status_code=status.HTTP_201_CREATED, response_model=CategoryResponse)
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=CategoryResponse)
 async def category_create(
     admin: Annotated[dict, Depends(get_current_admin)],

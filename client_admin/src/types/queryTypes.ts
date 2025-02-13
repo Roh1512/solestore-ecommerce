@@ -37,3 +37,18 @@ export interface AdminQueryParams {
   sort_order?: SortOrder;
   role?: AdminRole;
 }
+
+export enum SortByProduct {
+  PRICE = "price",
+  DATE = "date",
+}
+
+export interface ProductQueryParams {
+  search?: string;
+  page?: number;
+  sort_by?: SortByProduct;
+  sort_order?: SortOrder;
+  category?: string;
+  brand?: string;
+  size?: number;
+}

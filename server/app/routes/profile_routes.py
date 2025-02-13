@@ -12,7 +12,6 @@ from datetime import datetime, timezone
 router = APIRouter()
 
 
-@router.get("", status_code=status.HTTP_200_OK, response_model=UserResponse)
 @router.get("/", status_code=status.HTTP_200_OK, response_model=UserResponse)
 async def get_profile_details(user: Annotated[dict, Depends(get_current_user)]):
     try:
@@ -25,7 +24,6 @@ async def get_profile_details(user: Annotated[dict, Depends(get_current_user)]):
         ) from e
 
 
-@router.put("", status_code=status.HTTP_200_OK, response_model=UserResponse)
 @router.put("/", status_code=status.HTTP_200_OK, response_model=UserResponse)
 async def update_profile_details(user: Annotated[dict, Depends(get_current_user)], profile_details: UpdateProfileRequest, current_password: Annotated[str, Body(embed=True)]):
     if not current_password and not user.get("google_id"):

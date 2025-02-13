@@ -167,8 +167,6 @@ class TestAdminProductCreate:
                 json=product_data_1
             )
             created_product = create_res.json()
-            print("Created: ", created_product)
-            print(created_product)
             product_details = ProductResponse(**created_product)
             assert isinstance(product_details, ProductResponse)
             assert create_res.status_code == 201

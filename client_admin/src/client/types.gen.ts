@@ -36,6 +36,10 @@ export type AdminUpdateRequest = {
     phone?: (string | null);
 };
 
+export type Body_admin_add_images = {
+    images: Array<((Blob | File))>;
+};
+
 export type Body_admin_admin_login = {
     grant_type?: (string | null);
     username: string;
@@ -110,13 +114,103 @@ export type CategoryResponse = {
     updated_at: string;
 };
 
+export type DeleteImagesRequest = {
+    public_ids: Array<(string)>;
+};
+
+export type DeleteProductsRequests = {
+    product_ids: Array<(string)>;
+};
+
 export type HTTPValidationError = {
     detail?: Array<ValidationError>;
+};
+
+export type Image = {
+    url: string;
+    public_id: string;
+};
+
+/**
+ * Product create request body
+ */
+export type ProductCreateRequest = {
+    title: string;
+    /**
+     * Description must be at least 5 characters long
+     */
+    description?: (string | null);
+    /**
+     * Price must be greater than 0
+     */
+    price: number;
+    /**
+     * Brand ID
+     */
+    brand: string;
+    /**
+     * Category ID
+     */
+    category: string;
+    sizes?: (Array<Size> | null);
+};
+
+/**
+ * Product create request body
+ */
+export type ProductDetailsRequest = {
+    title?: (string | null);
+    /**
+     * Description must be at least 5 characters long
+     */
+    description?: (string | null);
+    /**
+     * Price must be greater than 0
+     */
+    price?: (number | null);
+    /**
+     * Brand ID
+     */
+    brand?: (string | null);
+    /**
+     * Category ID
+     */
+    category?: (string | null);
+};
+
+export type ProductResponse = {
+    id: string;
+    title: string;
+    description?: (string | null);
+    price: number;
+    brand: BrandResponse;
+    category: CategoryResponse;
+    images?: Array<Image>;
+    sizes: Array<Size>;
+    created_at: string;
+    updated_at: string;
+};
+
+/**
+ * Request model to update size and stock
+ */
+export type ProductSizeStockRequest = {
+    /**
+     * List of sizes and their stock values to update
+     */
+    sizes: Array<Size>;
+};
+
+export type Size = {
+    size: number;
+    stock?: number;
 };
 
 export type SortBy = 'title' | 'date';
 
 export type SortByAdmin = 'username' | 'email' | 'name' | 'date';
+
+export type SortByProduct = 'price' | 'date';
 
 export type SortOrder = 'desc' | 'asc';
 
@@ -372,9 +466,6 @@ export type AdminUpdateAdminProfileDetailsError = (HTTPValidationError);
 
 export type AdminUpdateAdminRoleRouteData = {
     body: AdminRoleUpdateRequest;
-    path: {
-        admin_id: string;
-    };
 };
 
 export type AdminUpdateAdminRoleRouteResponse = (AdminResponse);
@@ -499,3 +590,140 @@ export type AdminGetAdminData = {
 export type AdminGetAdminResponse = (AdminResponse);
 
 export type AdminGetAdminError = (HTTPValidationError);
+
+export type AdminAdminDeleteData = {
+    path: {
+        admin_id: string;
+    };
+};
+
+export type AdminAdminDeleteResponse = (SuccessMessage);
+
+export type AdminAdminDeleteError = (HTTPValidationError);
+
+export type AdminUpdateOtherAdminRoleData = {
+    body: AdminRoleUpdateRequest;
+    path: {
+        admin_id: string;
+    };
+};
+
+export type AdminUpdateOtherAdminRoleResponse = (AdminResponse);
+
+export type AdminUpdateOtherAdminRoleError = (HTTPValidationError);
+
+export type AdminGetAllProductsAdminData = {
+    query?: {
+        brand?: (string | null);
+        category?: (string | null);
+        page?: number;
+        search?: (string | null);
+        size?: (number | null);
+        sort_by?: SortByProduct;
+        sort_order?: SortOrder;
+    };
+};
+
+export type AdminGetAllProductsAdminResponse = (Array<ProductResponse>);
+
+export type AdminGetAllProductsAdminError = (HTTPValidationError);
+
+export type AdminProductCreateData = {
+    body: ProductCreateRequest;
+};
+
+export type AdminProductCreateResponse = (ProductResponse);
+
+export type AdminProductCreateError = (HTTPValidationError);
+
+export type AdminDeleteMultipleProductsData = {
+    body: DeleteProductsRequests;
+};
+
+export type AdminDeleteMultipleProductsResponse = (Array<ProductResponse>);
+
+export type AdminDeleteMultipleProductsError = (HTTPValidationError);
+
+export type AdminProductByIdData = {
+    path: {
+        product_id: string;
+    };
+};
+
+export type AdminProductByIdResponse = (ProductResponse);
+
+export type AdminProductByIdError = (HTTPValidationError);
+
+export type AdminProdcutDetailsUpdateData = {
+    body: ProductDetailsRequest;
+    path: {
+        product_id: string;
+    };
+};
+
+export type AdminProdcutDetailsUpdateResponse = (ProductResponse);
+
+export type AdminProdcutDetailsUpdateError = (HTTPValidationError);
+
+export type AdminDeleteProductData = {
+    path: {
+        product_id: string;
+    };
+};
+
+export type AdminDeleteProductResponse = (ProductResponse);
+
+export type AdminDeleteProductError = (HTTPValidationError);
+
+export type AdminProductSizeStockUpdateData = {
+    body: ProductSizeStockRequest;
+    path: {
+        product_id: string;
+    };
+};
+
+export type AdminProductSizeStockUpdateResponse = (ProductResponse);
+
+export type AdminProductSizeStockUpdateError = (HTTPValidationError);
+
+export type AdminAddImagesData = {
+    body: Body_admin_add_images;
+    path: {
+        product_id: string;
+    };
+};
+
+export type AdminAddImagesResponse = (ProductResponse);
+
+export type AdminAddImagesError = (HTTPValidationError);
+
+export type AdminDeleteImagesData = {
+    body: DeleteImagesRequest;
+    path: {
+        product_id: string;
+    };
+};
+
+export type AdminDeleteImagesResponse = (ProductResponse);
+
+export type AdminDeleteImagesError = (HTTPValidationError);
+
+export type ServeAdminReactAppData = {
+    path: {
+        full_path: string;
+    };
+};
+
+export type ServeAdminReactAppResponse = (string);
+
+export type ServeAdminReactAppError = (HTTPValidationError);
+
+export type ServeReactAppData = {
+    path: {
+        full_path: string;
+    };
+};
+
+export type ServeReactAppResponse = (string);
+
+export type ServeReactAppError = (HTTPValidationError);

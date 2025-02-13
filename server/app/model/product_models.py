@@ -45,6 +45,10 @@ class Product(Document):
         self.updated_at = datetime.now(timezone.utc)
 
 
+class DeleteProductsRequests(BaseModel):
+    product_ids: list[str]
+
+
 class ProductCreateRequest(BaseModel):
     '''Product create request body'''
     title: str
@@ -102,46 +106,26 @@ class ProductCreateRequest(BaseModel):
         return value
 
 
-class ProductUpdateRequest(BaseModel):
-    '''Product create request body'''
-    title: Optional[str] = None
-    description: Optional[str] = Field(
-        None,
-        min_length=5,
-        max_length=100,
-        description="Description must be at least 5 characters long"
-    )
-    price: Optional[float] = Field(
-        None, gt=0, description="Price must be greater than 0")
-
-    brand: Optional[str] = Field(None, description="Brand ID")
-    category: Optional[str] = Field(None, description="Category ID")
-    sizes: Optional[List[Size]] = None
+class ProductSizeStockRequest(BaseModel):
+    '''Request model to update size and stock'''
+    sizes: List[Size] = Field(...,
+                              description="List of sizes and their stock values to update")
 
     model_config = ConfigDict(from_attributes=True, extra="forbid")
-
-    @field_validator('price')
-    @classmethod
-    def validate_price(cls,  value):
-        '''Validate price'''
-        if value and value <= 0:
-            raise ValueError("Price must be greater than 0")
-        return value
 
     @field_validator('sizes')
     @classmethod
     def validate_sizes(cls, value):
-        '''Ensure that all sizes in the array are between 7 and 12'''
-        if value:
-            for size in value:
-                if not (7 < size.size <= 12):
-                    raise ValueError(
-                        f"Size {size.size} must be between 7 and 12")
-            for stock in value:
-                if not (stock.stock < 0):
-                    raise ValueError(
-                        f"Stock {stock.stock} must be greater than or equal to 0")
-
+        if not value:
+            raise ValueError("Sizes list cannot be empty")
+        for size_obj in value:
+            # Adjust the range as needed. Here we allow sizes between 7 and 12 (inclusive)
+            if not (7 <= size_obj.size <= 12):
+                raise ValueError(
+                    f"Size {size_obj.size} must be between 7 and 12")
+            if size_obj.stock < 0:
+                raise ValueError(
+                    f"Stock {size_obj.stock} must be greater than or equal to 0")
         return value
 
 

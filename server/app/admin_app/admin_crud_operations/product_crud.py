@@ -10,12 +10,13 @@ from bson import ObjectId
 from beanie import PydanticObjectId, WriteRules
 from beanie.operators import And
 
-from pymongo.errors import DuplicateKeyError
+from pymongo.errors import DuplicateKeyError, PyMongoError
+
 from pymongo.results import DeleteResult
 
 from app.utilities.cloudinary_utils import update_profile_image, delete_image_from_cloudinary
 
-from app.model.product_models import Product, Size, ProductCreateRequest, ProductResponse, ProductDetailsRequest, Image
+from app.model.product_models import Product, ProductCreateRequest, ProductResponse, ProductDetailsRequest, Image, ProductSizeStockRequest
 from app.model.brand_models import Brand
 from app.model.category_model import Category
 from app.utilities.query_models import SortByProduct, SortOrder
@@ -302,3 +303,98 @@ async def update_product_details(product_data: ProductDetailsRequest, product_id
             status_code=e.status_code,
             detail=e.detail
         ) from e
+
+
+async def update_product_sizes(product_id: str, size_data: ProductSizeStockRequest):
+    '''Function to update product size and stock'''
+    try:
+        if not ObjectId.is_valid(product_id):
+            raise HTTPException(status_code=400, detail="Invalid product ID")
+
+        product = await Product.get(PydanticObjectId(product_id))
+        if not product:
+            raise HTTPException(
+                status_code=404,
+                detail="Product not found"
+            )
+
+        # Update the sizes: for each size in the request, update the stock if it exists,
+        # otherwise append it to the product's sizes list.
+        for new_size in size_data.sizes:
+            updated = False
+            for existing_size in product.sizes:
+                if existing_size.size == new_size.size:
+                    existing_size.stock = new_size.stock
+                    updated = True
+                    break
+            if not updated:
+                product.sizes.append(new_size)
+
+        product.updated_at = datetime.now(timezone.utc)
+        await product.save()
+        await product.fetch_all_links()
+        return ProductResponse.from_mongo(product)
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=e.errors()
+        ) from e
+
+
+async def delete_single_product(product_id: str) -> ProductResponse:
+    # Validate product ID
+    try:
+        if not ObjectId.is_valid(product_id):
+            raise HTTPException(
+                status_code=400, detail=f"Invalid product ID: {product_id}")
+
+        # Fetch the product document
+        product = await Product.get(PydanticObjectId(product_id), fetch_links=True)
+        if not product:
+            raise HTTPException(
+                status_code=404, detail=f"Product not found: {product_id}")
+
+        # Delete all associated images concurrently from Cloudinary.
+        # Each image deletion is an independent async task.
+        deletion_tasks = [delete_image_from_cloudinary(
+            image.public_id) for image in product.images]
+        await gather(*deletion_tasks)
+
+        # Optionally, store the product data (if you want to return it) before deletion.
+        product_data = ProductResponse.from_mongo(product)
+
+        # Delete the product document from the database.
+        await product.delete()
+
+        return product_data
+    except HTTPException as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=e.detail
+        ) from e
+
+
+async def delete_products(product_ids: list[str]) -> list[ProductResponse]:
+    """
+    Delete products whose IDs are in the provided list.
+    For each product, delete the associated images concurrently,
+    then delete the product document.
+    Returns a list of ProductResponse objects representing the deleted products.
+    """
+    try:
+        # Create a list of deletion tasks for each product ID.
+        deletion_tasks = [delete_single_product(pid) for pid in product_ids]
+        # Run all deletions concurrently without blocking the thread.
+        deleted_products = await gather(*deletion_tasks)
+        return deleted_products
+
+    except PyMongoError as e:
+        raise HTTPException(
+            status_code=500, detail=f"Database error: {str(e)}") from e
+    except HTTPException as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=e.detail
+        ) from e
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e

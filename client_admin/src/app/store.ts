@@ -5,6 +5,7 @@ import { profileApi } from "@/features/profileApiSLice";
 import { brandApi } from "@/features/brandApiSlice";
 import { categoryApi } from "@/features/categoryApiSlice";
 import { allAdminsApi } from "@/features/allAdminsApiSlice";
+import { productApi } from "@/features/productApiSlice";
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     [brandApi.reducerPath]: brandApi.reducer,
     [categoryApi.reducerPath]: categoryApi.reducer,
     [allAdminsApi.reducerPath]: allAdminsApi.reducer,
+    [productApi.reducerPath]: productApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -21,7 +23,8 @@ export const store = configureStore({
       .prepend(profileApi.middleware)
       .prepend(brandApi.middleware)
       .prepend(categoryApi.middleware)
-      .prepend(allAdminsApi.middleware),
+      .prepend(allAdminsApi.middleware)
+      .prepend(productApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

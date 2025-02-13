@@ -16,7 +16,6 @@ from app.utilities.query_models import CBQueryParams
 router = APIRouter()
 
 
-@router.get("", status_code=200, response_model=list[BrandResponse])
 @router.get("/", status_code=200, response_model=list[BrandResponse])
 async def get_all_brands(
     admin: Annotated[dict, Depends(get_current_admin)],
@@ -44,7 +43,6 @@ async def get_all_brands(
         ) from e
 
 
-@router.post("", status_code=status.HTTP_201_CREATED, response_model=BrandResponse)
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=BrandResponse)
 async def brand_create(admin: Annotated[dict, Depends(get_current_admin)], brand: BrandCreateRequest):
     '''Brand create route'''

@@ -14,7 +14,6 @@ from app.utilities.query_models import SortBy, SortOrder
 router = APIRouter()
 
 
-@router.get("", status_code=200, response_model=list[BrandResponse])
 @router.get("/", status_code=200, response_model=list[BrandResponse])
 async def get_all_brands(
     user: Annotated[dict, Depends(get_current_user)],

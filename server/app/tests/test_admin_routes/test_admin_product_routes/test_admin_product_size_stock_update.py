@@ -1,4 +1,4 @@
-'''Test admin product edit'''
+'''Test admin product Size stock update'''
 
 import pytest
 from httpx import AsyncClient, ASGITransport
@@ -100,8 +100,8 @@ def product_data_1():
     }
 
 
-class TestAdminProductEdit:
-    '''Test Product Edit'''
+class TestAdminProductSizeStockUpdate:
+    '''Test Product Size Stock Update'''
     @pytest_asyncio.fixture(
         scope="function",
         autouse=True
@@ -171,7 +171,8 @@ class TestAdminProductEdit:
             return {"product": created_product}
 
     @pytest.mark.asyncio
-    async def test_admin_product_edit_success(self, login_admin, product_added):
+    async def test_admin_product_size_stock(self, login_admin, product_added):
+        '''Test size stock update success'''
         async with AsyncClient(
             transport=ASGITransport(app=app),
             base_url="http://test"
@@ -186,166 +187,22 @@ class TestAdminProductEdit:
             product_id = str(product["id"])
 
             response = await client.put(
-                f"/api/admin/product/{product_id}",
+                f"/api/admin/product/{product_id}/update-size-stock",
                 headers=auth_headers,
                 json={
-                    "description": "new description",
-                    "price": 200,
-                    "title": "New title"
+                    "sizes": [
+                        {"size": 12, "stock": 22},
+                        {"size": 11, "stock": 77},
+                    ]
                 }
             )
             assert response.status_code == 200
-            assert response.json()["description"] == "new description"
-            assert response.json()["title"] == "New title"
-            assert response.json()["price"] == 200
+            assert {"size": 12, "stock": 22} in response.json()["sizes"]
+            assert {"size": 11, "stock": 77} in response.json()["sizes"]
 
     @pytest.mark.asyncio
-    async def test_admin_product_edit_invalid_price(self, login_admin, product_added):
-        async with AsyncClient(
-            transport=ASGITransport(app=app),
-            base_url="http://test"
-        ) as client:
-            auth_headers = {
-                "Authorization": f"Bearer {login_admin["access_token"]}"
-            }
-            client.cookies.set(
-                settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
-            )
-            product = product_added["product"]
-            product_id = str(product["id"])
-
-            response = await client.put(
-                f"/api/admin/product/{product_id}",
-                headers=auth_headers,
-                json={
-                    "description": "new description",
-                    "price": -200,
-                    "title": "New title"
-                }
-            )
-            assert response.status_code == 422
-            for detail in response.json()["detail"]:
-                assert "price" in detail["loc"]
-                assert "Input should be greater than 0" in detail["msg"]
-
-    @pytest.mark.asyncio
-    async def test_admin_product_edit_invalid_brand(self, login_admin, product_added):
-        async with AsyncClient(
-            transport=ASGITransport(app=app),
-            base_url="http://test"
-        ) as client:
-            auth_headers = {
-                "Authorization": f"Bearer {login_admin["access_token"]}"
-            }
-            client.cookies.set(
-                settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
-            )
-            product = product_added["product"]
-            product_id = str(product["id"])
-
-            response = await client.put(
-                f"/api/admin/product/{product_id}",
-                headers=auth_headers,
-                json={
-                    "description": "new description",
-                    "price": 200,
-                    "title": "New title",
-                    "brand": "Invalid"
-                }
-            )
-            assert response.status_code == 422
-            for detail in response.json()["detail"]:
-                assert "brand" in detail["loc"]
-                assert "Value error, Invalid brand ID" in detail["msg"]
-
-    @pytest.mark.asyncio
-    async def test_admin_product_edit_invalid_category(self, login_admin, product_added):
-        async with AsyncClient(
-            transport=ASGITransport(app=app),
-            base_url="http://test"
-        ) as client:
-            auth_headers = {
-                "Authorization": f"Bearer {login_admin["access_token"]}"
-            }
-            client.cookies.set(
-                settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
-            )
-            product = product_added["product"]
-            product_id = str(product["id"])
-
-            response = await client.put(
-                f"/api/admin/product/{product_id}",
-                headers=auth_headers,
-                json={
-                    "description": "new description",
-                    "price": 200,
-                    "title": "New title",
-                    "category": "Invalid"
-                }
-            )
-            assert response.status_code == 422
-            for detail in response.json()["detail"]:
-                assert "category" in detail["loc"]
-                assert "Value error, Invalid category ID" in detail["msg"]
-
-    @pytest.mark.asyncio
-    async def test_admin_product_edit_brand_not_found(self, login_admin, product_added):
-        async with AsyncClient(
-            transport=ASGITransport(app=app),
-            base_url="http://test"
-        ) as client:
-            auth_headers = {
-                "Authorization": f"Bearer {login_admin["access_token"]}"
-            }
-            client.cookies.set(
-                settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
-            )
-            product = product_added["product"]
-            product_id = str(product["id"])
-
-            response = await client.put(
-                f"/api/admin/product/{product_id}",
-                headers=auth_headers,
-                json={
-                    "description": "new description",
-                    "price": 200,
-                    "title": "New title",
-                    "brand": "678e8e5c7f998e1474047520"
-                }
-            )
-            assert response.status_code == 404
-            assert response.json()["detail"] == "Brand not found"
-
-    @pytest.mark.asyncio
-    async def test_admin_product_edit_category_not_found(self, login_admin, product_added):
-        async with AsyncClient(
-            transport=ASGITransport(app=app),
-            base_url="http://test"
-        ) as client:
-            auth_headers = {
-                "Authorization": f"Bearer {login_admin["access_token"]}"
-            }
-            client.cookies.set(
-                settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
-            )
-            product = product_added["product"]
-            product_id = str(product["id"])
-
-            response = await client.put(
-                f"/api/admin/product/{product_id}",
-                headers=auth_headers,
-                json={
-                    "description": "new description",
-                    "price": 200,
-                    "title": "New title",
-                    "category": "678e8e5c7f998e1474047520"
-                }
-            )
-            assert response.status_code == 404
-            assert response.json()["detail"] == "Category not found"
-
-    @pytest.mark.asyncio
-    async def test_admin_product_edit_invalid_product_id(self, login_admin):
+    async def test_admin_product_size_stock_invalid_product_id(self, login_admin):
+        '''Test size stock update invalid product id'''
         async with AsyncClient(
             transport=ASGITransport(app=app),
             base_url="http://test"
@@ -358,20 +215,21 @@ class TestAdminProductEdit:
             )
 
             response = await client.put(
-                "/api/admin/product/invalid",
+                "/api/admin/product/invalid/update-size-stock",
                 headers=auth_headers,
                 json={
-                    "description": "new description",
-                    "price": 200,
-                    "title": "New title",
-                    "brand": "678e8e5c7f998e1474047520"
+                    "sizes": [
+                        {"size": 12, "stock": 22},
+                        {"size": 11, "stock": 77},
+                    ]
                 }
             )
             assert response.status_code == 400
             assert response.json()["detail"] == "Invalid product ID"
 
     @pytest.mark.asyncio
-    async def test_admin_product_edit_product_not_found(self, login_admin):
+    async def test_admin_product_size_stock_invalid_size(self, login_admin, product_added):
+        '''Test size stock update invalid size'''
         async with AsyncClient(
             transport=ASGITransport(app=app),
             base_url="http://test"
@@ -383,15 +241,52 @@ class TestAdminProductEdit:
                 settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
             )
 
+            product = product_added["product"]
+            product_id = str(product["id"])
+
             response = await client.put(
-                "/api/admin/product/678e8e5c7f998e1474047520",
+                f"/api/admin/product/{product_id}/update-size-stock",
                 headers=auth_headers,
                 json={
-                    "description": "new description",
-                    "price": 200,
-                    "title": "New title",
-                    "brand": "678e8e5c7f998e1474047520"
+                    "sizes": [
+                        {"size": 15, "stock": 22},
+                        {"size": 16, "stock": 22},
+                    ]
                 }
             )
-            assert response.status_code == 404
-            assert response.json()["detail"] == "Product not found"
+            assert response.status_code == 422
+            for detail in response.json()["detail"]:
+                assert "sizes" in detail["loc"]
+                assert "Value error, Size 15 must be between 7 and 12" in detail["msg"]
+
+    @pytest.mark.asyncio
+    async def test_admin_product_size_stock_invalid_stock(self, login_admin, product_added):
+        '''Test size stock update invalid stock'''
+        async with AsyncClient(
+            transport=ASGITransport(app=app),
+            base_url="http://test"
+        ) as client:
+            auth_headers = {
+                "Authorization": f"Bearer {login_admin["access_token"]}"
+            }
+            client.cookies.set(
+                settings.ADMIN_REFRESH_COOKIE_NAME, login_admin["refresh_token"]
+            )
+
+            product = product_added["product"]
+            product_id = str(product["id"])
+
+            response = await client.put(
+                f"/api/admin/product/{product_id}/update-size-stock",
+                headers=auth_headers,
+                json={
+                    "sizes": [
+                        {"size": 12, "stock": -222},
+                    ]
+                }
+            )
+            assert response.status_code == 422
+            print(response.json()["detail"])
+            for detail in response.json()["detail"]:
+                assert "sizes" in detail["loc"]
+                assert "Value error, Stock -222 must be greater than or equal to 0" in detail["msg"]

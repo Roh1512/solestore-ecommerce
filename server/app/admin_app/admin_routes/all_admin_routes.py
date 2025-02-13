@@ -13,7 +13,6 @@ from app.utilities.response_message_models import SuccessMessage
 router = APIRouter()
 
 
-@router.get("", response_model=list[AdminResponse])
 @router.get("/", response_model=list[AdminResponse])
 async def get_admins(
     admin: Annotated[dict, Depends(get_current_admin)],
