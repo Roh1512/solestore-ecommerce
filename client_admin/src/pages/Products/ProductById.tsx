@@ -1,15 +1,42 @@
 import PageLoading from "@/components/Loading/PageLoading";
-import { useGetProductQuery } from "@/features/productApiSlice";
+import {
+  useGetProductQuery,
+  useDeleteImagesMutation,
+} from "@/features/productApiSlice";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useParams } from "react-router-dom";
 import LogoImg from "@/assets/soleStoreLogoSmall.svg";
 import { ChartBarStacked, Info } from "lucide-react";
 import BackButton from "@/components/Buttons/BackButton";
+import AddImages from "@/components/Products/AddImages";
+import { toast } from "react-toastify";
+import { useCallback } from "react";
 
 const ProductById = () => {
   const { productId } = useParams();
   const { data: product, isLoading } = useGetProductQuery(
     productId ? { productId } : skipToken
+  );
+
+  // Mutation hook to delete images.
+  const [deleteImages] = useDeleteImagesMutation();
+
+  const handleDeleteImage = useCallback(
+    async (publicId: string) => {
+      if (window.confirm("Are you sure you want to delete this image?")) {
+        try {
+          await deleteImages({
+            productId: product!.id,
+            public_ids: [publicId],
+          }).unwrap();
+          toast.success("Image deleted successfully");
+        } catch (err) {
+          console.error(err);
+          toast.error("Failed to delete image");
+        }
+      }
+    },
+    [deleteImages, product]
   );
 
   if (isLoading) {
@@ -39,16 +66,16 @@ const ProductById = () => {
     dateOptions
   );
 
-  // Display the carousel with indicators
+  // Display the carousel with indicators and a delete button for each image
   const images =
     product.images && product.images.length > 0 ? (
       <div className="w-full max-w-lg mx-auto">
-        <div className="carousel carousel-center rounded-box">
+        <div className="carousel carousel-center rounded-box relative">
           {product.images.map((image, index) => (
             <div
               id={image.public_id}
               key={image.public_id}
-              className="carousel-item w-full max-w-md mr-2"
+              className="carousel-item w-full max-w-md mr-2 relative"
             >
               <img
                 src={image.url}
@@ -56,6 +83,16 @@ const ProductById = () => {
                 className="rounded-box w-full h-full object-cover"
                 loading={index === 0 ? "eager" : "lazy"}
               />
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleDeleteImage(image.public_id);
+                }}
+                className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
+                title="Delete image"
+              >
+                ✕
+              </button>
             </div>
           ))}
         </div>
@@ -114,6 +151,7 @@ const ProductById = () => {
       <BackButton />
       <div className="container mx-auto p-2">
         {images}
+        <AddImages product={product} />
         <h3 className="text-2xl font-bold mt-4 text-center">{product.title}</h3>
         <div className="text-center mt-2">
           <p className="text-lg font-bold">${product.price.toFixed(2)}</p>

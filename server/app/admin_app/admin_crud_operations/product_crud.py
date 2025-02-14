@@ -45,17 +45,26 @@ async def get_products(
                 detail="Invalid brand ID"
             )
 
+        brand_data = None
+        category_data = None
         if brand or category:
-            brand_data, category_data = await gather(
-                Brand.get(PydanticObjectId(brand)),
-                Category.get(PydanticObjectId(category))
-            )
-            if not brand_data:
+            if brand and category:
+                brand_data, category_data = await gather(
+                    Brand.get(PydanticObjectId(brand)),
+                    Category.get(PydanticObjectId(category))
+                )
+            elif brand:
+                brand_data = await Brand.get(PydanticObjectId(brand))
+                category_data = None
+            elif category:
+                brand_data = None
+                category_data = await Category.get(PydanticObjectId(category))
+            if brand and not brand_data:
                 raise HTTPException(
                     status_code=404,
                     detail="Brand not found"
                 )
-            if not category_data:
+            if category and not category_data:
                 raise HTTPException(
                     status_code=404,
                     detail="Category not found"
@@ -64,10 +73,10 @@ async def get_products(
         query = {}
         if search:
             query["title"] = {"$regex": search, "$options": "i"}
-        if brand:
-            query["brand"] = PydanticObjectId(brand)
-        if category:
-            query["category"] = PydanticObjectId(category)
+        if brand_data:
+            query["brand.$id"] = PydanticObjectId(brand)
+        if category_data:
+            query["category.$id"] = PydanticObjectId(category)
         if size:
             query["sizes"] = {"$elemMatch": {
                 "size": size, "stock": {"$gt": 0}}}
@@ -218,26 +227,31 @@ async def add_images_product(product_id: str, images: list[UploadFile]):
 async def delete_images_product(product_id: str, public_ids: list[str]):
     try:
         if not ObjectId.is_valid(product_id):
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid product ID"
-            )
+            raise HTTPException(status_code=400, detail="Invalid product ID")
 
         product = await Product.get(PydanticObjectId(product_id))
         if not product:
-            raise HTTPException(
-                status_code=404,
-                detail="Product not found"
-            )
+            raise HTTPException(status_code=404, detail="Product not found")
+
+        print(f"Deleting images with public_ids: {public_ids}")
 
         # Delete images from Cloudinary concurrently
         deletion_tasks = [delete_image_from_cloudinary(
             public_id) for public_id in public_ids]
-        await gather(*deletion_tasks)
+        deletion_results = await gather(*deletion_tasks, return_exceptions=True)
+        for result in deletion_results:
+            if isinstance(result, Exception):
+                print("Deletion task error:", result)
+            else:
+                print("Deletion task success:", result)
 
         # Update product's images list by filtering out images with matching public_ids
+        original_count = len(product.images)
         product.images = [
             img for img in product.images if img.public_id not in public_ids]
+        updated_count = len(product.images)
+        print(
+            f"Images before deletion: {original_count}, after deletion: {updated_count}")
 
         await product.save()
         await product.fetch_all_links()
@@ -267,13 +281,15 @@ async def update_product_details(product_data: ProductDetailsRequest, product_id
                 detail="Product not found"
             )
 
+        update_data = product_data.model_dump(exclude_unset=True)
+
         if product_data.brand:
             brand = await Brand.get(PydanticObjectId(product_data.brand))
             if not brand:
                 raise HTTPException(
                     status_code=404, detail="Brand not found")
             if brand:
-                product_data.brand = brand
+                update_data["brand"] = brand
 
         if product_data.category:
             category = await Category.get(PydanticObjectId(product_data.category))
@@ -281,9 +297,7 @@ async def update_product_details(product_data: ProductDetailsRequest, product_id
                 raise HTTPException(
                     status_code=404, detail="Category not found")
             if category:
-                product_data.category = category
-
-        update_data = product_data.model_dump(exclude_unset=True)
+                update_data["category"] = category
 
         for key, value in update_data.items():
             setattr(product, key, value)

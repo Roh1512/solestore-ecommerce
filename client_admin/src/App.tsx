@@ -24,6 +24,7 @@ const AdminsPage = lazy(() => import("@pages/Admins/AdminsPage"));
 const AdminByIdPage = lazy(() => import("@pages/Admins/AdminByIdPage"));
 const Products = lazy(() => import("@pages/Products/Products"));
 const ProductById = lazy(() => import("@pages/Products/ProductById"));
+const AddProduct = lazy(() => import("@pages/Products/AddProduct"));
 
 import RedirectUnprotectedRoutes from "@components/RedirectWrappers/RedirectUnprotectedRoutes";
 import RedirectProtectedRoutes from "./components/RedirectWrappers/RedirectProtectedRoutes";
@@ -58,6 +59,7 @@ const routes = createBrowserRouter(
         <Route path="/admin/brands" element={<BrandsPage />} />
         <Route path="/admin/categories" element={<CategoriesPage />} />
         <Route path="/admin/products" element={<Products />} />
+        <Route path="/admin/products/add" element={<AddProduct />} />
         <Route path="/admin/products/:productId" element={<ProductById />} />
         <Route path="/admin/admins" element={<AdminsPage />} />
         <Route path="/admin/admins/:adminId" element={<AdminByIdPage />} />

@@ -18,7 +18,7 @@ const ProductCard = memo(({ product }: Props) => {
       : placeholderImage;
 
   return (
-    <div className="card sm:w-80 md:w-96 lg:w-96 bg-base-300 shadow-xl">
+    <div className="card sm:w-80 md:w-96 lg:w-96 bg-base-300 shadow-xl mx-auto">
       <div className="relative">
         <img
           src={imageUrl}

@@ -1,5 +1,6 @@
 import DeleteAdmin from "@/components/Admins/DeleteAdmin";
 import UpdateRole from "@/components/Admins/UpdateRole";
+import BackButton from "@/components/Buttons/BackButton";
 import PageLoading from "@/components/Loading/PageLoading";
 import { useGetAdminQuery } from "@/features/allAdminsApiSlice";
 import { default_profile_img } from "@/utils/default_images";
@@ -29,8 +30,9 @@ const AdminByIdPage = () => {
   }
 
   return (
-    <div className="p-6 bg-base-200 min-h-screen">
-      <div className="max-w-4xl mx-auto bg-base-100 rounded-lg shadow-lg p-8">
+    <div className="p-6 bg-base-200 min-h-screen flex flex-col items-start">
+      <BackButton />
+      <div className="max-w-4xl w-full mx-auto bg-base-100 rounded-lg shadow-lg p-8">
         <h1 className="text-3xl font-bold text-center mb-6">Admin Details</h1>
 
         {/* Profile Image */}

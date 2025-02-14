@@ -1,8 +1,8 @@
 import { useCurrentAuthState } from "@/app/useCurrentState";
 import LogoLink from "@components/Logo/LogoLink";
-import ThemeToggle from "@components/theme/ToggleTheme";
 import { memo } from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import { UserIcon } from "lucide-react";
 
 const HeaderAdmin = () => {
   const { isLoggedIn, accessToken } = useCurrentAuthState();
@@ -14,11 +14,18 @@ const HeaderAdmin = () => {
       {/* Shop Now Button */}
       <div className="flex-none gap-2">
         {isLoggedIn && accessToken && (
-          <Link to="/admin/profile" className="btn">
-            profile
-          </Link>
+          <NavLink
+            to="/admin/profile"
+            className={({ isActive }) =>
+              `btn flex items-center justify-center gap-w text-lg ${
+                isActive ? "bg-base-300" : "btn-ghost"
+              }`
+            }
+          >
+            <UserIcon />
+            <span className="logo-text">Profile</span>
+          </NavLink>
         )}
-        <ThemeToggle />
       </div>
     </header>
   );

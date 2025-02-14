@@ -95,7 +95,7 @@ class ProductCreateRequest(BaseModel):
         '''Ensure that all sizes in the array are between 7 and 12'''
         if value:
             for size in value:
-                if not (7 < size.size <= 12):
+                if not (7 <= size.size <= 12):
                     raise ValueError(
                         f"Size {size.size} must be between 7 and 12")
 

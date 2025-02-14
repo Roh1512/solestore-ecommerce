@@ -1,3 +1,5 @@
+import FilterProducts from "@/components/DropDowns/FilterProducts";
+import SortProducts from "@/components/DropDowns/SortProducts";
 import PageLoading from "@/components/Loading/PageLoading";
 import ProductsLoading from "@/components/Loading/ProductsLoading";
 import ProductCard from "@/components/Products/ProductCard";
@@ -5,7 +7,7 @@ import { useGetProductsQuery } from "@/features/productApiSlice";
 import { SortByProduct, SortOrder } from "@/types/queryTypes";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -38,18 +40,30 @@ const Products = () => {
       page?: string;
       sortBy?: string;
       sortOrder?: string;
-      size?: string;
+      size?: number;
       category?: string;
       brand?: string;
     }) => {
       const updatedParams = new URLSearchParams(searchParams);
+
+      Object.entries(newParams).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          // Convert numbers to strings if necessary.
+          updatedParams.set(
+            key,
+            typeof value === "number" ? value.toString() : value
+          );
+        } else {
+          updatedParams.delete(key);
+        }
+      });
 
       if (newParams.page) updatedParams.set("page", newParams.page);
       if (newParams.sortBy) updatedParams.set("sortBy", newParams.sortBy);
       if (newParams.sortOrder)
         updatedParams.set("sortOrder", newParams.sortOrder);
 
-      if (newParams.size) updatedParams.set("size", newParams.size);
+      if (newParams.size) updatedParams.set("size", String(newParams.size));
       if (newParams.brand) updatedParams.set("brand", newParams.brand);
       if (newParams.category) updatedParams.set("category", newParams.category);
       if (newParams.search) updatedParams.set("search", newParams.search);
@@ -110,24 +124,45 @@ const Products = () => {
     >
       <h3 className="text-3xl font-bold text-center mb-8">Products</h3>
 
-      <label className="input input-bordered flex items-center gap-2">
-        <input
-          type="text"
-          className="grow"
-          placeholder="Search categories"
-          aria-label="Search categories"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        <Search className="w-6 h-6" />
-      </label>
+      <div className="flex items-center justify-center flex-wrap">
+        <label className="input input-bordered flex items-center gap-2">
+          <input
+            type="text"
+            className="grow"
+            placeholder="Search categories"
+            aria-label="Search categories"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <Search className="w-6 h-6" />
+        </label>
+        <div className="flex items-center justify-center">
+          <SortProducts
+            updateParams={updateParams}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+          />
+          <FilterProducts
+            updateParams={updateParams}
+            category={category}
+            brand={brand}
+            size={size}
+          />
+          <Link
+            to="/admin/products/add"
+            className="btn bg-green-900 hover:bg-green-700 shadow-slate-700 shadow-md text-white fixed bottom-7 right-6 text-lg font-bold z-10"
+          >
+            Add Product
+          </Link>
+        </div>
+      </div>
 
       {isFetching ? (
         <div className="w-full">
           <ProductsLoading />
         </div>
       ) : (
-        <div className="overflow-x-auto grid sm:grid-cols-1 md:grid-cols-2 gap-10 xl:grid-cols-3 flex-1">
+        <div className="overflow-x-auto grid sm:grid-cols-1 md:grid-cols-2 gap-10 xl:grid-cols-3 flex-1 items-center justify-center">
           {products &&
             products.map((product) => (
               <ProductCard key={product.id} product={product} />

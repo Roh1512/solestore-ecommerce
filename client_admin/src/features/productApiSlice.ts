@@ -1,7 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "./beseQuery";
 
-import { ProductResponse } from "@/client";
+import { ProductResponse, ProductCreateRequest } from "@/client";
 
 import { ProductQueryParams } from "@/types/queryTypes";
 
@@ -10,6 +10,40 @@ export const productApi = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: ["Product"],
   endpoints: (builder) => ({
+    addProduct: builder.mutation<ProductResponse, ProductCreateRequest>({
+      query: (data) => ({
+        url: "/product/",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: [{ type: "Product" }],
+    }),
+    addImages: builder.mutation<
+      ProductResponse,
+      { productId: string; formData: FormData }
+    >({
+      query: ({ productId, formData }) => ({
+        url: `/product/${productId}/add-image`,
+        method: "PUT",
+        body: formData,
+      }),
+      invalidatesTags: (_result, _error, { productId }) => [
+        { type: "Product", id: productId },
+      ],
+    }),
+    deleteImages: builder.mutation<
+      ProductResponse,
+      { public_ids: string[]; productId: string }
+    >({
+      query: ({ public_ids, productId }) => ({
+        url: `/product/${productId}/delete-images`,
+        method: "PUT",
+        body: { public_ids },
+      }),
+      invalidatesTags: (_result, _error, { productId }) => [
+        { type: "Product", id: productId },
+      ],
+    }),
     getProducts: builder.query<ProductResponse[], ProductQueryParams>({
       query: (params) => ({
         url: "/product/",
@@ -44,4 +78,10 @@ export const productApi = createApi({
   }),
 });
 
-export const { useGetProductsQuery, useGetProductQuery } = productApi;
+export const {
+  useGetProductsQuery,
+  useGetProductQuery,
+  useAddProductMutation,
+  useAddImagesMutation,
+  useDeleteImagesMutation,
+} = productApi;

@@ -49,6 +49,7 @@ async def get_all_products_admin(
             sort_order=query_params.sort_order
         )
     except HTTPException as e:
+        print("Error fetching products: ", e)
         raise HTTPException(
             status_code=e.status_code,
             detail=e.detail
