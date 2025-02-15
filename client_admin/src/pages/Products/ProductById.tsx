@@ -10,7 +10,10 @@ import { ChartBarStacked, Info } from "lucide-react";
 import BackButton from "@/components/Buttons/BackButton";
 import AddImages from "@/components/Products/AddImages";
 import { toast } from "react-toastify";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
+import UpdateSizeStock from "@/components/Products/UpdateSizeStock";
+import UpdateProductDetails from "@/components/Products/UpdateProductDetails";
+import DeleteProduct from "@/components/Products/DeleteProduct";
 
 const ProductById = () => {
   const { productId } = useParams();
@@ -39,6 +42,10 @@ const ProductById = () => {
     [deleteImages, product]
   );
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   if (isLoading) {
     return <PageLoading />;
   }
@@ -66,21 +73,21 @@ const ProductById = () => {
     dateOptions
   );
 
-  // Display the carousel with indicators and a delete button for each image
+  // Carousel for images
   const images =
     product.images && product.images.length > 0 ? (
-      <div className="w-full max-w-lg mx-auto">
-        <div className="carousel carousel-center rounded-box relative">
+      <div className="max-w-2xl mx-auto">
+        <div className="carousel w-full rounded-box">
           {product.images.map((image, index) => (
             <div
               id={image.public_id}
               key={image.public_id}
-              className="carousel-item w-full max-w-md mr-2 relative"
+              className="carousel-item relative w-full"
             >
               <img
                 src={image.url}
                 alt={`Product image ${index + 1}`}
-                className="rounded-box w-full h-full object-cover"
+                className="w-full object-cover rounded-box"
                 loading={index === 0 ? "eager" : "lazy"}
               />
               <button
@@ -88,7 +95,7 @@ const ProductById = () => {
                   e.preventDefault();
                   handleDeleteImage(image.public_id);
                 }}
-                className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
+                className="btn btn-error btn-circle absolute top-2 right-2"
                 title="Delete image"
               >
                 ✕
@@ -96,8 +103,8 @@ const ProductById = () => {
             </div>
           ))}
         </div>
-        {/* Indicators without updating history state */}
-        <div className="flex justify-center w-full py-2 gap-2">
+        {/* Carousel Indicators */}
+        <div className="flex justify-center gap-2 mt-2">
           {product.images.map((image) => (
             <button
               key={image.public_id}
@@ -115,14 +122,14 @@ const ProductById = () => {
         </div>
       </div>
     ) : (
-      <div className="w-full max-w-lg mx-auto p-4">
+      <div className="max-w-2xl mx-auto p-4 text-center">
         <img
           src={LogoImg}
           alt="Placeholder"
-          className="rounded-box w-full h-auto object-cover"
+          className="mx-auto rounded-box w-full object-cover"
         />
-        <p className="flex gap-2 mx-auto items-center justify-center text-lg">
-          <Info />
+        <p className="flex items-center justify-center gap-2 text-lg mt-4">
+          <Info className="w-4 h-4" />
           There are no images
         </p>
       </div>
@@ -130,15 +137,15 @@ const ProductById = () => {
 
   // Display available sizes with size and stock information
   const sizesDisplay = product.sizes && product.sizes.length > 0 && (
-    <div className="mt-2 border-2 rounded-xl border-primary p-2 w-fit mx-auto">
-      <h4 className="text-xl font-semibold mb-2">Available Sizes</h4>
-      <div className="flex gap-4 flex-wrap items-center justify-center">
+    <div className="mt-4 border border-primary rounded-box p-4 w-fit mx-auto">
+      <h4 className="text-xl font-bold mb-2">Available Sizes</h4>
+      <div className="flex flex-wrap gap-4 justify-center">
         {product.sizes.map((sizeObj, index) => (
           <div
             key={index}
-            className="bg-base-200 text-base-content rounded-lg p-2 flex flex-col items-center"
+            className="bg-base-200 text-base-content rounded-lg p-4 flex flex-col items-center"
           >
-            <span className="font-bold text-lg">{sizeObj.size}</span>
+            <span className="font-bold text-2xl">{sizeObj.size}</span>
             <span className="text-sm">Stock: {sizeObj.stock}</span>
           </div>
         ))}
@@ -147,53 +154,70 @@ const ProductById = () => {
   );
 
   return (
-    <div className="w-full flex flex-col items-start">
-      <BackButton />
-      <div className="container mx-auto p-2">
-        {images}
-        <AddImages product={product} />
-        <h3 className="text-2xl font-bold mt-4 text-center">{product.title}</h3>
-        <div className="text-center mt-2">
-          <p className="text-lg font-bold">${product.price.toFixed(2)}</p>
-          {product.description ? (
-            <p className="mt-2">{product.description}</p>
-          ) : (
-            <br />
-          )}
-        </div>
-        <div className="flex flex-wrap gap-2 items-center justify-between mb-4 mt-4">
-          <p className="flex mx-auto">
-            <span className="font-semibold badge bg-base-300 text-base-content text-md p-2">
-              Brand
-            </span>
-            <span className="badge badge-primary text-md p-2">
-              {product.brand.title}
-            </span>
-          </p>
-          <p className="flex mx-auto">
-            <span className="font-semibold badge bg-base-300 text-base-content text-md p-2">
-              <ChartBarStacked className="w-4 h-4" />
-              Category
-            </span>
-            <span className="badge badge-primary text-md p-2">
-              {product.category.title}
-            </span>
-          </p>
-        </div>
-
-        {sizesDisplay}
-        <button className="btn">Update Size and Stock</button>
+    <div className="min-h-screen bg-base-200">
+      <div className="py-4 w-full flex items-center justify-between">
+        <BackButton />
+        <DeleteProduct product={product} />
       </div>
-      {/* Date Information */}
-      <div className="text-center mt-4 text-sm text-gray-500 mx-auto">
-        <p>
-          <span className="font-semibold">Created on:</span>{" "}
-          {formattedCreatedAt}
-        </p>
-        <p>
-          <span className="font-semibold">Last updated:</span>{" "}
-          {formattedUpdatedAt}
-        </p>
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left Side: Images */}
+          <div>
+            {images}
+            <div className="mt-6">
+              <AddImages product={product} />
+            </div>
+          </div>
+          {/* Right Side: Product Details */}
+          <div>
+            <div className="card bg-base-100 shadow-xl">
+              <div className="card-body">
+                <UpdateProductDetails product={product} />
+                <h3 className="card-title justify-center text-3xl font-bold">
+                  {product.title}
+                </h3>
+                <p className="text-2xl font-bold text-center text-accent">
+                  ${product.price.toFixed(2)}
+                </p>
+                {product.description && (
+                  <p className="mt-4 text-center text-base-content">
+                    {product.description}
+                  </p>
+                )}
+                <div className="flex flex-wrap justify-center gap-4 mt-4">
+                  <div className="flex items-center gap-2">
+                    <span className="badge badge-outline">Brand</span>
+                    <span className="badge badge-primary">
+                      {product.brand.title}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="badge badge-outline">
+                      <ChartBarStacked className="w-4 h-4" /> Category
+                    </span>
+                    <span className="badge badge-primary">
+                      {product.category.title}
+                    </span>
+                  </div>
+                </div>
+                {sizesDisplay}
+                <div className="mt-6">
+                  <UpdateSizeStock product={product} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Date Information */}
+        <div className="mt-8 text-center text-sm text-base-content">
+          <p>
+            <span className="font-bold">Created on:</span> {formattedCreatedAt}
+          </p>
+          <p>
+            <span className="font-bold">Last updated:</span>{" "}
+            {formattedUpdatedAt}
+          </p>
+        </div>
       </div>
     </div>
   );

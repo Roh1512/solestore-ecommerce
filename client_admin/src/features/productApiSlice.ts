@@ -1,7 +1,12 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "./beseQuery";
 
-import { ProductResponse, ProductCreateRequest } from "@/client";
+import {
+  ProductResponse,
+  ProductCreateRequest,
+  ProductSizeStockRequest,
+  ProductDetailsRequest,
+} from "@/client";
 
 import { ProductQueryParams } from "@/types/queryTypes";
 
@@ -75,6 +80,42 @@ export const productApi = createApi({
         { type: "Product", id: productId },
       ],
     }),
+    updateSizeStock: builder.mutation<
+      ProductResponse,
+      { productId: string; body: ProductSizeStockRequest }
+    >({
+      query: ({ productId, body }) => ({
+        url: `/product/${productId}/update-size-stock`,
+        method: "PUT",
+        body: body,
+      }),
+      invalidatesTags: (_result, _error, { productId }) => [
+        { type: "Product", id: productId },
+      ],
+    }),
+    updateProductDetails: builder.mutation<
+      ProductResponse,
+      { productId: string; body: ProductDetailsRequest }
+    >({
+      query: ({ productId, body }) => ({
+        url: `/product/${productId}`,
+        method: "PUT",
+        body: body,
+      }),
+      invalidatesTags: (_result, _error, { productId }) => [
+        { type: "Product", id: productId },
+      ],
+    }),
+    deleteProduct: builder.mutation<ProductResponse, { productId: string }>({
+      query: ({ productId }) => ({
+        url: `/product/${productId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (_result, _error, { productId }) => [
+        { type: "Product", id: productId },
+        { type: "Product", id: "List" },
+      ],
+    }),
   }),
 });
 
@@ -84,4 +125,7 @@ export const {
   useAddProductMutation,
   useAddImagesMutation,
   useDeleteImagesMutation,
+  useUpdateSizeStockMutation,
+  useUpdateProductDetailsMutation,
+  useDeleteProductMutation,
 } = productApi;
