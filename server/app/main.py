@@ -15,6 +15,7 @@ from app.routes.auth_routes import router as auth_router
 from app.admin_app.admin_router_hub import admin_router
 from app.routes.brand_routes import router as brand_router
 from app.routes.category_routes import router as category_router
+from app.routes.product_routes import router as product_router
 
 
 from starlette.middleware.sessions import SessionMiddleware
@@ -79,6 +80,7 @@ app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 app.include_router(profile_router, prefix="/api/profile", tags=["profile"])
 app.include_router(brand_router, prefix="/api/brand", tags=["brand"])
 app.include_router(category_router, prefix="/api/category", tags=["category"])
+app.include_router(product_router, prefix="/api/product", tags=["Product"])
 
 app.include_router(admin_router, prefix="/api/admin", tags=["admin"])
 

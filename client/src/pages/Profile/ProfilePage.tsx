@@ -3,6 +3,7 @@ import LogoutButton from "@/components/LogoutButtons/LogoutUser";
 import EditProfileDetails from "@/components/ProfileComponents/EditProfileDetails";
 import ProfilePicture from "@/components/ProfileComponents/ProfilePicture";
 import UpdateContanctInfo from "@/components/ProfileComponents/UpdateContanctInfo";
+import ThemeToggle from "@/components/Theme/ToggleTheme";
 import { useGetProfileQuery } from "@/features/userProfileApiSlice";
 import { Calendar, Mail, Phone, User, HomeIcon } from "lucide-react";
 
@@ -71,6 +72,13 @@ const ProfilePage = () => {
 
           <br />
           <UpdateContanctInfo user={data} />
+
+          <br />
+          <br />
+          <div className="bg-base-100 px-2 py-4 flex items-center justify-center gap-4">
+            <span className="font-semibold text-lg">Theme: </span>
+            <ThemeToggle />
+          </div>
 
           {/* Divider */}
           <div className="divider my-8"></div>

@@ -45,13 +45,13 @@ body {
 }
 
 header {
-  @apply bg-base-300 text-base-content;
+  @apply bg-base-100 text-base-content shadow-lg;
 }
 main {
   @apply flex-1;
 }
 footer {
-  @apply bg-base-300 text-base-content;
+  @apply bg-base-100 text-base-content shadow-xl shadow-inner;
 }
 
 .form-container-1 {
@@ -63,7 +63,17 @@ footer {
   @apply text-2xl font-bold;
 }
 
+.link-text {
+  display: block;
+  @apply text-lg font-semibold;
+}
+
 .logout-icon {
+  width: 1.5em;
+  height: 1.5em;
+}
+
+.icon {
   width: 1.5em;
   height: 1.5em;
 }
@@ -76,6 +86,9 @@ footer {
 
 @media only screen and (max-width: 600px) {
   .logo-text {
+    display: none;
+  }
+  .link-text {
     display: none;
   }
 }

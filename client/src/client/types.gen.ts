@@ -707,3 +707,23 @@ export type AdminDeleteImagesData = {
 export type AdminDeleteImagesResponse = (ProductResponse);
 
 export type AdminDeleteImagesError = (HTTPValidationError);
+
+export type ServeAdminReactAppData = {
+    path: {
+        full_path: string;
+    };
+};
+
+export type ServeAdminReactAppResponse = (string);
+
+export type ServeAdminReactAppError = (HTTPValidationError);
+
+export type ServeReactAppData = {
+    path: {
+        full_path: string;
+    };
+};
+
+export type ServeReactAppResponse = (string);
+
+export type ServeReactAppError = (HTTPValidationError);

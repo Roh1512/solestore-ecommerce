@@ -6,11 +6,10 @@ from fastapi import APIRouter, Depends, status, UploadFile, File
 from fastapi.exceptions import HTTPException
 
 
+from app.crud.product_crud import get_products, get_product_by_id
 from app.admin_app.admin_crud_operations.product_crud import (
     add_product,
     add_images_product,
-    get_products,
-    get_product_by_id,
     update_product_details,
     delete_images_product,
     update_product_sizes,

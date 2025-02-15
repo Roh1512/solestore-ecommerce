@@ -16,17 +16,15 @@ const RegisterUser = lazy(
   () => import("@pages/userPages/RegisterUser/RegisterUser")
 );
 const LoginUser = lazy(() => import("@pages/userPages/LoginUser/LoginUser"));
-const NotFound = lazy(() => import("@components/NotFound/NotFound"));
 const ProfilePage = lazy(() => import("@pages/Profile/ProfilePage"));
-const ErrorElement = lazy(
-  () => import("@components/ErrorElements/ErrorElement")
-);
+const ShopPage = lazy(() => import("@pages/ShopPages/ShopPage"));
 
 import UserProtectedRoute from "./components/ProtectRoutes/UserProtectedRoute";
-import { Link } from "react-router-dom";
 import RedirectIfLoggedIn from "./components/RedirectWrapper/RedirectIfLoggedIn";
 import PageLoading from "./components/Loading/PageLoading";
 import SuspenseWrapper from "./components/SuspenseWrapper/SuspenseWrapper";
+import ErrorElement from "@components/ErrorElements/ErrorElement";
+import NotFound from "@components/NotFound/NotFound";
 
 const routes = createBrowserRouter(
   createRoutesFromElements(
@@ -48,40 +46,13 @@ const routes = createBrowserRouter(
       </Route>
 
       {/* Protected Routes */}
-      <Route
-        element={<UserProtectedRoute />}
-        errorElement={
-          <SuspenseWrapper>
-            <ErrorElement />
-          </SuspenseWrapper>
-        }
-      >
-        <Route
-          path="/shop"
-          element={
-            <>
-              <h1>Shop</h1>
-              <div className="flex gap-6 mb-5">
-                <Link to="/register">Register</Link>
-                <Link to="/login">Login</Link>
-                <Link to="/">Home</Link>
-              </div>
-            </>
-          }
-        />
+      <Route element={<UserProtectedRoute />} errorElement={<ErrorElement />}>
+        <Route path="/shop" element={<ShopPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/loading" element={<PageLoading />} />
       </Route>
 
-      <Route
-        path="*"
-        element={
-          <SuspenseWrapper>
-            <NotFound />
-          </SuspenseWrapper>
-          // The NotFound route doesn’t need to be wrapped in ErrorBoundary and Suspense unless it’s lazy-loaded or might throw an error. Since it’s a static component, you can simplify it.
-        }
-      />
+      <Route path="*" element={<NotFound />} />
     </>
   )
 );
