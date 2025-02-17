@@ -77,3 +77,12 @@ class ProductQueryParams(BaseModel):
     category: Optional[str] = None
     brand: Optional[str] = None
     size: Optional[int] = None
+
+
+class CartQueryParams(BaseModel):
+    page: int = Field(
+        default=1,
+        ge=1,
+        description="Page number"
+    )
+    search: Optional[str] = None

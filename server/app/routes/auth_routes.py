@@ -189,7 +189,7 @@ async def google_callback(request: Request, response: Response):
 @router.post("/logout")
 async def logout(response: Response, request: Request, user: Annotated[dict, Depends(get_current_user)]):
     try:
-        user_id = user.get("id")
+        user_id = user.id
         await remove_refresh_token(str(user_id), request.cookies.get(settings.USER_REFRESH_COOKIE_NAME))
         response.delete_cookie(settings.USER_REFRESH_COOKIE_NAME)
         return {"message": "Logged out"}
@@ -210,7 +210,7 @@ async def logout(response: Response, request: Request, user: Annotated[dict, Dep
 @router.post("/logoutall", status_code=200)
 async def logout_all(response: Response, user: Annotated[dict, Depends(get_current_user)]):
     try:
-        user_id = user.get("id")
+        user_id = user.id
         user = await get_user_details(str(user_id))
         await remove_all_refresh_tokens(str(user_id))
         response.delete_cookie(settings.USER_REFRESH_COOKIE_NAME)

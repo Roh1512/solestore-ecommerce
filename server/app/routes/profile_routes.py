@@ -26,7 +26,7 @@ async def get_profile_details(user: Annotated[dict, Depends(get_current_user)]):
 
 @router.put("/", status_code=status.HTTP_200_OK, response_model=UserResponse)
 async def update_profile_details(user: Annotated[dict, Depends(get_current_user)], profile_details: UpdateProfileRequest, current_password: Annotated[str, Body(embed=True)]):
-    if not current_password and not user.get("google_id"):
+    if not current_password and not user.google_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Password is required"
@@ -37,7 +37,7 @@ async def update_profile_details(user: Annotated[dict, Depends(get_current_user)
             detail="Enter details you want to update"
         )
     try:
-        return await update_user_details(user_id=str(user["id"]), details=profile_details, current_password=current_password)
+        return await update_user_details(user_id=str(user.id), details=profile_details, current_password=current_password)
     except HTTPException as e:
         print("Update profile error: ", e)
         raise HTTPException(
@@ -65,7 +65,7 @@ async def update_contact_info(
         )
     try:
         return await update_user_contact_info(
-            user_id=str(user["id"]),
+            user_id=str(user.id),
             contact_info=contact_info, current_password=current_password
         )
     except HTTPException as e:
@@ -97,7 +97,7 @@ async def update_profile_image_route(
         # Read file as bytes
         file_bytes = await file.read()
 
-        user_id = str(user["id"])
+        user_id = str(user.id)
 
         current_user = await User.get(PydanticObjectId(user_id))
         if not current_user:
@@ -120,10 +120,7 @@ async def update_profile_image_route(
 
         await current_user.save()
 
-        updated_profile_data = current_user.model_dump(
-            exclude=["password", "refresh_tokens"])
-        updated_profile_data["id"] = str(current_user.id)
-        return updated_profile_data
+        return UserResponse.from_mongo(current_user)
 
     except HTTPException as e:
         print(f"Error in profile image update route:{e}")

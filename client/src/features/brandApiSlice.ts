@@ -10,7 +10,7 @@ export const brandApiSlice = createApi({
   endpoints: (builder) => ({
     getBrands: builder.query<BrandResponse[], CBQueryParams>({
       query: (params) => ({
-        url: "/brand",
+        url: "/brand/",
         method: "GET",
         params: {
           search: params.search,
@@ -19,6 +19,7 @@ export const brandApiSlice = createApi({
           sort_by: params.sort_by,
           sort_order: params.sort_order,
         },
+        credentials: "include",
       }),
       providesTags: (result) =>
         result

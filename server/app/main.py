@@ -16,6 +16,7 @@ from app.admin_app.admin_router_hub import admin_router
 from app.routes.brand_routes import router as brand_router
 from app.routes.category_routes import router as category_router
 from app.routes.product_routes import router as product_router
+from app.routes.cart_routes import router as cart_router
 
 
 from starlette.middleware.sessions import SessionMiddleware
@@ -52,12 +53,14 @@ app = FastAPI(lifespan=lifespan,
 
 origins = [
     "http://localhost:5173",
-    "http://localhost:5174"
+    "http://localhost:5174",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000"
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -81,6 +84,7 @@ app.include_router(profile_router, prefix="/api/profile", tags=["profile"])
 app.include_router(brand_router, prefix="/api/brand", tags=["brand"])
 app.include_router(category_router, prefix="/api/category", tags=["category"])
 app.include_router(product_router, prefix="/api/product", tags=["Product"])
+app.include_router(cart_router, prefix="/api/cart", tags=["Cart"])
 
 app.include_router(admin_router, prefix="/api/admin", tags=["admin"])
 

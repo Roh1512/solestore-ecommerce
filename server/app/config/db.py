@@ -1,3 +1,5 @@
+'''Mongo DB initialization'''
+
 from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import init_beanie
 
@@ -7,6 +9,7 @@ from app.admin_app.admin_models.admin import Admin
 from app.model.brand_models import Brand
 from app.model.category_model import Category
 from app.model.product_models import Product
+from app.model.cart_models import ProductInCart
 
 settings: Settings = get_settings()
 
@@ -18,4 +21,14 @@ database = client[settings.DATABASE_NAME]
 async def init_db():
     '''Initialize database'''
     print("Initializing Beanie with the database")
-    await init_beanie(database, document_models=[User, Admin, Brand, Category, Product])
+    await init_beanie(
+        database,
+        document_models=[
+            User,
+            Admin,
+            Brand,
+            Category,
+            Product,
+            ProductInCart
+        ]
+    )

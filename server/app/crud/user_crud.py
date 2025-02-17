@@ -1,4 +1,4 @@
-from app.model.user import User, UpdateProfileRequest, UpdateContactInfoRequest
+from app.model.user import User, UpdateProfileRequest, UpdateContactInfoRequest, UserResponse
 from beanie import PydanticObjectId
 from app.utilities.password_utils import hash_password, verify_password
 from fastapi import HTTPException, status
@@ -45,9 +45,7 @@ async def get_user_details(user_id: str):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
-    user_dict = user.model_dump(exclude=["password", "refresh_tokens"])
-    user_dict["id"] = str(user.id)
-    return user_dict
+    return UserResponse.from_mongo(user)
 
 
 async def add_refresh_token(user_id: str, refresh_token: str):
@@ -193,10 +191,7 @@ async def update_user_details(user_id: str, details: UpdateProfileRequest, curre
             setattr(user, key, value)
         user.updated_at = datetime.now(timezone.utc)
         await user.save()
-        updated_user_dict = user.model_dump(
-            exclude=["password", "refresh_tokens"])
-        updated_user_dict["id"] = str(user.id)
-        return updated_user_dict
+        return UserResponse.from_mongo(user)
     except DuplicateKeyError as e:
         # Handle duplicate key errors for both username and email
         if "username" in str(e):
@@ -259,10 +254,7 @@ async def update_user_contact_info(user_id: str, contact_info: UpdateContactInfo
             setattr(user, key, value)
         user.updated_at = datetime.now(timezone.utc)
         await user.save()
-        updated_user_dict = user.model_dump(
-            exclude=["password", "refresh_tokens"])
-        updated_user_dict["id"] = str(user.id)
-        return updated_user_dict
+        return UserResponse.from_mongo(user)
     except ValueError as e:
         print(f"Value Error: {e}")
         raise HTTPException(

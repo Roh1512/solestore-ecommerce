@@ -98,6 +98,19 @@ export type BrandResponse = {
     updated_at: string;
 };
 
+export type CartItemResponse = {
+    product: ProductResponse;
+    quantity: number;
+};
+
+export type CartResponse = {
+    id: string;
+    user: UserResponse;
+    items: Array<CartItemResponse>;
+    created_at: string;
+    updated_at: string;
+};
+
 /**
  * Create Category request model
  */
@@ -416,6 +429,40 @@ export type CategoryGetAllCategoriesResponse = (Array<CategoryResponse>);
 
 export type CategoryGetAllCategoriesError = (HTTPValidationError);
 
+export type ProductGetAllProductsData = {
+    query?: {
+        brand?: (string | null);
+        category?: (string | null);
+        page?: number;
+        search?: (string | null);
+        size?: (number | null);
+        sort_by?: SortByProduct;
+        sort_order?: SortOrder;
+    };
+};
+
+export type ProductGetAllProductsResponse = (Array<ProductResponse>);
+
+export type ProductGetAllProductsError = (HTTPValidationError);
+
+export type ProductGetProductByIdRouteData = {
+    path: {
+        product_id: string;
+    };
+};
+
+export type ProductGetProductByIdRouteResponse = (ProductResponse);
+
+export type ProductGetProductByIdRouteError = (HTTPValidationError);
+
+export type CartGetCartRouteResponse = (CartResponse);
+
+export type CartGetCartRouteError = unknown;
+
+export type CartCreateCartRouteResponse = (CartResponse);
+
+export type CartCreateCartRouteError = unknown;
+
 export type AdminAdminGetResponse = (unknown);
 
 export type AdminAdminGetError = unknown;
@@ -707,23 +754,3 @@ export type AdminDeleteImagesData = {
 export type AdminDeleteImagesResponse = (ProductResponse);
 
 export type AdminDeleteImagesError = (HTTPValidationError);
-
-export type ServeAdminReactAppData = {
-    path: {
-        full_path: string;
-    };
-};
-
-export type ServeAdminReactAppResponse = (string);
-
-export type ServeAdminReactAppError = (HTTPValidationError);
-
-export type ServeReactAppData = {
-    path: {
-        full_path: string;
-    };
-};
-
-export type ServeReactAppResponse = (string);
-
-export type ServeReactAppError = (HTTPValidationError);

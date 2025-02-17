@@ -31,13 +31,24 @@ const HeaderStore = () => {
             className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
           >
             <li>
-              <a>Homepage</a>
+              <NavLink
+                to="/profile"
+                className={({ isActive }) =>
+                  `btn p-2 ${isActive ? "bg-base-200" : "btn-ghost"}`
+                }
+              >
+                <UserIcon className="icon" /> <span>Profile</span>
+              </NavLink>
             </li>
             <li>
-              <a>Portfolio</a>
-            </li>
-            <li>
-              <a>About</a>
+              <NavLink
+                to="/orders"
+                className={({ isActive }) =>
+                  `btn p-2 ${isActive ? "bg-base-200" : "btn-ghost"}`
+                }
+              >
+                <span>Orders</span>
+              </NavLink>
             </li>
           </ul>
         </div>
@@ -56,15 +67,6 @@ const HeaderStore = () => {
               }
             >
               <ShoppingCartIcon />
-            </NavLink>
-            <NavLink
-              to="/profile"
-              className={({ isActive }) =>
-                `btn p-2 ${isActive ? "bg-base-200" : "btn-ghost"}`
-              }
-            >
-              <UserIcon className="icon" />{" "}
-              <span className="link-text">Profile</span>
             </NavLink>
           </>
         )}

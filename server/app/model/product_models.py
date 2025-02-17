@@ -1,7 +1,7 @@
 from typing import Annotated, Optional, List
 from datetime import datetime, timezone
 from pydantic import BaseModel, ConfigDict, field_validator, Field
-from beanie import Document, PydanticObjectId, Indexed, before_event, Save, Link
+from beanie import Document, Indexed, before_event, Save, Link
 from bson import ObjectId
 from app.model.brand_models import Brand, BrandResponse
 from app.model.category_model import Category, CategoryResponse
@@ -15,6 +15,13 @@ class Size(BaseModel):
 class Image(BaseModel):
     url: str
     public_id: str
+
+    @classmethod
+    def from_mongo(cls, image):
+        return cls(
+            url=image.url,
+            public_id=image.public_id
+        )
 
 
 class DeleteImagesRequest(BaseModel):
@@ -191,7 +198,7 @@ class ProductResponse(BaseModel):
             description=product.description,
             brand=BrandResponse.from_mongo(product.brand),
             category=CategoryResponse.from_mongo(product.category),
-            images=product.images,
+            images=[Image.from_mongo(image) for image in product.images],
             sizes=product.sizes,
             created_at=product.created_at,
             updated_at=product.updated_at

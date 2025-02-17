@@ -10,7 +10,7 @@ export const categoryApiSlice = createApi({
   endpoints: (builder) => ({
     getCategories: builder.query<CategoryResponse[], CBQueryParams>({
       query: (params) => ({
-        url: "/category",
+        url: "/category/",
         method: "GET",
         params: {
           search: params.search,
@@ -19,6 +19,7 @@ export const categoryApiSlice = createApi({
           sort_by: params.sort_by,
           sort_order: params.sort_order,
         },
+        credentials: "include",
       }),
       providesTags: (result) =>
         result

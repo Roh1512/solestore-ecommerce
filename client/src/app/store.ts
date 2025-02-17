@@ -6,6 +6,7 @@ import authReducer from "@/features/accessTokenApiSlice";
 import { userProfileApiSlice } from "@/features/userProfileApiSlice";
 import { brandApiSlice } from "@/features/brandApiSlice";
 import { categoryApiSlice } from "@/features/categoryApiSlice";
+import { productApiSlice } from "@/features/productApiSlice";
 
 export const store = configureStore({
   reducer: {
@@ -14,13 +15,15 @@ export const store = configureStore({
     [userProfileApiSlice.reducerPath]: userProfileApiSlice.reducer,
     [brandApiSlice.reducerPath]: brandApiSlice.reducer,
     [categoryApiSlice.reducerPath]: categoryApiSlice.reducer,
+    [productApiSlice.reducerPath]: productApiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .prepend(userAuthApi.middleware)
       .prepend(userProfileApiSlice.middleware)
       .prepend(brandApiSlice.middleware)
-      .prepend(categoryApiSlice.middleware),
+      .prepend(categoryApiSlice.middleware)
+      .prepend(productApiSlice.middleware),
 
   // devTools: false //in production
 });

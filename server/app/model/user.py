@@ -1,5 +1,7 @@
 '''User data Models'''
 
+from bson import ObjectId
+
 from datetime import datetime, timezone
 from typing import Optional, List, Annotated
 from pydantic import BaseModel, Field, EmailStr, ConfigDict, field_validator
@@ -24,6 +26,8 @@ class UserResponse(BaseModel):
 
     model_config = ConfigDict(
         populate_by_name=True,
+        rbitrary_types_allowed=True,
+        json_encoders={PydanticObjectId: str, ObjectId: str},
         json_schema_extra={
             "example": {
                 "_id": "507f1f77bcf86cd799439011",
@@ -40,6 +44,23 @@ class UserResponse(BaseModel):
             }
         }
     )
+
+    @classmethod
+    def from_mongo(cls, user):
+        return cls(
+            id=str(user.id),
+            username=user.username,
+            name=user.name,
+            email=user.email,
+            profile_img_url=user.profile_img_url,
+            profile_img_public_id=user.profile_img_public_id,
+
+            address=user.address,
+            phone=user.phone,
+            google_id=user.google_id,
+            created_at=user.created_at,
+            updated_at=user.updated_at
+        )
 
 
 class UpdateProfileRequest(BaseModel):

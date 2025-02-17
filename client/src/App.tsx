@@ -18,10 +18,12 @@ const RegisterUser = lazy(
 const LoginUser = lazy(() => import("@pages/userPages/LoginUser/LoginUser"));
 const ProfilePage = lazy(() => import("@pages/Profile/ProfilePage"));
 const ShopPage = lazy(() => import("@pages/ShopPages/ShopPage"));
+const ProductById = lazy(() => import("@pages/ShopPages/ProductById"));
+const OrdersPage = lazy(() => import("@pages/Order/OrdersPage"));
+const CartPage = lazy(() => import("@pages/Cart/CartPage"));
 
 import UserProtectedRoute from "./components/ProtectRoutes/UserProtectedRoute";
 import RedirectIfLoggedIn from "./components/RedirectWrapper/RedirectIfLoggedIn";
-import PageLoading from "./components/Loading/PageLoading";
 import SuspenseWrapper from "./components/SuspenseWrapper/SuspenseWrapper";
 import ErrorElement from "@components/ErrorElements/ErrorElement";
 import NotFound from "@components/NotFound/NotFound";
@@ -48,8 +50,10 @@ const routes = createBrowserRouter(
       {/* Protected Routes */}
       <Route element={<UserProtectedRoute />} errorElement={<ErrorElement />}>
         <Route path="/shop" element={<ShopPage />} />
+        <Route path={`/shop/products/:productId`} element={<ProductById />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/orders" element={<OrdersPage />} />
         <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/loading" element={<PageLoading />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />
