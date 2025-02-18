@@ -6,6 +6,7 @@ import LogoImg from "@/assets/soleStoreLogoSmall.svg";
 import { ChartBarStacked, Info } from "lucide-react";
 import BackButton from "@/components/Buttons/BackButton";
 import { useEffect } from "react";
+import AddToCart from "@/components/Cart/AddToCart";
 
 const ProductById = () => {
   const { productId } = useParams();
@@ -127,6 +128,7 @@ const ProductById = () => {
           <div>
             <div className="card bg-base-100 shadow-xl">
               <div className="card-body">
+                <AddToCart product={product} />
                 <h3 className="card-title justify-center text-3xl font-bold">
                   {product.title}
                 </h3>

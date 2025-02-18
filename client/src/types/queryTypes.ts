@@ -30,3 +30,8 @@ export interface ProductQueryParams {
   brand?: string;
   size?: number;
 }
+
+export interface CartQueryParams {
+  page?: number;
+  search?: string;
+}

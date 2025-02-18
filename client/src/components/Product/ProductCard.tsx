@@ -2,6 +2,7 @@ import { ProductResponse } from "@/client";
 import { memo } from "react";
 import logoImage from "@/assets/soleStoreLogoSmall.svg";
 import { Link } from "react-router-dom";
+import AddToCart from "../Cart/AddToCart";
 
 type Props = {
   product: ProductResponse;
@@ -57,6 +58,7 @@ const ProductCard = memo(({ product }: Props) => {
         {product.description && <p>{product.description}</p>}
         <div className="text-lg font-bold">${product.price.toFixed(2)}</div>
         <div className="card-actions justify-end">
+          <AddToCart key={product.id} product={product} />
           <Link to={`/shop/products/${product.id}`} className="btn btn-primary">
             View Details
           </Link>

@@ -322,7 +322,7 @@ class TestChangeQtyCart:
             )
             assert change_res.status_code == 400
             assert change_res.json()[
-                "detail"] == "You have only 10 pieces in cart"
+                "detail"] == "Quantity is 0, Try removing the item"
 
     @pytest.mark.asyncio
     async def test_change_qty_not_enough_stock(self, login_user):
@@ -377,7 +377,7 @@ class TestChangeQtyCart:
 
     @pytest.mark.asyncio
     async def test_change_qty_size_mismatch(self, login_user):
-        '''Test Change qty not enough stock'''
+        '''Test Change size mismatch'''
         async with AsyncClient(
             transport=ASGITransport(app=app),
             base_url="http://test"

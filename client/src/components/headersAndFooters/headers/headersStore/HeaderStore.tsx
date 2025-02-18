@@ -1,4 +1,7 @@
-import { useCurrentAuthState } from "@/app/useCurrentState";
+import {
+  useCurrentAuthState,
+  useCurrentCartState,
+} from "@/app/useCurrentState";
 import LogoLink from "../../../Logo/LogoLink";
 import { NavLink } from "react-router-dom";
 import { memo } from "react";
@@ -6,6 +9,7 @@ import { ShoppingCartIcon, UserIcon } from "lucide-react";
 
 const HeaderStore = () => {
   const { isLoggedIn, accessToken } = useCurrentAuthState();
+  const { totalCount } = useCurrentCartState();
   return (
     <header className="navbar">
       <div className="navbar-start">
@@ -67,6 +71,7 @@ const HeaderStore = () => {
               }
             >
               <ShoppingCartIcon />
+              {totalCount && totalCount > 0 ? totalCount : null}
             </NavLink>
           </>
         )}

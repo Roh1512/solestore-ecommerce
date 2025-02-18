@@ -295,10 +295,10 @@ async def change_item_quantity(
                 status_code=400,
                 detail=f"Insufficient stock to add {quantity} more. Available additional stock: {matching_size.stock - cart_item.quantity}"
             )
-        if new_quantity < 0:
+        if new_quantity <= 0:
             raise HTTPException(
                 status_code=400,
-                detail=f"You have only {matching_size.stock} pieces in cart"
+                detail="Quantity is 0, Try removing the item"
             )
         cart_item.quantity = new_quantity
         await cart_item.save()

@@ -68,11 +68,11 @@ async def add_to_cart_route(
 
 
 @router.delete("/{cart_id}", status_code=200, response_model=CartItemResponse)
-async def change_item_quantity_route(
+async def remove_item_from_cart_route(
     user: Annotated[dict, Depends(get_current_user)],
     cart_id: str,
 ):
-    '''Change quantity of item in cart'''
+    '''Delete  of item in cart'''
     try:
         return await remove_item_from_cart(
             user_id=str(user.id),
@@ -93,7 +93,7 @@ async def change_item_quantity_route(
 
 
 @router.put("/{cart_id}/change-quantity", response_model=CartItemResponse, status_code=200)
-async def remove_item_cart_route(
+async def change_item_quantity_route(
     user: Annotated[dict, Depends(get_current_user)],
     cart_id: str,
     body: ChangeItemQtyRequest
