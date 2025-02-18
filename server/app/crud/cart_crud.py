@@ -3,7 +3,7 @@
 from asyncio import gather
 
 from bson import ObjectId
-from app.model.cart_models import CartResponse, CartItemsResponse, ProductInCart
+from app.model.cart_models import CartResponse, ProductInCart, CartItemResponse
 from app.model.user import User
 from app.model.product_models import Product
 from fastapi import HTTPException
@@ -15,7 +15,7 @@ async def get_cart_items(
         user_id: str,
         page: int = 1,
         search: str = None
-) -> CartItemsResponse:
+) -> CartResponse:
     '''Function to get items in cart for the user'''
     limit = 20
     skip = (page - 1) * limit
@@ -43,22 +43,26 @@ async def get_cart_items(
             {
                 "$group": {
                     "_id": None,
-                    "totalPrice": {"$sum": {"$multiply": ["$price", "$quantity"]}}
+                    "totalPrice": {"$sum": {"$multiply": ["$price", "$quantity"]}},
+                    "totalCount": {"$sum": "$quantity"}
                 }
             }
         ]
-        agg_result = await ProductInCart.aggregate(pipeline).to_list()
-        total_price = agg_result[0]["totalPrice"] if agg_result else 0.0
-
-        cart_items = await ProductInCart.find(
-            And(*conditions)
-        ).sort(("created_at", -1)).skip(skip).limit(limit).to_list()
-        cart_items_response = [
-            CartResponse.from_mongo(item) for item in cart_items]
-        return CartItemsResponse(
-            items=cart_items_response,
-            total_price=round(total_price, 2)
+        agg_result, cart_items = await gather(
+            ProductInCart.aggregate(pipeline).to_list(),
+            ProductInCart.find(
+                And(*conditions)
+            ).sort(("created_at", -1)).skip(skip).limit(limit).to_list()
         )
+        total_price = agg_result[0]["totalPrice"] if agg_result else 0.0
+        total_count = agg_result[0]["totalCount"] if agg_result else 0
+
+        cart_items_response = [
+            CartItemResponse.from_mongo(item) for item in cart_items]
+        return CartResponse(
+            items=cart_items_response,
+            total_price=round(total_price, 2),
+            total_count=total_count)
 
     except HTTPException as e:
         print("Error creating cart: ", e)
@@ -73,7 +77,7 @@ async def add_to_cart(
         product_id: str,
         size: str,
         quantity: str
-):
+) -> CartItemResponse:
     '''Function to add item to cart'''
     try:
         if not ObjectId.is_valid(user_id):
@@ -146,7 +150,7 @@ async def add_to_cart(
                 )
             product_in_cart.quantity = new_quantity
             await product_in_cart.save()
-            return CartResponse.from_mongo(product_in_cart)
+            return CartItemResponse.from_mongo(product_in_cart)
         # Create a new cart item.
         new_cart_item = ProductInCart(
             user_id=PydanticObjectId(user_id),
@@ -158,7 +162,7 @@ async def add_to_cart(
             image_url=product.images[0].url if product.images else None
         )
         await new_cart_item.insert()
-        return CartResponse.from_mongo(new_cart_item)
+        return CartItemResponse.from_mongo(new_cart_item)
 
     except HTTPException as e:
         print("Error adding to cart: ", e)
@@ -171,7 +175,7 @@ async def add_to_cart(
 async def remove_item_from_cart(
         user_id: str,
         cart_id: str
-):
+) -> CartItemResponse:
     '''Function to remove item from cart'''
     try:
         if not ObjectId.is_valid(user_id):
@@ -203,7 +207,7 @@ async def remove_item_from_cart(
                 status_code=400,
                 detail="This is not your cart"
             )
-        cart_item_data = CartResponse.from_mongo(product_in_cart)
+        cart_item_data = CartItemResponse.from_mongo(product_in_cart)
         await product_in_cart.delete()
         return cart_item_data
 
@@ -298,7 +302,7 @@ async def change_item_quantity(
             )
         cart_item.quantity = new_quantity
         await cart_item.save()
-        return CartResponse.from_mongo(cart_item)
+        return CartItemResponse.from_mongo(cart_item)
     except HTTPException as e:
         print(f"Error changing quatity of item in cart: {e}")
         raise HTTPException(

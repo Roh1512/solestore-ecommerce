@@ -80,7 +80,7 @@ class ProductInCart(Document):
         self.updated_at = datetime.now(timezone.utc)
 
 
-class CartResponse(BaseModel):
+class CartItemResponse(BaseModel):
     id: str
     user_id: str
     product_id: str
@@ -93,7 +93,7 @@ class CartResponse(BaseModel):
     updated_at: datetime
 
     @classmethod
-    def from_mongo(cls, cart) -> "CartResponse":
+    def from_mongo(cls, cart) -> "CartItemResponse":
         return cls(
             id=str(cart.id),
             user_id=str(cart.user_id),
@@ -108,6 +108,7 @@ class CartResponse(BaseModel):
         )
 
 
-class CartItemsResponse(BaseModel):
-    items: list[CartResponse]
+class CartResponse(BaseModel):
+    items: list[CartItemResponse]
     total_price: float
+    total_count: int

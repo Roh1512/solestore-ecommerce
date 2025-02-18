@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 
 from app.crud.cart_crud import get_cart_items, add_to_cart, remove_item_from_cart, change_item_quantity
-from app.model.cart_models import CartResponse, CartItemsResponse, AddToCartRequest, ChangeItemQtyRequest
+from app.model.cart_models import CartResponse, CartItemResponse, AddToCartRequest, ChangeItemQtyRequest
 from app.utilities.auth_utils import get_current_user
 from app.utilities.query_models import CartQueryParams
 
@@ -14,7 +14,7 @@ from app.utilities.query_models import CartQueryParams
 router = APIRouter()
 
 
-@router.get("/", status_code=200, response_model=CartItemsResponse)
+@router.get("/", status_code=200, response_model=CartResponse)
 async def get_cart_route(
     user: Annotated[dict, Depends(get_current_user)],
     query_params: Annotated[CartQueryParams, Depends()]
@@ -40,7 +40,7 @@ async def get_cart_route(
         ) from e
 
 
-@router.post("/add", status_code=201, response_model=CartResponse)
+@router.post("/add", status_code=201, response_model=CartItemResponse)
 async def add_to_cart_route(
     user: Annotated[dict, Depends(get_current_user)],
     body: AddToCartRequest
@@ -67,7 +67,7 @@ async def add_to_cart_route(
         ) from e
 
 
-@router.delete("/{cart_id}", status_code=200, response_model=CartResponse)
+@router.delete("/{cart_id}", status_code=200, response_model=CartItemResponse)
 async def change_item_quantity_route(
     user: Annotated[dict, Depends(get_current_user)],
     cart_id: str,
@@ -92,7 +92,7 @@ async def change_item_quantity_route(
         ) from e
 
 
-@router.put("/{cart_id}/change-quantity", response_model=CartResponse, status_code=200)
+@router.put("/{cart_id}/change-quantity", response_model=CartItemResponse, status_code=200)
 async def remove_item_cart_route(
     user: Annotated[dict, Depends(get_current_user)],
     cart_id: str,
