@@ -19,7 +19,8 @@ async def create_order_route(
         data = await request.json()
         return await create_order(
             amount=data.get("amount"),
-            receipt=data.get("receipt")
+            receipt=data.get("receipt"),
+            user_id=str(user.id)
         )
     except HTTPException as e:
         print("Error fetching creating order: ", e)

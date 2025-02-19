@@ -5,6 +5,7 @@ from fastapi import HTTPException
 from beanie import PydanticObjectId
 import hmac
 import hashlib
+from asyncio import gather
 
 
 from app.model.user import User
@@ -25,13 +26,43 @@ def generate_signature(order_id: str, payment_id: str):
 
 
 async def create_order(
+        user_id: str,
         amount: float,
         receipt: str = None,
-        currency: str = "INR",
+        currency: str = "INR"
 ):
     try:
+        cart_query = {"user_id": PydanticObjectId(user_id)}
+        cart_pipline = [
+            {"$match": cart_query},
+            {
+                "$group": {
+                    "_id": None,
+                    "totalPrice": {"$sum": {"$multiply": ["$price", "$quantity"]}},
+                    "totalCount": {"$sum": "$quantity"}
+                }
+            }
+        ]
+        agg_result, cart_items = await gather(
+            ProductInCart.aggregate(cart_pipline).to_list(),
+            ProductInCart.find(ProductInCart.user_id == PydanticObjectId(
+                user_id)).sort(("created_at", -1)).to_list()
+        )
+        total_price = agg_result[0]["totalPrice"]
+        total_count = agg_result[0]["totalCount"]
+
+        if total_count == 0:
+            raise HTTPException(
+                status_code=400,
+                detail="Cart is empty"
+            )
+
+        print(total_price)
+
+        total_amount = round(total_price, 2)
+
         order_data = {
-            "amount": int(amount * 100),  # amount in paise
+            "amount": total_amount * 100,  # amount in paise
             "currency": currency,
             "receipt": receipt or "receipt#1",
             "payment_capture": 1  # Auto-capture after payment
