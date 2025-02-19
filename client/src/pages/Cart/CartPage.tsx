@@ -1,3 +1,4 @@
+import CheckoutButton from "@/components/Buttons/CheckOutButton";
 import CartItemCard from "@/components/Cart/CartItemCard";
 import { useGetCartQuery } from "@/features/cartApiSlice";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
@@ -91,6 +92,8 @@ const CartPage = () => {
           <CartItemCard key={item.id} item={item} />
         ))}
       </div>
+
+      {cartResponse && <CheckoutButton amount={cartResponse?.total_price} />}
 
       {/* Pagination Controls */}
       <div className="flex justify-center mt-8 space-x-4">

@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     ENVIRONMENT: str
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str
+    RAZOR_PAY_API_KEY: str
+    RAZOR_PAY_API_SECRET: str
 
     model_config = SettingsConfigDict(env_file=".env")
 

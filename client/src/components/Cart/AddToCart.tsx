@@ -118,11 +118,11 @@ const AddToCart = ({ product }: Props) => {
   if (
     product.sizes &&
     product.sizes.map((item) => {
-      if (item.stock && item.stock > 0) {
-        outOfStock = false;
+      if (item.stock && item.stock <= 0) {
+        outOfStock = true;
         return;
       }
-      outOfStock = true;
+      outOfStock = false;
     })
   )
     return (

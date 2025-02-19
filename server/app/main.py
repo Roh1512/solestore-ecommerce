@@ -17,6 +17,7 @@ from app.routes.brand_routes import router as brand_router
 from app.routes.category_routes import router as category_router
 from app.routes.product_routes import router as product_router
 from app.routes.cart_routes import router as cart_router
+from app.routes.order_routes import router as order_router
 
 
 from starlette.middleware.sessions import SessionMiddleware
@@ -85,6 +86,7 @@ app.include_router(brand_router, prefix="/api/brand", tags=["brand"])
 app.include_router(category_router, prefix="/api/category", tags=["category"])
 app.include_router(product_router, prefix="/api/product", tags=["Product"])
 app.include_router(cart_router, prefix="/api/cart", tags=["Cart"])
+app.include_router(order_router, prefix="/api/order", tags=["Order"])
 
 app.include_router(admin_router, prefix="/api/admin", tags=["admin"])
 
