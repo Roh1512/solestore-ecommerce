@@ -1,27 +1,26 @@
 '''Order crud'''
 
-from bson import ObjectId
-from fastapi import HTTPException
-from beanie import PydanticObjectId
-from beanie.operators import And
 import hmac
 import hashlib
 from asyncio import gather
 from pprint import pprint
+import secrets
 
+from bson import ObjectId
+from fastapi import HTTPException
+from beanie import PydanticObjectId
+from beanie.operators import And
+from razorpay.errors import SignatureVerificationError
 
 from app.model.user import User
 from app.model.cart_models import ProductInCart, CartItemResponse, CartResponse
 from app.model.order_models import Order, OrderResponse, OrderStatus
 from app.config.env_settings import settings
-
-from razorpay.errors import SignatureVerificationError
-
-
 from app.config.razor_pay_config import razorpay_client
 
 
 def generate_signature(order_id: str, payment_id: str):
+    '''A function to generate signature for'''
     return hmac.new(
         bytes(settings.RAZOR_PAY_API_SECRET, 'utf-8'),
         msg=bytes(f"{order_id}|{payment_id}", 'utf-8'),
@@ -33,11 +32,15 @@ async def create_order(
         user_id: str,
         address: str,
         phone: str,
-        receipt: str = None,
         currency: str = "INR",
 ):
     '''Function to create an order and initialize payment'''
     try:
+        if not ObjectId.is_valid(user_id):
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid user Id"
+            )
         if not address and phone:
             raise HTTPException(
                 status_code=400,
@@ -79,6 +82,8 @@ async def create_order(
         )
 
         total_amount = round(total_price, 2)
+        random_str = secrets.token_hex(4)  # 8 characters
+        receipt = f"recept_{random_str}"
 
         order_data = {
             "amount": total_amount * 100,  # amount in paise
@@ -119,6 +124,11 @@ async def create_order(
 async def verify_payment(payment_id: str, order_id: str, signature: str, user_id: str):
     '''Function to verify razorpay payment'''
     try:
+        if not ObjectId.is_valid(user_id):
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid user Id"
+            )
         order = await Order.find_one(
             And(
                 Order.user_id == PydanticObjectId(user_id),

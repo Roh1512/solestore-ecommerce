@@ -20,7 +20,8 @@ const CheckoutButton = ({ amount }: { amount: number }) => {
         },
         body: JSON.stringify({
           amount, // rupees
-          receipt: "order_rcptid_11",
+          //address,
+          //phone
         }),
       });
 

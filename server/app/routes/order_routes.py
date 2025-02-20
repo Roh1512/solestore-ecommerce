@@ -20,7 +20,6 @@ async def create_order_route(
         return await create_order(
             address=data.get("address") or user.address,
             phone=data.get("phone") or user.phone,
-            receipt=data.get("receipt"),
             user_id=str(user.id)
         )
     except HTTPException as e:
