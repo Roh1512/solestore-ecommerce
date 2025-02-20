@@ -10,6 +10,7 @@ from app.model.brand_models import Brand
 from app.model.category_model import Category
 from app.model.product_models import Product
 from app.model.cart_models import ProductInCart
+from app.model.order_models import Order
 
 settings: Settings = get_settings()
 
@@ -29,6 +30,7 @@ async def init_db():
             Brand,
             Category,
             Product,
-            ProductInCart
+            ProductInCart,
+            Order
         ]
     )

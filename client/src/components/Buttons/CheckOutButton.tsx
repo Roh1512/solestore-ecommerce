@@ -58,7 +58,8 @@ const CheckoutButton = ({ amount }: { amount: number }) => {
           if (!verifyRes.ok) {
             console.error("Payment verification failed");
           } else {
-            console.log("Payment verified successfully");
+            const data = await verifyRes.json();
+            console.log("Payment verified successfully", data);
           }
           // Update UI or notify the user as needed.
         },
@@ -83,7 +84,11 @@ const CheckoutButton = ({ amount }: { amount: number }) => {
     }
   };
 
-  return <button onClick={openRazorpayCheckout}>Pay Now</button>;
+  return (
+    <button className="btn btn-success" onClick={openRazorpayCheckout}>
+      Pay Now
+    </button>
+  );
 };
 
 export default CheckoutButton;

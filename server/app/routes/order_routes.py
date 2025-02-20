@@ -18,7 +18,8 @@ async def create_order_route(
     try:
         data = await request.json()
         return await create_order(
-            amount=data.get("amount"),
+            address=data.get("address") or user.address,
+            phone=data.get("phone") or user.phone,
             receipt=data.get("receipt"),
             user_id=str(user.id)
         )
@@ -43,21 +44,23 @@ async def verify_payment_route(
 ):
     try:
         data = await request.json()
-        print("REQUEST_DATA: ", data)
         return await verify_payment(
             payment_id=data.get("razorpay_payment_id"),
             order_id=data.get("razorpay_order_id"),
-            signature=data.get("razorpay_signature")
+            signature=data.get("razorpay_signature"),
+            user_id=str(user.id)
         )
     except HTTPException as e:
-        print("Error fetching creating order: ", e)
+        print("Error verifying payment order: ", e)
         raise HTTPException(
             status_code=e.status_code,
             detail=e.detail
         ) from e
     except Exception as e:
-        print(f"Unexpected error creating order: {e}")
+        print(f"Unexpected error verifying payment order: {e}")
+        import traceback
+        traceback.print_exc()  # Print full stack trace
         raise HTTPException(
             status_code=500,
-            detail="Unexpected error creating order"
+            detail="Unexpected error verifying paymen"
         ) from e

@@ -20,13 +20,13 @@ class OrderStatus(str, Enum):
 
 class Order(Document):
     '''Order document model'''
-
     user: Link[User]
+    user_id: PydanticObjectId
     order_details: CartResponse
     address: str
     phone: str
-    razor_pay_order_id: str = Field(..., json_schema_extra={"unique": True})
-    razor_pay_payment_id: Optional[str] = None
+    razorpay_order_id: str = Field(..., json_schema_extra={"unique": True})
+    razorpay_payment_id: Optional[str] = None
     amount: float
     payment_verified: bool
     order_status: OrderStatus = Field(default=OrderStatus.REQUESTED)
@@ -44,24 +44,17 @@ class Order(Document):
         """Update the updated_at field before saving."""
         self.updated_at = datetime.now(timezone.utc)
 
-    @field_validator("order_status", mode="before")
-    @classmethod
-    def validate_status(cls, value):
-        """Ensure valid status transitions"""
-        if value not in OrderStatus._value2member_map_:
-            raise ValueError(f"Invalid order status: {value}")
-        return value
-
 
 class OrderResponse(BaseModel):
     id: str
     user: UserResponse
+    user_id: str
     order_details: CartResponse
     address: str
     phone: str
-    razor_pay_order_id: str = Field(..., json_schema_extra={"unique": True})
-    razor_pay_payment_id: Optional[str] = None
-    total_amount: float
+    razorpay_order_id: str = Field(..., json_schema_extra={"unique": True})
+    razorpay_payment_id: Optional[str] = None
+    amount: float
     payment_verified: bool
     order_status: OrderStatus = Field(default=OrderStatus.REQUESTED)
     created_at: datetime = Field(
@@ -74,12 +67,13 @@ class OrderResponse(BaseModel):
         return cls(
             id=str(order.id),
             user=UserResponse.from_mongo(order.user),
-            order_details=CartResponse.from_mongo(order.order_details),
+            user_id=str(order.user_id),
+            order_details=order.order_details,
             address=order.address,
             phone=order.phone,
-            razor_pay_order_id=order.razor_pay_order_id,
-            razor_pay_payment_id=order.razor_pay_payment_id,
-            total_amount=order.total_amount,
+            razorpay_order_id=order.razorpay_order_id,
+            razorpay_payment_id=order.razorpay_payment_id,
+            amount=order.amount,
             payment_verified=order.payment_verified,
             order_status=order.order_status,
             created_at=order.created_at,
