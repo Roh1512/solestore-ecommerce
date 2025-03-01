@@ -4,11 +4,11 @@ from datetime import datetime, timezone
 from typing import Optional
 from enum import Enum
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 from beanie import Document,  before_event, Save, PydanticObjectId, Link
 
 from app.model.user import User, UserResponse
-from app.model.cart_models import ProductInCart, CartResponse
+from app.model.cart_models import CartResponse
 
 
 class OrderStatus(str, Enum):
@@ -16,6 +16,30 @@ class OrderStatus(str, Enum):
     SHIPPED = "SHIPPED"
     PROCESSED = "PROCESSED"
     DELIVERED = "DELIVERED"
+
+
+class OrderCreateRequest(BaseModel):
+    phone: str
+    address: str
+
+
+class OrderStatusUpdateRequest(BaseModel):
+    order_status: OrderStatus
+
+
+class CreateOrderResponse(BaseModel):
+    amount: Optional[int] = None
+    amount_due: Optional[int] = None
+    amount_paid: Optional[int] = None
+    attempts: Optional[int] = None
+    created_at: Optional[int] = None
+    currency: Optional[str] = None
+    entity: Optional[str] = None
+    id: Optional[str] = None
+    notes: list[str] = None
+    offer_id: Optional[str] = None
+    receipt: Optional[str] = None
+    status: Optional[str] = None
 
 
 class Order(Document):
@@ -76,6 +100,6 @@ class OrderResponse(BaseModel):
             amount=order.amount,
             payment_verified=order.payment_verified,
             order_status=order.order_status,
-            created_at=order.created_at,
-            updated_at=order.updated_at
+            created_at=order.created_at.isoformat(),
+            updated_at=order.updated_at.isoformat()
         )

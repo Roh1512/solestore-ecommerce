@@ -1,12 +1,19 @@
-from fastapi import FastAPI
+'''Main app file'''
+
+from contextlib import asynccontextmanager
+import os
+
+import socketio
+
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.exceptions import HTTPException
 from fastapi.routing import APIRoute
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
-import os
+
+
 from app.config.env_settings import settings
-from fastapi.exceptions import HTTPException
-from contextlib import asynccontextmanager
 from app.config.db import init_db
 
 
@@ -18,6 +25,7 @@ from app.routes.category_routes import router as category_router
 from app.routes.product_routes import router as product_router
 from app.routes.cart_routes import router as cart_router
 from app.routes.order_routes import router as order_router
+from app.config.socket_manager import sio
 
 
 from starlette.middleware.sessions import SessionMiddleware
@@ -35,7 +43,7 @@ print("Client Admin Build Dir: ", client_admin_build_dir)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Initialize the database here
+    '''# Initialize the database'''
     await init_db()
     yield  # The app will run here after the init
     # Any shutdown logic can go here, if necessary (e.g., closing DB connections)
@@ -43,6 +51,7 @@ async def lifespan(app: FastAPI):
 
 
 def custom_generate_unique_id(route: APIRoute):
+    '''Unique ID for routes'''
     if route.tags and len(route.tags) > 0:
         return f"{route.tags[0]}-{route.name}"
     return route.name
@@ -59,6 +68,13 @@ origins = [
     "http://127.0.0.1:8000"
 ]
 
+socket_app = socketio.ASGIApp(
+    sio,
+    socketio_path="/api/ws",
+)
+
+app.mount("/api/ws", socket_app)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -66,6 +82,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 app.add_middleware(
     SessionMiddleware,
@@ -78,6 +95,7 @@ app.mount("/admin-assets", StaticFiles(directory=os.path.join(
     client_admin_build_dir, "assets")), name="admin_assets")
 app.mount("/assets", StaticFiles(directory=os.path.join(
     client_build_dir, "assets")), name="client_assets")
+
 
 # Include the routers for auth, profile, and admin
 app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
@@ -98,6 +116,7 @@ app.include_router(admin_router, prefix="/api/admin", tags=["admin"])
 if settings.ENVIRONMENT != "testing":
     @app.get("/admin{full_path:path}", response_class=HTMLResponse)
     async def serve_admin_react_app(full_path: str):
+        '''Serve client app'''
         try:
             print(f"Serving admin app for path: {full_path}")
             index_path = os.path.join(client_admin_build_dir, 'index.html')
@@ -132,9 +151,9 @@ if settings.ENVIRONMENT != "testing":
 
     @app.get("/{full_path:path}", response_class=HTMLResponse)
     async def serve_react_app(full_path: str):
-        # Only serve the React app for paths that aren't API or admin routes
+        '''Only serve the React app for paths that aren't API or admin routes'''
         if full_path.startswith("api/") or full_path.startswith("admin/"):
             raise HTTPException(status_code=404, detail="Not Found")
         if not full_path.startswith("api/") and not full_path.startswith("admin"):
-            with open(os.path.join(client_build_dir, 'index.html')) as f:
+            with open(os.path.join(client_build_dir, 'index.html'), "r", encoding="utf-8") as f:
                 return HTMLResponse(content=f.read())

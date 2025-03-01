@@ -86,3 +86,11 @@ class CartQueryParams(BaseModel):
         description="Page number"
     )
     search: Optional[str] = None
+
+
+class OrderQueryParams(BaseModel):
+    page: int = Field(
+        default=1,
+        ge=1,
+        description="Page number"
+    )

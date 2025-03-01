@@ -1,4 +1,10 @@
-import { useCurrentAuthState } from "@/app/useCurrentState";
+import { OrderCreateRequest } from "@/client";
+import {
+  useCreateOrderMutation,
+  useVerifyPaymentMutation,
+} from "@/features/orderApiSlice";
+import { toast } from "react-toastify";
+import ButtonLoading from "../Loading/ButtonLoading";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 declare global {
@@ -7,30 +13,28 @@ declare global {
   }
 }
 
-const CheckoutButton = ({ amount }: { amount: number }) => {
-  const { accessToken } = useCurrentAuthState();
+const CheckoutButton = ({
+  orderDetails,
+}: {
+  orderDetails: OrderCreateRequest;
+}) => {
+  const [createOrder, { isLoading: isCreatingOrder }] =
+    useCreateOrderMutation();
+  const [verifyPayment] = useVerifyPaymentMutation();
   const openRazorpayCheckout = async () => {
     try {
-      // Step 1: Create an order on the backend using Fetch.
-      const orderRes = await fetch("/api/order/create-order", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          amount, // rupees
-          //address,
-          //phone
-        }),
-      });
-
-      if (!orderRes.ok) {
-        throw new Error("Failed to create order");
+      if (!orderDetails.address || !orderDetails.phone) {
+        toast.error("Please provide address and phone number.");
+        return;
       }
 
-      const orderData = await orderRes.json();
+      const orderData = await createOrder({
+        address: orderDetails.address,
+        phone: orderDetails.phone,
+      }).unwrap();
       const { id: order_id, amount: orderAmount, currency } = orderData;
+
+      console.log("OrderData: ", orderData);
 
       // Step 2: Configure options for Razorpay Checkout.
       const options = {
@@ -44,23 +48,17 @@ const CheckoutButton = ({ amount }: { amount: number }) => {
           // Handle the payment success response from Razorpay
           console.log("Payment Successful", response);
           // Optionally, verify the payment on the backend using Fetch.
-          const verifyRes = await fetch("/api/order/verify-payment", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify({
+
+          try {
+            const verificationResponse = await verifyPayment({
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_order_id: response.razorpay_order_id,
               razorpay_signature: response.razorpay_signature,
-            }),
-          });
-          if (!verifyRes.ok) {
-            console.error("Payment verification failed");
-          } else {
-            const data = await verifyRes.json();
-            console.log("Payment verified successfully", data);
+            }).unwrap();
+
+            console.log("Payment verified successfully", verificationResponse);
+          } catch (error) {
+            console.error(error);
           }
           // Update UI or notify the user as needed.
         },
@@ -86,8 +84,16 @@ const CheckoutButton = ({ amount }: { amount: number }) => {
   };
 
   return (
-    <button className="btn btn-success" onClick={openRazorpayCheckout}>
-      Pay Now
+    <button
+      className="btn btn-success"
+      onClick={openRazorpayCheckout}
+      disabled={isCreatingOrder}
+    >
+      {isCreatingOrder ? (
+        <ButtonLoading text="Payment Processing" />
+      ) : (
+        "Continue Payment"
+      )}
     </button>
   );
 };

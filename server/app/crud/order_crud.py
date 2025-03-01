@@ -28,6 +28,76 @@ def generate_signature(order_id: str, payment_id: str):
     ).hexdigest()
 
 
+async def get_all_orders(
+        user_id: str,
+        page: int = 1
+):
+    '''Function to fetch users'''
+    if not ObjectId.is_valid(user_id):
+        raise (
+            HTTPException(
+                status_code=400,
+                detail="Invalid user ID"
+            )
+        )
+    limit = 20
+    skip = (page - 1) * limit
+    try:
+        orders = await (
+            Order.find(Order.user_id == PydanticObjectId(
+                user_id), fetch_links=True)
+            .sort(("created_at", -1))
+            .skip(skip)
+            .limit(limit)
+            .to_list()
+        )
+        orders_response = [OrderResponse.from_mongo(order) for order in orders]
+        return orders_response
+    except HTTPException as e:
+        print("Error fetching orders: ", e)
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=e.detail
+        ) from e
+
+
+async def get_order_by_id(
+        user_id: str,
+        order_id: str
+):
+    try:
+        if not ObjectId.is_valid(user_id):
+            raise (
+                HTTPException(
+                    status_code=400,
+                    detail="Invalid user ID"
+                )
+            )
+        if not ObjectId.is_valid(order_id):
+            raise (
+                HTTPException(
+                    status_code=400,
+                    detail="Invalid order ID"
+                )
+            )
+        order = await Order.find_one(
+            And(
+                Order.user_id == PydanticObjectId(user_id),
+                Order.id == PydanticObjectId(order_id)
+            ),
+            fetch_links=True
+        )
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        return OrderResponse.from_mongo(order)
+    except HTTPException as e:
+        print("Error fetching order: ", e)
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=e.detail
+        ) from e
+
+
 async def create_order(
         user_id: str,
         address: str,
@@ -164,7 +234,7 @@ async def verify_payment(payment_id: str, order_id: str, signature: str, user_id
         raise HTTPException(status_code=400, detail="Payment failed") from e
     except Exception as e:
         print(f"Error verifying payment: {e}")
-        import traceback
-        traceback.print_exc()  # Print full stack trace
+        # import traceback
+        # traceback.print_exc()  # Print full stack trace
         raise HTTPException(
             status_code=500, detail="Internal server error") from e

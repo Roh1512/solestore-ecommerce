@@ -1,9 +1,9 @@
-import CheckoutButton from "@/components/Buttons/CheckOutButton";
 import CartItemCard from "@/components/Cart/CartItemCard";
 import { useGetCartQuery } from "@/features/cartApiSlice";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
+import { Link } from "react-router-dom";
 
 const CartPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -29,8 +29,9 @@ const CartPage = () => {
         if (newParams.page) updatedParams.set("page", String(newParams.page));
         if (newParams.search) updatedParams.set("search", newParams.search);
       });
+      setSearchParams(updatedParams);
     },
-    [searchParams]
+    [searchParams, setSearchParams]
   );
 
   useEffect(() => {
@@ -93,7 +94,9 @@ const CartPage = () => {
         ))}
       </div>
 
-      {cartResponse && <CheckoutButton amount={cartResponse?.total_price} />}
+      <Link to={"/checkout"} className="btn btn-secondary">
+        Check Out
+      </Link>
 
       {/* Pagination Controls */}
       <div className="flex justify-center mt-8 space-x-4">

@@ -151,6 +151,21 @@ export type ChangeItemQtyRequest = {
     quantity: number;
 };
 
+export type CreateOrderResponse = {
+    amount?: (number | null);
+    amount_due?: (number | null);
+    amount_paid?: (number | null);
+    attempts?: (number | null);
+    created_at?: (number | null);
+    currency?: (string | null);
+    entity?: (string | null);
+    id?: (string | null);
+    notes?: Array<(string)>;
+    offer_id?: (string | null);
+    receipt?: (string | null);
+    status?: (string | null);
+};
+
 export type DeleteImagesRequest = {
     public_ids: Array<(string)>;
 };
@@ -166,6 +181,33 @@ export type HTTPValidationError = {
 export type Image = {
     url: string;
     public_id: string;
+};
+
+export type OrderCreateRequest = {
+    phone: string;
+    address: string;
+};
+
+export type OrderResponse = {
+    id: string;
+    user: UserResponse;
+    user_id: string;
+    order_details: CartResponse;
+    address: string;
+    phone: string;
+    razorpay_order_id: string;
+    razorpay_payment_id?: (string | null);
+    amount: number;
+    payment_verified: boolean;
+    order_status?: OrderStatus;
+    created_at?: string;
+    updated_at?: string;
+};
+
+export type OrderStatus = 'REQUESTED' | 'SHIPPED' | 'PROCESSED' | 'DELIVERED';
+
+export type OrderStatusUpdateRequest = {
+    order_status: OrderStatus;
 };
 
 /**
@@ -498,7 +540,18 @@ export type CartAddToCartRouteResponse = (CartItemResponse);
 
 export type CartAddToCartRouteError = (HTTPValidationError);
 
+export type CartRemoveItemFromCartRouteData = {
+    path: {
+        cart_id: string;
+    };
+};
+
+export type CartRemoveItemFromCartRouteResponse = (CartItemResponse);
+
+export type CartRemoveItemFromCartRouteError = (HTTPValidationError);
+
 export type CartChangeItemQuantityRouteData = {
+    body: ChangeItemQtyRequest;
     path: {
         cart_id: string;
     };
@@ -508,16 +561,37 @@ export type CartChangeItemQuantityRouteResponse = (CartItemResponse);
 
 export type CartChangeItemQuantityRouteError = (HTTPValidationError);
 
-export type CartRemoveItemCartRouteData = {
-    body: ChangeItemQtyRequest;
-    path: {
-        cart_id: string;
+export type OrderGetAllOrdersRouteData = {
+    query?: {
+        page?: number;
     };
 };
 
-export type CartRemoveItemCartRouteResponse = (CartItemResponse);
+export type OrderGetAllOrdersRouteResponse = (Array<OrderResponse>);
 
-export type CartRemoveItemCartRouteError = (HTTPValidationError);
+export type OrderGetAllOrdersRouteError = (HTTPValidationError);
+
+export type OrderGetOrderByIdRouteData = {
+    path: {
+        order_id: string;
+    };
+};
+
+export type OrderGetOrderByIdRouteResponse = (OrderResponse);
+
+export type OrderGetOrderByIdRouteError = (HTTPValidationError);
+
+export type OrderCreateOrderRouteData = {
+    body: OrderCreateRequest;
+};
+
+export type OrderCreateOrderRouteResponse = (CreateOrderResponse);
+
+export type OrderCreateOrderRouteError = (HTTPValidationError);
+
+export type OrderVerifyPaymentRouteResponse = (unknown);
+
+export type OrderVerifyPaymentRouteError = unknown;
 
 export type AdminAdminGetResponse = (unknown);
 
@@ -810,6 +884,37 @@ export type AdminDeleteImagesData = {
 export type AdminDeleteImagesResponse = (ProductResponse);
 
 export type AdminDeleteImagesError = (HTTPValidationError);
+
+export type AdminGetAllOrdersAdminRouteData = {
+    query?: {
+        page?: number;
+    };
+};
+
+export type AdminGetAllOrdersAdminRouteResponse = (Array<OrderResponse>);
+
+export type AdminGetAllOrdersAdminRouteError = (HTTPValidationError);
+
+export type AdminGetOrderAdminData = {
+    path: {
+        order_id: string;
+    };
+};
+
+export type AdminGetOrderAdminResponse = (OrderResponse);
+
+export type AdminGetOrderAdminError = (HTTPValidationError);
+
+export type AdminUpdateOrderStatusRouteData = {
+    body: OrderStatusUpdateRequest;
+    path: {
+        order_id: string;
+    };
+};
+
+export type AdminUpdateOrderStatusRouteResponse = (OrderResponse);
+
+export type AdminUpdateOrderStatusRouteError = (HTTPValidationError);
 
 export type ServeAdminReactAppData = {
     path: {

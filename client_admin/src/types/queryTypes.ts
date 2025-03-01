@@ -52,3 +52,7 @@ export interface ProductQueryParams {
   brand?: string;
   size?: number;
 }
+
+export interface OrderQueryParams {
+  page?: number;
+}

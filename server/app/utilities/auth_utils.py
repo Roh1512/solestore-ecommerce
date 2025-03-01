@@ -89,3 +89,32 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], reques
         await invalidate_token()
     except InvalidTokenError:
         await invalidate_token()
+
+
+async def get_current_user_ws(token: str):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Unauthorized",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    async def invalidate_token():
+        raise credentials_exception
+    try:
+
+        payload = jwt.decode(
+            token, settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM]
+        )
+        user_id: str = payload.get("sub")
+        if not user_id:
+            await invalidate_token()
+
+        user = await get_user_details(user_id)
+        if not user:
+            await invalidate_token()
+        return user
+    except ExpiredSignatureError:
+        await invalidate_token()
+    except InvalidTokenError:
+        await invalidate_token()

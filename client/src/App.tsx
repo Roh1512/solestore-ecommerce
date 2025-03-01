@@ -1,4 +1,4 @@
-import { lazy } from "react";
+import { lazy, useEffect } from "react";
 
 import {
   createBrowserRouter,
@@ -21,12 +21,16 @@ const ShopPage = lazy(() => import("@pages/ShopPages/ShopPage"));
 const ProductById = lazy(() => import("@pages/ShopPages/ProductById"));
 const OrdersPage = lazy(() => import("@pages/Order/OrdersPage"));
 const CartPage = lazy(() => import("@pages/Cart/CartPage"));
+const CheckOut = lazy(() => import("@pages/Order/CheckOut"));
 
 import UserProtectedRoute from "./components/ProtectRoutes/UserProtectedRoute";
 import RedirectIfLoggedIn from "./components/RedirectWrapper/RedirectIfLoggedIn";
 import SuspenseWrapper from "./components/SuspenseWrapper/SuspenseWrapper";
 import ErrorElement from "@components/ErrorElements/ErrorElement";
 import NotFound from "@components/NotFound/NotFound";
+import { initWebSocket } from "./services/webSocketService";
+import { store } from "./app/store";
+import { useCurrentAuthState } from "./app/useCurrentState";
 
 const routes = createBrowserRouter(
   createRoutesFromElements(
@@ -53,6 +57,7 @@ const routes = createBrowserRouter(
         <Route path={`/shop/products/:productId`} element={<ProductById />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/orders" element={<OrdersPage />} />
+        <Route path="/checkout" element={<CheckOut />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
 
@@ -63,7 +68,16 @@ const routes = createBrowserRouter(
 
 function App() {
   const { theme } = useTheme();
+  const { accessToken } = useCurrentAuthState();
   const themeValue = theme === "business" ? "dark" : "light";
+  useEffect(() => {
+    if (accessToken) {
+      const cleanup = initWebSocket(store, accessToken);
+      return () => {
+        if (cleanup) cleanup();
+      };
+    }
+  }, [accessToken]);
   return (
     <>
       <ToastContainer

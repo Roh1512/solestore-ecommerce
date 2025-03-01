@@ -35,3 +35,7 @@ export interface CartQueryParams {
   page?: number;
   search?: string;
 }
+
+export interface OrderQueryParams {
+  page?: number;
+}

@@ -55,3 +55,32 @@ async def get_current_admin(token: Annotated[str, Depends(admin_oauth2_scheme)],
         await invalidate_token()
     except InvalidTokenError:
         await invalidate_token()
+
+
+async def get_current_admin_ws(token: str):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Unauthorized",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    async def invalidate_token():
+        raise credentials_exception
+    try:
+
+        payload = jwt.decode(
+            token, settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM]
+        )
+        admin_id: str = payload.get("sub")
+        if not admin_id:
+            await invalidate_token()
+
+        admin = await get_admin_details(admin_id)
+        if not admin:
+            await invalidate_token()
+        return admin
+    except ExpiredSignatureError:
+        await invalidate_token()
+    except InvalidTokenError:
+        await invalidate_token()
