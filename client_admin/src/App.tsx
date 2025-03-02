@@ -5,7 +5,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import { lazy } from "react";
+import { lazy, useEffect } from "react";
 
 import { useTheme } from "./context/ThemeContext";
 
@@ -26,10 +26,14 @@ const Products = lazy(() => import("@pages/Products/Products"));
 const ProductById = lazy(() => import("@pages/Products/ProductById"));
 const AddProduct = lazy(() => import("@pages/Products/AddProduct"));
 const OrdersPage = lazy(() => import("@pages/Orders/OrdersPage"));
+const OrderDetail = lazy(() => import("@pages/Orders/OrderDetail"));
 
 import RedirectUnprotectedRoutes from "@components/RedirectWrappers/RedirectUnprotectedRoutes";
 import RedirectProtectedRoutes from "./components/RedirectWrappers/RedirectProtectedRoutes";
 import SuspenseWrapper from "./components/Wrappers/SuspenseWrapper";
+import { useCurrentAuthState } from "./app/useCurrentState";
+import { initWebSocket } from "./services/webSocketService";
+import { store } from "./app/store";
 
 const routes = createBrowserRouter(
   createRoutesFromElements(
@@ -65,6 +69,7 @@ const routes = createBrowserRouter(
         <Route path="/admin/admins/:adminId" element={<AdminByIdPage />} />
 
         <Route path="/admin/orders" element={<OrdersPage />} />
+        <Route path="/admin/orders/:orderId" element={<OrderDetail />} />
       </Route>
       <Route
         path="*"
@@ -80,7 +85,16 @@ const routes = createBrowserRouter(
 
 function App() {
   const { theme } = useTheme();
-  const themeText = theme === "business" ? "dark" : "light";
+  const { accessToken } = useCurrentAuthState();
+  const themeText = theme === "coffee" ? "dark" : "light";
+  useEffect(() => {
+    if (accessToken) {
+      const cleanup = initWebSocket(store, accessToken);
+      return () => {
+        if (cleanup) cleanup();
+      };
+    }
+  }, [accessToken]);
   return (
     <>
       <ToastContainer position="top-right" autoClose={3000} theme={themeText} />

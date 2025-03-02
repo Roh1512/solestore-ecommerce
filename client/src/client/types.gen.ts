@@ -200,11 +200,20 @@ export type OrderResponse = {
     amount: number;
     payment_verified: boolean;
     order_status?: OrderStatus;
-    created_at?: string;
-    updated_at?: string;
+    processing_admin: (string | null);
+    created_at: string;
+    updated_at: string;
 };
 
-export type OrderStatus = 'REQUESTED' | 'SHIPPED' | 'PROCESSED' | 'DELIVERED';
+export type OrdersBeingProcessedResponse = {
+    id: string;
+    order_id: string;
+    admin_id: string;
+    created_at: string;
+    updated_at: string;
+};
+
+export type OrderStatus = 'REQUESTED' | 'SHIPPED' | 'PROCESSING' | 'DELIVERED';
 
 export type OrderStatusUpdateRequest = {
     order_status: OrderStatus;
@@ -915,6 +924,36 @@ export type AdminUpdateOrderStatusRouteData = {
 export type AdminUpdateOrderStatusRouteResponse = (OrderResponse);
 
 export type AdminUpdateOrderStatusRouteError = (HTTPValidationError);
+
+export type AdminProcessOrderRouteData = {
+    path: {
+        order_id: string;
+    };
+};
+
+export type AdminProcessOrderRouteResponse = (OrdersBeingProcessedResponse);
+
+export type AdminProcessOrderRouteError = (HTTPValidationError);
+
+export type AdminStopProcessOrderRouteData = {
+    path: {
+        order_id: string;
+    };
+};
+
+export type AdminStopProcessOrderRouteResponse = (OrdersBeingProcessedResponse);
+
+export type AdminStopProcessOrderRouteError = (HTTPValidationError);
+
+export type AdminIsOrderProcessingRouteData = {
+    path: {
+        order_id: string;
+    };
+};
+
+export type AdminIsOrderProcessingRouteResponse = (OrdersBeingProcessedResponse);
+
+export type AdminIsOrderProcessingRouteError = (HTTPValidationError);
 
 export type ServeAdminReactAppData = {
     path: {

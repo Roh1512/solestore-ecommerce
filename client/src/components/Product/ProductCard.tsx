@@ -30,17 +30,17 @@ const ProductCard = memo(({ product }: Props) => {
   const imageUrl = optimizeImageUrl(originalImageUrl);
 
   return (
-    <div className="card sm:w-80 md:w-96 lg:w-96 bg-base-300 shadow-xl mx-auto">
-      <div className="relative">
+    <div className="card sm:w-80 md:w-96 lg:w-96 bg-base-100 border border-base-300 text-base-content shadow-xl mx-auto">
+      <figure className="p-5">
         <img
           src={imageUrl}
           alt={product.title}
           loading="lazy"
-          className="w-full h-64 object-cover"
+          className="w-full h-64 object-cover rounded-xl"
         />
-      </div>
+      </figure>
       <div className="card-body py-4">
-        <h2 className="card-title text-4xl font-semibold mx-auto">
+        <h2 className="card-title text-2xl font-semibold mx-auto">
           {product.title}
         </h2>
         <div className="flex flex-row items-center justify-center gap-4">
@@ -59,7 +59,7 @@ const ProductCard = memo(({ product }: Props) => {
         <div className="text-lg font-bold">${product.price.toFixed(2)}</div>
         <div className="card-actions justify-end">
           <AddToCart key={product.id} product={product} />
-          <Link to={`/shop/products/${product.id}`} className="btn btn-primary">
+          <Link to={`/shop/products/${product.id}`} className="btn btn-neutral">
             View Details
           </Link>
         </div>

@@ -38,13 +38,14 @@ const UpdateOrderStatus = ({ order }: Props) => {
 
   const statusColors: Record<OrderStatus, string> = {
     REQUESTED: "badge-warning",
-    PROCESSED: "badge-info",
+    PROCESSING: "badge-info",
     SHIPPED: "badge-primary",
     DELIVERED: "badge-success",
   };
 
   return (
-    <div className="form-control bg-base-100 pt-2">
+    <div className="form-control bg-base-200 pt-2 w-full">
+      <h3 className="mb-3">Update Order</h3>
       <form
         onSubmit={handleSubmit}
         className="flex flex-row flex-wrap items-center justify-center gap-4"
@@ -58,16 +59,16 @@ const UpdateOrderStatus = ({ order }: Props) => {
           onChange={(e) => setSelectedStatus(e.target.value as OrderStatus)}
         >
           {(
-            ["REQUESTED", "PROCESSED", "SHIPPED", "DELIVERED"] as OrderStatus[]
+            ["REQUESTED", "PROCESSING", "SHIPPED", "DELIVERED"] as OrderStatus[]
           ).map((status) => (
-            <option key={status} value={status}>
+            <option key={status} value={status} defaultValue={selectedStatus}>
               {status}
             </option>
           ))}
         </select>
         <button
           type="submit"
-          className={`btn ${isLoading ? "btn-disabled" : "btn-primary"}`}
+          className={`btn ${isLoading ? "btn-disabled" : "btn-neutral"}`}
           disabled={isLoading}
         >
           {isLoading ? (
@@ -79,13 +80,13 @@ const UpdateOrderStatus = ({ order }: Props) => {
             "Update Status"
           )}
         </button>
-        <div className="mt-2">
-          <span className={`badge ${statusColors[orderStatus]}`}>
-            <Dot className="w-9 h-9" />
-            {orderStatus}
-          </span>
-        </div>
       </form>
+      <div className="mt-2">
+        <span className={`badge ${statusColors[orderStatus]}`}>
+          <Dot className="w-9 h-9" />
+          {orderStatus}
+        </span>
+      </div>
     </div>
   );
 };

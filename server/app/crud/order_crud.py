@@ -12,6 +12,7 @@ from beanie import PydanticObjectId
 from beanie.operators import And
 from razorpay.errors import SignatureVerificationError
 
+from app.config.socket_manager import sio
 from app.model.user import User
 from app.model.cart_models import ProductInCart, CartItemResponse, CartResponse
 from app.model.order_models import Order, OrderResponse, OrderStatus
@@ -227,7 +228,12 @@ async def verify_payment(payment_id: str, order_id: str, signature: str, user_id
         order.payment_verified = True
         await order.save()
 
-        return OrderResponse.from_mongo(order)
+        order_response = OrderResponse.from_mongo(order)
+
+        # Emit an event to notify all admins (all admin clients should join the "admin" room)
+        await sio.emit("new-order", order_response.model_dump_json(), room="admin")
+
+        return order_response
 
     except SignatureVerificationError as e:
         print("SignatureVerificationError: ", e)

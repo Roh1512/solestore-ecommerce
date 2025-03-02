@@ -66,7 +66,7 @@ const ProfilePage = () => {
           <div className="divider my-8"></div>
 
           <div className="flex items-center justify-between max-w-96 w-full mx-auto gap-2 font-semibold mb-4 bg-base-200 px-2 py-4">
-            <span>{theme === "lofi" ? "Dark" : "Light"} mode</span>{" "}
+            <span>{theme === "coffee" ? "Dark" : "Light"} mode</span>{" "}
             <ThemeToggle />
           </div>
 

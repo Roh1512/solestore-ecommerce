@@ -1,13 +1,17 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "./beseQuery";
 
-import { OrderResponse, OrderStatus } from "@/client";
+import {
+  OrderResponse,
+  OrderStatus,
+  OrdersBeingProcessedResponse,
+} from "@/client";
 import { OrderQueryParams } from "@/types/queryTypes";
 
 export const ordersApiSlice = createApi({
   reducerPath: "orderApi",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["Order"],
+  tagTypes: ["Order", "OrderProcessing"],
   endpoints: (builder) => ({
     getOrders: builder.query<OrderResponse[], OrderQueryParams>({
       query: (params) => ({
@@ -47,6 +51,26 @@ export const ordersApiSlice = createApi({
       }),
       invalidatesTags: (_result) => [{ type: "Order", id: _result?.id }],
     }),
+    startHandlingOrder: builder.mutation<
+      OrdersBeingProcessedResponse,
+      { orderId: string }
+    >({
+      query: ({ orderId }) => ({
+        url: `/order/${orderId}/process`,
+        method: "POST",
+      }),
+      invalidatesTags: (_result) => [{ type: "Order", id: _result?.order_id }],
+    }),
+    cancelHandlingOrder: builder.mutation<
+      OrdersBeingProcessedResponse,
+      { orderId: string }
+    >({
+      query: ({ orderId }) => ({
+        url: `/order/${orderId}/cancel-processing`,
+        method: "POST",
+      }),
+      invalidatesTags: (_result) => [{ type: "Order", id: _result?.order_id }],
+    }),
   }),
 });
 
@@ -54,4 +78,6 @@ export const {
   useGetOrdersQuery,
   useUpdateOrderStatusMutation,
   useGetOrderQuery,
+  useCancelHandlingOrderMutation,
+  useStartHandlingOrderMutation,
 } = ordersApiSlice;

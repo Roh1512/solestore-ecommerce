@@ -22,6 +22,7 @@ const ProductById = lazy(() => import("@pages/ShopPages/ProductById"));
 const OrdersPage = lazy(() => import("@pages/Order/OrdersPage"));
 const CartPage = lazy(() => import("@pages/Cart/CartPage"));
 const CheckOut = lazy(() => import("@pages/Order/CheckOut"));
+const OrderDetail = lazy(() => import("@pages/Order/OrderDetail"));
 
 import UserProtectedRoute from "./components/ProtectRoutes/UserProtectedRoute";
 import RedirectIfLoggedIn from "./components/RedirectWrapper/RedirectIfLoggedIn";
@@ -57,6 +58,7 @@ const routes = createBrowserRouter(
         <Route path={`/shop/products/:productId`} element={<ProductById />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/orders" element={<OrdersPage />} />
+        <Route path="/orders/:orderId" element={<OrderDetail />} />
         <Route path="/checkout" element={<CheckOut />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
@@ -69,7 +71,7 @@ const routes = createBrowserRouter(
 function App() {
   const { theme } = useTheme();
   const { accessToken } = useCurrentAuthState();
-  const themeValue = theme === "business" ? "dark" : "light";
+  const themeValue = theme === "coffee" ? "dark" : "light";
   useEffect(() => {
     if (accessToken) {
       const cleanup = initWebSocket(store, accessToken);

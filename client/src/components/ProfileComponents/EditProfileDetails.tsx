@@ -184,7 +184,7 @@ const EditProfileDetails = (props: Props) => {
     <>
       <button
         aria-label="Edit profile"
-        className="bg-transparent border-2 border-secondary text-secondary w-fit  btn-info rounded-full p-2 hover:bg-secondary hover:text-secondary-content"
+        className="bg-transparent text-secondary w-fit  btn-primary btn-outline rounded-full p-2"
         onClick={() => {
           resetForm();
           openModal(modalId);

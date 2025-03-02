@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 // Define the possible theme values
-type Theme = "business" | "lofi";
+type Theme = "coffee" | "acid";
 
 type ThemeContextType = {
   theme: Theme;
@@ -16,9 +16,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   const [theme, setTheme] = useState<Theme>(() => {
     // Retrieve theme from localStorage or default to 'corporate'
     const savedTheme = localStorage.getItem("theme") as Theme;
-    return savedTheme === "business" || savedTheme === "lofi"
+    return savedTheme === "coffee" || savedTheme === "acid"
       ? savedTheme
-      : "lofi";
+      : "acid";
   });
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === "lofi" ? "business" : "lofi"));
+    setTheme((prevTheme) => (prevTheme === "acid" ? "coffee" : "acid"));
   };
 
   return (

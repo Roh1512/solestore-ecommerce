@@ -27,34 +27,40 @@ sio = socketio.AsyncServer(
 
 @sio.event
 async def connect(sid, environ, auth):
-    # print("ENVIRON")
-    # print(pformat(environ))
-    # print("***************************************************")
-    token = auth["token"] if auth else None
+    token = auth.get("token") if auth and isinstance(auth, dict) else None
     if not token:
         raise ConnectionRefusedError("Authentication required")
+
+    # First, try authenticating as a regular user.
+    user = None
     try:
-        # Optionally extract refresh token from cookies if sent via query or headers
         user = await get_current_user_ws(token=token)
-        if user:
-            user = user.model_dump()
-            # Store user info in session
-            await sio.save_session(sid, {"user_id": str(user["id"])})
-            print(f"User {user["username"]} connected with SID {sid}")
-            await sio.enter_room(sid, str(user["id"]))
-            return
+    except HTTPException as e:
+        # If the error indicates the user was not found, then try admin auth.
+        if e.status_code != 404:
+            raise ConnectionRefusedError(e.detail) from e
 
+    if user:
+        user = user.model_dump()
+        await sio.save_session(sid, {"user_id": str(user["id"])})
+        print(f"User {user['username']} connected with SID {sid}")
+        await sio.enter_room(sid, str(user["id"]))
+        return
+
+    # If no regular user was found, try authenticating as an admin.
+    try:
         admin = await get_current_admin_ws(token=token)
-        if admin:
-            admin = admin.model_dump()
-            # Store user info in session
-            await sio.save_session(sid, {"admin_id": str(admin["id"])})
-            print(f"Admin {admin["username"]} connected with SID {sid}")
-            return
-        raise ConnectionRefusedError("Authentication failed")
-
     except HTTPException as e:
         raise ConnectionRefusedError(e.detail) from e
+
+    if admin:
+        await sio.save_session(sid, {"admin_id": str(admin["id"])})
+        print(f"Admin {admin['username']} connected with SID {sid}")
+        await sio.enter_room(sid, "admin")
+        return
+
+    # If neither user nor admin authenticated, refuse the connection.
+    raise ConnectionRefusedError("Authentication failed")
 
 
 @sio.event

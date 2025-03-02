@@ -3,16 +3,14 @@ import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 import { useGoogleLoginMutation } from "@/features/userAuthApiSlice";
 import { useNavigate } from "react-router";
 import { useEffect } from "react";
+import { useTheme } from "@/context/ThemeContext";
 
 const GoogleLoginButton = () => {
+  const { theme } = useTheme();
   const [googleLogin, { isSuccess }] = useGoogleLoginMutation();
   const navigate = useNavigate();
   const handleSuccess = async (response: CredentialResponse) => {
-    console.log("Response: ", response);
-
     const { credential } = response; // The Google OAuth token
-
-    console.log("TOKEN: ", credential);
 
     const token = credential && credential;
 
@@ -49,7 +47,7 @@ const GoogleLoginButton = () => {
         onSuccess={handleSuccess}
         onError={handleError}
         useOneTap
-        theme="outline"
+        theme={theme === "coffee" ? "filled_black" : "filled_blue"}
         text="signin_with"
         containerProps={{
           className: "w-full m-auto",

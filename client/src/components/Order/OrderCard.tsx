@@ -14,7 +14,7 @@ const OrderCard = ({ order }: Props) => {
 
   const statusColors = {
     requested: "warning",
-    processed: "info",
+    processing: "info",
     shipped: "primary",
     delivered: "success",
     cancelled: "error",
@@ -37,7 +37,7 @@ const OrderCard = ({ order }: Props) => {
         {/* Header with Order ID and Status */}
         <div className="flex flex-col md:flex-row justify-between items-start mb-4">
           <div className="text-sm flex flex-col items-start">
-            <p className="text-sm text-secondary">Order ID</p>
+            <p className="text-sm">Order ID</p>
             <p className="text-lg font-semibold">{order.id}</p>
           </div>
         </div>
@@ -45,14 +45,14 @@ const OrderCard = ({ order }: Props) => {
         {/* Payment and Item Summary */}
         <div className="flex flex-row justify-center items-center gap-2 p-0 m-0">
           <div className="flex flex-col">
-            <p className="text-sm text-secondary">Quantity</p>
+            <p className="text-sm">Quantity</p>
             <p className="text-lg font-semibold">
               {order.order_details.total_count}
             </p>
           </div>
           <div className="divider divider-horizontal"></div>
           <div className="flex flex-col">
-            <p className="text-sm text-secondary">Order Date</p>
+            <p className="text-sm">Order Date</p>
             <p className="text-md font-semibold">{formattedDate}</p>
           </div>
         </div>
@@ -61,7 +61,7 @@ const OrderCard = ({ order }: Props) => {
 
         <div className="flex flex-wrap items-center justify-center mx-auto gap-4">
           <div className="flex gap-2 w-fit">
-            <p className="text-sm text-secondary">Payment</p>{" "}
+            <p className="text-sm">Payment</p>{" "}
             <span
               className={`badge ${
                 order.payment_verified ? `badge-success` : "badge-warning"
@@ -72,7 +72,7 @@ const OrderCard = ({ order }: Props) => {
           </div>
 
           <div className="flex flex-col mt-2">
-            <p className="text-sm text-secondary">Total Amount</p>
+            <p className="text-sm">Total Amount</p>
             <p className="flex flex-row gap-2 text-xl font-semibold items-center justify-center">
               <IndianRupee /> {order.amount.toFixed(2)}
             </p>
@@ -80,7 +80,7 @@ const OrderCard = ({ order }: Props) => {
         </div>
 
         <div className="card-actions w-full">
-          <Link to={`/order.${order.id}`} className="btn btn-info w-full">
+          <Link to={`/orders/${order.id}`} className="btn btn-info w-full">
             View Order Details
           </Link>
         </div>

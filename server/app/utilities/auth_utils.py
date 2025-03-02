@@ -95,7 +95,6 @@ async def get_current_user_ws(token: str):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Unauthorized",
-        headers={"WWW-Authenticate": "Bearer"},
     )
 
     async def invalidate_token():

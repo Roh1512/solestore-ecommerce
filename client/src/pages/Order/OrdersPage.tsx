@@ -3,7 +3,7 @@ import PageLoading from "@/components/Loading/PageLoading";
 import OrderCard from "@/components/Order/OrderCard";
 import { useGetOrdersQuery } from "@/features/orderApiSlice";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router";
 
 const OrdersPage = () => {
@@ -40,6 +40,11 @@ const OrdersPage = () => {
     page: page,
   });
 
+  // useRef to store the previous page value
+  const prevPageRef = useRef(page);
+  // Condition: show loading indicator only if we're refetching due to a page change
+  const isPageRefetching = isFetching && page !== prevPageRef.current;
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [page]);
@@ -60,7 +65,7 @@ const OrdersPage = () => {
       {/* Real-time updates component for orders; pass the current user's id or a key (e.g., "admin") */}
 
       <div className="overflow-x-auto grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 xl:grid-cols-3 flex-1 items-center justify-center mx-auto">
-        {isFetching ? (
+        {isPageRefetching ? (
           <OrdersLoading />
         ) : (
           orders &&

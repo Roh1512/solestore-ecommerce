@@ -7,10 +7,12 @@ import { categoryApi } from "@/features/categoryApiSlice";
 import { allAdminsApi } from "@/features/allAdminsApiSlice";
 import { productApi } from "@/features/productApiSlice";
 import { ordersApiSlice } from "@/features/orderApiSlice";
+import webSocketReducer from "@/features/webSocketSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    webSocket: webSocketReducer,
     [adminAuthApi.reducerPath]: adminAuthApi.reducer,
     [profileApi.reducerPath]: profileApi.reducer,
     [brandApi.reducerPath]: brandApi.reducer,

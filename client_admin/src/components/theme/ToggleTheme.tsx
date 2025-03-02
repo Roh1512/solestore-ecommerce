@@ -26,7 +26,7 @@ const ThemeToggle: React.FC = () => {
           type="checkbox"
           value={theme}
           onChange={toggleTheme}
-          checked={theme === "business"}
+          checked={theme === "coffee"}
           className="toggle theme-controller"
         />
 

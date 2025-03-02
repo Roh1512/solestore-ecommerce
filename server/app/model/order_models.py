@@ -14,7 +14,7 @@ from app.model.cart_models import CartResponse
 class OrderStatus(str, Enum):
     REQUESTED = "REQUESTED"
     SHIPPED = "SHIPPED"
-    PROCESSED = "PROCESSED"
+    PROCESSING = "PROCESSING"
     DELIVERED = "DELIVERED"
 
 
@@ -42,6 +42,42 @@ class CreateOrderResponse(BaseModel):
     status: Optional[str] = None
 
 
+class OrdersBeingProcessed(Document):
+    '''OrdersBeingProcessed document model'''
+    order_id: PydanticObjectId
+    admin_id: PydanticObjectId
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc))
+
+    class Settings:
+        name = "orders_being_processed"
+
+    @before_event(Save)
+    async def set_updated_at(self):
+        """Update the updated_at field before saving."""
+        self.updated_at = datetime.now(timezone.utc)
+
+
+class OrdersBeingProcessedResponse(BaseModel):
+    id: str
+    order_id: str
+    admin_id: str
+    created_at: datetime
+    updated_at: datetime
+
+    @classmethod
+    def from_mongo(cls, order):
+        return cls(
+            id=str(order.id),
+            order_id=str(order.order_id),
+            admin_id=str(order.admin_id),
+            created_at=order.created_at.isoformat(),
+            updated_at=order.updated_at.isoformat()
+        )
+
+
 class Order(Document):
     '''Order document model'''
     user: Link[User]
@@ -49,6 +85,7 @@ class Order(Document):
     order_details: CartResponse
     address: str
     phone: str
+    processing_admin: Optional[PydanticObjectId] = None
     razorpay_order_id: str = Field(..., json_schema_extra={"unique": True})
     razorpay_payment_id: Optional[str] = None
     amount: float
@@ -81,10 +118,9 @@ class OrderResponse(BaseModel):
     amount: float
     payment_verified: bool
     order_status: OrderStatus = Field(default=OrderStatus.REQUESTED)
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc))
+    processing_admin: Optional[str]
+    created_at: datetime
+    updated_at: datetime
 
     @classmethod
     def from_mongo(cls, order):
@@ -100,6 +136,7 @@ class OrderResponse(BaseModel):
             amount=order.amount,
             payment_verified=order.payment_verified,
             order_status=order.order_status,
+            processing_admin=str(order.processing_admin),
             created_at=order.created_at.isoformat(),
             updated_at=order.updated_at.isoformat()
         )

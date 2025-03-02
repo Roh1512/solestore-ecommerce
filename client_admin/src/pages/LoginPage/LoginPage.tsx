@@ -67,7 +67,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="w-full h-full max-w-md p-3 bg-base-300 border-2 border-black text-base-content shadow-xl rounded-lg">
+    <div className="w-full h-full max-w-md p-3 bg-base-200 text-base-content shadow-xl rounded-lg">
       <h2 className="text-2xl font-bold text-center mb-6">Admin Login</h2>
       <form onSubmit={handleLogin}>
         <div className="mb-4">
@@ -131,15 +131,6 @@ const LoginPage = () => {
         </button>
 
         {apiError ? <AlertMessage message={apiError} /> : "\u00A0"}
-
-        <div className="text-center">
-          <p className="text-lg">
-            Don't have an account?{" "}
-            <a href="/register" className="text-blue-600 hover:underline">
-              Sign up here
-            </a>
-          </p>
-        </div>
       </form>
     </div>
   );
