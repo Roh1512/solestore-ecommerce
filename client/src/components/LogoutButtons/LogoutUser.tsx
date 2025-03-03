@@ -18,7 +18,7 @@ const LogoutButton = () => {
 
   return (
     <button
-      className="btn btn-error btn-outline sm:text-sm md:text-lg  font-semibold flex items-center justify-center gap-2"
+      className="btn btn-error sm:text-sm md:text-lg  font-semibold flex items-center justify-center gap-2"
       onClick={handleLogout}
       disabled={isLoading}
     >

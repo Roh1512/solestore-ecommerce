@@ -49,7 +49,7 @@ const FilterOrders = ({ updateParams, order_status }: Props) => {
   return (
     <>
       <button
-        className="btn bg-base-300 text-base-content text-lg flex items-center gap-2"
+        className="btn btn-primary text-lg flex items-center gap-2"
         onClick={open}
         aria-label="Open filter options"
       >
@@ -99,11 +99,11 @@ const FilterOrders = ({ updateParams, order_status }: Props) => {
           </div>
 
           <div className="modal-action mt-6">
-            <button className="btn" onClick={handleApplyFilters}>
-              Apply Filters
-            </button>
-            <button className="btn btn-ghost" onClick={clearFilters}>
+            <button className="btn btn-outline" onClick={clearFilters}>
               Clear Filters
+            </button>
+            <button className="btn btn-primary" onClick={handleApplyFilters}>
+              Apply Filters
             </button>
           </div>
         </div>

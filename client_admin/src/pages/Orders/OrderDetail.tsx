@@ -9,7 +9,7 @@ import {
   useStartHandlingOrderMutation,
 } from "@/features/orderApiSlice";
 import { getApiErrorMessage, isApiError } from "@/utils/errorHandler";
-import { Check, Dot, X } from "lucide-react";
+import { AlertCircle, Check, Dot, X } from "lucide-react";
 import { useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -17,7 +17,12 @@ import { useGetProfileQuery } from "@/features/profileApiSLice";
 
 const OrderDetail = () => {
   const { orderId } = useParams();
-  const { data: order, isLoading } = useGetOrderQuery({ orderId: orderId! });
+  const {
+    data: order,
+    isLoading,
+    isError,
+    error,
+  } = useGetOrderQuery({ orderId: orderId! });
   console.log(order);
   const { data: currentAdmin } = useGetProfileQuery();
 
@@ -76,12 +81,27 @@ const OrderDetail = () => {
     return <PageLoading />;
   }
 
-  if (!order) {
-    return (
-      <div className="container mx-auto p-4">
-        <div className="alert alert-error">Order not found</div>
-      </div>
-    );
+  if (!order || (isError && error)) {
+    let errorMessage;
+    if (isApiError(error)) {
+      errorMessage = getApiErrorMessage(error) || "Error fetching order";
+      return (
+        <div className="container mx-auto p-4">
+          <div className="alert alert-error w-fit mx-auto">
+            <AlertCircle />
+            {errorMessage}
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="container mx-auto p-4">
+          <div className="alert alert-error w-fit">
+            <AlertCircle /> Order not found
+          </div>
+        </div>
+      );
+    }
   }
 
   return (

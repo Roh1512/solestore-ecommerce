@@ -7,6 +7,8 @@ import { ChartBarStacked, Info } from "lucide-react";
 import BackButton from "@/components/Buttons/BackButton";
 import { useEffect } from "react";
 import AddToCart from "@/components/Cart/AddToCart";
+import { Carousel } from "react-responsive-carousel";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 const ProductById = () => {
   const { productId } = useParams();
@@ -49,39 +51,30 @@ const ProductById = () => {
   const images =
     product.images && product.images.length > 0 ? (
       <div className="max-w-2xl mx-auto">
-        <div className="carousel w-full rounded-box">
+        <Carousel
+          showArrows={true}
+          showStatus={false}
+          showThumbs={false}
+          infiniteLoop={true}
+          useKeyboardArrows={true}
+          autoPlay={false}
+          stopOnHover={true}
+          swipeable={true}
+          dynamicHeight={false}
+          emulateTouch={true}
+          className="rounded-box"
+        >
           {product.images.map((image, index) => (
-            <div
-              id={image.public_id}
-              key={image.public_id}
-              className="carousel-item relative w-full"
-            >
+            <div key={image.public_id} className="relative">
               <img
                 src={image.url}
                 alt={`Product image ${index + 1}`}
-                className="w-full object-cover rounded-box"
+                className="max-h-96 w-full object-fill bg-base-300"
                 loading={index === 0 ? "eager" : "lazy"}
               />
             </div>
           ))}
-        </div>
-        {/* Carousel Indicators */}
-        <div className="flex justify-center gap-2 mt-2">
-          {product.images.map((image) => (
-            <button
-              key={image.public_id}
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                const el = document.getElementById(image.public_id);
-                if (el) {
-                  el.scrollIntoView({ behavior: "smooth" });
-                }
-              }}
-              className="btn btn-xs btn-circle"
-            ></button>
-          ))}
-        </div>
+        </Carousel>
       </div>
     ) : (
       <div className="max-w-2xl mx-auto p-4 text-center">

@@ -3,6 +3,7 @@ import OrdersLoading from "@/components/Loading/OrdersLoading";
 import PageLoading from "@/components/Loading/PageLoading";
 import FilterOrders from "@/components/Order/FilterOrders";
 import OrderCard from "@/components/Order/OrderCard";
+import SearchOrderById from "@/components/Order/SearchOrderById";
 import { useGetOrdersQuery } from "@/features/orderApiSlice";
 import { getApiErrorMessage, isApiError } from "@/utils/errorHandler";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -97,7 +98,7 @@ const OrdersPage = () => {
           updateParams={updateParams}
           order_status={order_status as OrderStatus}
         />
-        <button className="btn btn-neutral">Search Order By ID</button>
+        <SearchOrderById />
       </div>
 
       <div className="overflow-x-auto grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 xl:grid-cols-3 flex-1 items-center justify-center mx-auto">
