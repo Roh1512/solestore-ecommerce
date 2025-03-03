@@ -1,3 +1,5 @@
+import { OrderStatus } from "@/client";
+
 export enum SortBy {
   Title = "title",
   Date = "date",
@@ -55,4 +57,6 @@ export interface ProductQueryParams {
 
 export interface OrderQueryParams {
   page?: number;
+  order_status?: OrderStatus;
+  payment_verified?: boolean;
 }

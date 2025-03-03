@@ -9,7 +9,7 @@ import {
   useStartHandlingOrderMutation,
 } from "@/features/orderApiSlice";
 import { getApiErrorMessage, isApiError } from "@/utils/errorHandler";
-import { Dot } from "lucide-react";
+import { Check, Dot, X } from "lucide-react";
 import { useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -122,7 +122,9 @@ const OrderDetail = () => {
           <div className="space-y-2 text-start">
             <p>
               <span className="font-bold">ID:</span>{" "}
-              <span className="badge badge-info">{order.id}</span>
+              <span className="badge badge-primary badge-outline">
+                {order.id}
+              </span>
             </p>
             <p className="flex items-center gap-3">
               <span className="font-bold">Status:</span>{" "}
@@ -135,12 +137,18 @@ const OrderDetail = () => {
                 {order.order_status}
               </span>
             </p>
-            <p>
+            <p className="flex items-center gap-3">
               <span className="font-bold">Payment:</span>{" "}
               {order.payment_verified ? (
-                <span className="badge badge-success">Verified</span>
+                <span className="badge badge-success rounded-sm flex items-center justify-center gap-2">
+                  <Check />
+                  Verified
+                </span>
               ) : (
-                <span className="badge badge-warning">Pending</span>
+                <span className="badge badge-wrong rounded-sm flex items-center justify-center gap-2">
+                  <X />
+                  Pending
+                </span>
               )}
             </p>
             <p>

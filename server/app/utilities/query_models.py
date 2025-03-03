@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Optional
 
 from app.admin_app.admin_models.admin import AdminRole
+from app.model.order_models import OrderStatus
 
 
 from pydantic import BaseModel, Field, field_validator
@@ -94,3 +95,4 @@ class OrderQueryParams(BaseModel):
         ge=1,
         description="Page number"
     )
+    order_status: Optional[OrderStatus] = None

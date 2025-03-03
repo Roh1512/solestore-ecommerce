@@ -7,7 +7,7 @@ from fastapi.exceptions import HTTPException
 from app.admin_app.admin_crud_operations.order_crud import get_orders_admin, update_order_status, get_order_by_id, add_to_orders_being_processed, remove_from_orders_being_processed, is_order_being_processed
 from app.admin_app.admin_utilities.admin_auth_utils import get_current_admin
 from app.admin_app.admin_models.admin import AdminRole
-from app.model.order_models import OrderResponse, OrderStatusUpdateRequest, OrdersBeingProcessedResponse
+from app.model.order_models import OrderResponse, OrderStatusUpdateRequest
 from app.utilities.query_models import OrderQueryParams
 
 
@@ -22,7 +22,8 @@ async def get_all_orders_admin_route(
     '''Get all orders admin'''
     try:
         return await get_orders_admin(
-            page=query.page
+            page=query.page,
+            order_status=query.order_status,
         )
     except HTTPException as e:
         print("Error fetching orders: ", e)
@@ -89,7 +90,7 @@ async def update_order_status_route(
         ) from e
 
 
-@router.post("/{order_id}/process", status_code=200, response_model=OrdersBeingProcessedResponse)
+@router.post("/{order_id}/process", status_code=200, response_model=OrderResponse)
 async def process_order_route(
     admin: Annotated[dict, Depends(get_current_admin)],
     order_id: str
@@ -114,7 +115,7 @@ async def process_order_route(
         ) from e
 
 
-@router.post("/{order_id}/cancel-processing", status_code=200, response_model=OrdersBeingProcessedResponse)
+@router.post("/{order_id}/cancel-processing", status_code=200, response_model=OrderResponse)
 async def stop_process_order_route(
     admin: Annotated[dict, Depends(get_current_admin)],
     order_id: str
@@ -139,11 +140,12 @@ async def stop_process_order_route(
         ) from e
 
 
-@router.get("/{order_id}/is-processing", status_code=200, response_model=OrdersBeingProcessedResponse)
+@router.get("/{order_id}/is-processing", status_code=200, response_model=OrderResponse)
 async def is_order_processing_route(
     admin: Annotated[dict, Depends(get_current_admin)],
     order_id: str
 ):
+    '''ROute to check if the order is processing ot not'''
     try:
         return await is_order_being_processed(
             admin_id=admin["id"],

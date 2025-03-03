@@ -1,23 +1,42 @@
+import { OrderStatus } from "@/client";
 import OrdersLoading from "@/components/Loading/OrdersLoading";
 import PageLoading from "@/components/Loading/PageLoading";
+import FilterOrders from "@/components/Order/FilterOrders";
 import OrderCard from "@/components/Order/OrderCard";
 import { useGetOrdersQuery } from "@/features/orderApiSlice";
+import { getApiErrorMessage, isApiError } from "@/utils/errorHandler";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router";
+import { toast } from "react-toastify";
 
 const OrdersPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromQuery = searchParams.get("page") || "1";
   const page = parseInt(pageFromQuery) || 1;
+  const order_status = searchParams.get("order_status") || "";
 
   const updateParams = useCallback(
-    (newParams: { page?: number }) => {
-      const updatedParams = new URLSearchParams(searchParams);
-      if (newParams.page) updatedParams.set("page", String(newParams.page));
-      setSearchParams(updatedParams);
+    (newParams: {
+      page?: number;
+      order_status?: OrderStatus;
+      search_id?: string;
+    }) => {
+      // Create a fresh instance from window.location.search
+      const currentParams = new URLSearchParams(window.location.search);
+      Object.entries(newParams).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value.toString() !== "") {
+          currentParams.set(
+            key,
+            typeof value === "number" ? value.toString() : value
+          );
+        } else {
+          currentParams.delete(key);
+        }
+      });
+      setSearchParams(currentParams);
     },
-    [searchParams, setSearchParams]
+    [setSearchParams]
   );
 
   const handleNextPage = useCallback(() => {
@@ -36,8 +55,11 @@ const OrdersPage = () => {
     data: orders,
     isLoading,
     isFetching,
+    isError,
+    error,
   } = useGetOrdersQuery({
     page: page,
+    order_status: (order_status as OrderStatus) || "",
   });
 
   useEffect(() => {
@@ -49,6 +71,19 @@ const OrdersPage = () => {
   // Condition: show loading indicator only if we're refetching due to a page change
   const isPageRefetching = isFetching && page !== prevPageRef.current;
 
+  useEffect(() => {
+    if (isError && error) {
+      if (isApiError(error)) {
+        const errorMessage = getApiErrorMessage(error);
+        if (typeof errorMessage === "string") {
+          toast.error(errorMessage);
+        } else {
+          toast.error("An error occurred. Please try again later.");
+        }
+      }
+    }
+  }, [error, isError]);
+
   if (isLoading) return <PageLoading />;
 
   return (
@@ -57,6 +92,13 @@ const OrdersPage = () => {
       style={{ minHeight: "80vh" }}
     >
       <h2 className="text-xl font-semibold">Orders</h2>
+      <div className="flex items-center justify-center gap-2">
+        <FilterOrders
+          updateParams={updateParams}
+          order_status={order_status as OrderStatus}
+        />
+        <button className="btn btn-neutral">Search Order By ID</button>
+      </div>
 
       <div className="overflow-x-auto grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 xl:grid-cols-3 flex-1 items-center justify-center mx-auto">
         {isPageRefetching ? (
