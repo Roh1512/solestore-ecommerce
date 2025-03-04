@@ -19,7 +19,7 @@ const RedirectIfLoggedIn = () => {
     return <PageLoading />;
   }
 
-  if (isAuthError || (isAuthSuccess && authData?.status !== "authenticated")) {
+  if (isAuthError) {
     return (
       <ErrorBoundary>
         <Suspense fallback={<PageLoading />}>
@@ -29,11 +29,20 @@ const RedirectIfLoggedIn = () => {
     );
   }
 
-  if (isAuthSuccess && authData?.status === "authenticated") {
-    return <Navigate to="/shop" replace />;
+  if (isAuthSuccess) {
+    if (authData?.status === "authenticated") {
+      return <Navigate to="/shop" replace />;
+    }
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={<PageLoading />}>
+          <Outlet />
+        </Suspense>
+      </ErrorBoundary>
+    );
   }
 
-  return null;
+  return <PageLoading />;
 };
 
 export default RedirectIfLoggedIn;
