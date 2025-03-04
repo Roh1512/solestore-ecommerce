@@ -26,8 +26,8 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 COPY server/ .
 
 # Copy the React build from Stage 1 into the server's client/build folder
-COPY --from=build-client /app/client/build ./client/build
-COPY --from=build-client-admin /app/client_admin/build ./client_admin/build
+COPY --from=build-client client/build ./client/build
+COPY --from=build-client-admin client_admin/build ./client_admin/build
 
 # Expose the port FastAPI will run on
 EXPOSE 8000
