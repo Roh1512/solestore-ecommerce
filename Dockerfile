@@ -1,12 +1,12 @@
 # Stage 1: Build the React client
-FROM node:18 AS build-client
+FROM node:20 AS build-client
 WORKDIR /app/client
 COPY client/package*.json ./
 RUN npm install
 COPY client/ .
 RUN npm run build
 
-FROM node:18 AS build-client-admin
+FROM node:20 AS build-client-admin
 WORKDIR /app/client_admin
 COPY client_admin/package*.json ./
 RUN npm install
