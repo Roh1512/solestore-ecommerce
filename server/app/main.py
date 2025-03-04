@@ -35,7 +35,7 @@ from app.config.cloudinary_config import cloudinary  # DO NOT REMOVE
 client_build = os.path.join(os.getcwd(), 'client', 'dist') if settings.ENVIRONMENT == "production" else os.path.join(
     os.getcwd(), "..", 'client', 'dist')
 admin_build = os.path.join(
-    os.getcwd(), "..", "client_admin", "dist") if settings.ENVIRONMENT == "production" else os.path.join(
+    os.getcwd(), "client_admin", "dist") if settings.ENVIRONMENT == "production" else os.path.join(
     os.getcwd(), "..", "client_admin", "dist")
 
 
