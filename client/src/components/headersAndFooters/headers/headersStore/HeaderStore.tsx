@@ -1,9 +1,13 @@
 import { useState, useEffect, useRef, memo } from "react";
 import { NavLink } from "react-router-dom";
-import { ShoppingCartIcon, UserIcon, MenuIcon } from "lucide-react";
+import {
+  ShoppingCartIcon,
+  UserIcon,
+  MenuIcon,
+  SquareChartGantt,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import LogoLink from "../../../Logo/LogoLink";
-import ThemeToggle from "@/components/Theme/ToggleTheme";
 import { useCheckAuthState, useCurrentCartState } from "@/app/useCurrentState";
 
 // Define animation variants for the mobile menu
@@ -56,17 +60,6 @@ const HeaderStore = () => {
             >
               <li>
                 <NavLink
-                  to="/profile"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={({ isActive }) =>
-                    isActive ? "bg-base-200" : "btn-ghost"
-                  }
-                >
-                  <UserIcon className="w-5 h-5 mr-2" /> Profile
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
                   to="/orders"
                   onClick={() => setMobileMenuOpen(false)}
                   className={({ isActive }) =>
@@ -74,6 +67,17 @@ const HeaderStore = () => {
                   }
                 >
                   Orders
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    isActive ? "bg-base-200" : "btn-ghost"
+                  }
+                >
+                  <UserIcon className="w-5 h-5 mr-2" /> Profile
                 </NavLink>
               </li>
             </motion.ul>
@@ -91,20 +95,21 @@ const HeaderStore = () => {
         {/* Desktop Menu: visible on large screens */}
         <div className="hidden lg:flex gap-4 mr-4">
           <NavLink
-            to="/profile"
-            className={({ isActive }) =>
-              `btn btn-ghost ${isActive ? "bg-base-200" : ""}`
-            }
-          >
-            <UserIcon className="w-5 h-5 mr-2" /> Profile
-          </NavLink>
-          <NavLink
             to="/orders"
             className={({ isActive }) =>
               `btn btn-ghost ${isActive ? "bg-base-200" : ""}`
             }
           >
+            <SquareChartGantt className="w-5 h-5 mr-2" aria-disabled />
             Orders
+          </NavLink>
+          <NavLink
+            to="/profile"
+            className={({ isActive }) =>
+              `btn btn-ghost ${isActive ? "bg-base-200" : ""}`
+            }
+          >
+            <UserIcon aria-disabled className="w-5 h-5 mr-2" /> Profile
           </NavLink>
         </div>
 
@@ -124,7 +129,6 @@ const HeaderStore = () => {
                 </span>
               )}
             </NavLink>
-            <ThemeToggle />
           </div>
         )}
       </div>

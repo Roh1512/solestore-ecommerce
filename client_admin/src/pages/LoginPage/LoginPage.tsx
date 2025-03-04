@@ -16,8 +16,8 @@ import { toast } from "react-toastify";
 const LoginPage = () => {
   const navigate = useNavigate();
   const [loginData, setLoginData] = useState<Body_admin_admin_login>({
-    username: "mary123",
-    password: "password",
+    username: "",
+    password: "",
     grant_type: "password",
   });
 

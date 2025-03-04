@@ -3,7 +3,6 @@ import LogoLink from "@components/Logo/LogoLink";
 import { memo } from "react";
 import { NavLink } from "react-router-dom";
 import { UserIcon } from "lucide-react";
-import ThemeToggle from "../theme/ToggleTheme";
 
 const HeaderAdmin = () => {
   const { isLoggedIn, accessToken } = useCurrentAuthState();
@@ -27,7 +26,6 @@ const HeaderAdmin = () => {
               <UserIcon />
               <span className="logo-text">Profile</span>
             </NavLink>
-            <ThemeToggle />
           </>
         )}
       </div>

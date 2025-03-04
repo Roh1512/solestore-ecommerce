@@ -99,6 +99,7 @@ async def add_to_orders_being_processed(order_id: str, admin_id: str) -> OrderRe
         await order.save()
         order_response = OrderResponse.from_mongo(order)
         await sio.emit("order-updated", order_response.model_dump_json(), room="admin")
+        await sio.emit("order-updated", order_response.model_dump_json(), room=str(order.user_id))
         return order
     except HTTPException as e:
         raise HTTPException(
@@ -144,6 +145,7 @@ async def remove_from_orders_being_processed(order_id: str, admin_id: str) -> Or
         order_response = OrderResponse.from_mongo(order)
 
         await sio.emit("order-updated", order_response.model_dump_json(), room="admin")
+        await sio.emit("order-updated", order_response.model_dump_json(), room=str(order.user_id))
 
         return order_response
     except HTTPException as e:

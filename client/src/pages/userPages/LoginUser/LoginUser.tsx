@@ -17,8 +17,8 @@ import { Link } from "react-router-dom";
 
 const LoginUser = () => {
   const [loginData, setLoginData] = useState<Body_auth_login>({
-    username: "johnwick",
-    password: "password",
+    username: "",
+    password: "",
     grant_type: "password", // Required for OAuth2
   });
 
