@@ -49,7 +49,7 @@ const HeaderStore = () => {
           <MenuIcon className="w-6 h-6" />
         </button>
         <AnimatePresence>
-          {mobileMenuOpen && (
+          {mobileMenuOpen && isLoggedIn && (
             <motion.ul
               ref={mobileMenuRef}
               initial="hidden"
