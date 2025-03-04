@@ -6,6 +6,12 @@ WORKDIR /app/client
 COPY client/package*.json .
 RUN npm install
 COPY client .
+
+ARG VITE_API_GOOGLE_CLIENT_ID
+ARG VITE_RAZORPAY_KEY_ID
+ENV VITE_API_GOOGLE_CLIENT_ID=${VITE_API_GOOGLE_CLIENT_ID}\
+    VITE_RAZORPAY_KEY_ID=${VITE_RAZORPAY_KEY_ID}
+
 RUN npm run build
 
 # Build admin client

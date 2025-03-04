@@ -37,6 +37,11 @@ ENV/
 venv.bak
 .vscode/
 
+*.env
+.env.local
+.env.development
+.env.production
+
 # Pytest cache
 .pytest_cache/
 .cache/
