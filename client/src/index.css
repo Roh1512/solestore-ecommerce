@@ -45,13 +45,13 @@ body {
 }
 
 header {
-  @apply bg-base-100 text-base-content shadow-lg;
+  @apply bg-base-200 text-base-content shadow-lg fixed top-0 z-30;
 }
 main {
-  @apply flex-1;
+  @apply flex-1 mt-20;
 }
 footer {
-  @apply bg-base-100 text-base-content shadow-xl shadow-inner;
+  @apply bg-base-100 text-base-content shadow-xl;
 }
 
 .form-container-1 {

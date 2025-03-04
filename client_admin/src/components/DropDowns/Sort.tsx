@@ -21,7 +21,11 @@ type Props = {
 const Sort = memo(({ updateParams, sortBy, sortOrder }: Props) => {
   return (
     <div className="dropdown dropdown-bottom dropdown-end text-2xl">
-      <div tabIndex={0} role="button" className="btn btn-primary m-1">
+      <div
+        tabIndex={0}
+        role="button"
+        className="btn bg-base-300 text-base-content m-1"
+      >
         <ArrowUpDown className="w-5 h-5" />
         <span className="logo-text">Sort By</span>
       </div>

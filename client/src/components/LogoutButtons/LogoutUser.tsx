@@ -9,7 +9,7 @@ const LogoutButton = () => {
   const handleLogout = useCallback(async () => {
     try {
       await logoutMutation().unwrap(); // Execute logout mutation
-      window.location.reload();
+      // window.location.reload();
     } catch (err) {
       console.error("Logout error:", err);
       toast.error("Error logging out");

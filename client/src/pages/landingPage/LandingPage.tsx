@@ -1,8 +1,23 @@
 import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 import FooterStore from "../../components/headersAndFooters/footersStore/FooterStore";
 import LogoLink from "@/components/Logo/LogoLink";
 import ThemeToggle from "@/components/Theme/ToggleTheme";
+
+const heroVariants = {
+  hidden: { opacity: 0, y: -20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.3 },
+  },
+};
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -10,33 +25,38 @@ const LandingPage = () => {
   const categories = [
     {
       name: "Running Shoes",
-      image: "/HomePageImages/runningShoes.jpg",
+      image:
+        "https://res.cloudinary.com/rohithashok/image/upload/c_thumb,w_200,g_face/v1741077945/solestore_ecommerce_app/static_files/pexels-jeshoots-com-147458-7432_pzyvvk.jpg",
       description:
         "Boost your performance with lightweight, durable shoes designed for running.",
       link: "/category/running-shoes",
     },
     {
       name: "Casual Shoes",
-      image: "/HomePageImages/casualShoes.jpg",
+      image:
+        "https://res.cloudinary.com/rohithashok/image/upload/c_thumb,w_200,g_face/v1741077949/solestore_ecommerce_app/static_files/pexels-mnzoutfits-1598508_xlus0z.jpg",
       description: "Comfortable and stylish shoes perfect for everyday wear.",
       link: "/category/casual-shoes",
     },
     {
       name: "Formal Shoes",
-      image: "/HomePageImages/formalShoes.jpg",
+      image:
+        "https://res.cloudinary.com/rohithashok/image/upload/c_thumb,w_200,g_face/v1741077947/solestore_ecommerce_app/static_files/pexels-solliefoto-298864_ewvbnq.jpg",
       description:
         "Step into sophistication with our premium selection of formal shoes.",
       link: "/category/formal-shoes",
     },
     {
       name: "Boots",
-      image: "/HomePageImages/boots.jpg",
+      image:
+        "https://res.cloudinary.com/rohithashok/image/upload/c_thumb,w_200,g_face/v1741075264/solestore_ecommerce_app/static_files/pexels-clemlep-29090887_uqshpo.jpg",
       description: "Durable and stylish boots for all seasons and terrains.",
       link: "/category/boots",
     },
     {
       name: "Sneakers",
-      image: "/HomePageImages/sneakers.jpg",
+      image:
+        "https://res.cloudinary.com/rohithashok/image/upload/c_thumb,w_200,g_face/v1741077335/solestore_ecommerce_app/static_files/pexels-avneet-kaur-669191817-19294576_c0hcoe.jpg",
       description:
         "Comfortable, stylish, and functional sneakers to stand out.",
       link: "/category/sneakers",
@@ -46,15 +66,14 @@ const LandingPage = () => {
   return (
     <>
       {/* Header */}
-      <header className="navbar">
+      <header className="navbar bg-base-100 shadow-md px-4">
         <div className="flex-1">
           <LogoLink to="/" />
         </div>
-        {/* Shop Now Button */}
         <div className="flex-none gap-2">
           <button
             onClick={() => navigate("/login")}
-            className="btn btn-secondary font-bold text-base"
+            className="btn btn-primary font-bold text-base"
           >
             Shop Now
           </button>
@@ -62,9 +81,19 @@ const LandingPage = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <div className="hero bg-gradient-to-r from-primary to-secondary text-primary-content py-16">
-        <div className="hero-content text-center">
+      {/* Hero Section with Fixed Background Image */}
+      <motion.main
+        className="hero bg-fixed bg-cover bg-center text-primary-content py-16"
+        style={{
+          backgroundImage:
+            "url('https://res.cloudinary.com/rohithashok/image/upload/c_fill,w_1920,h_1080,q_auto,f_auto/v1741077335/solestore_ecommerce_app/static_files/pexels-avneet-kaur-669191817-19294576_c0hcoe.jpg')",
+        }}
+        initial="hidden"
+        animate="visible"
+        variants={heroVariants}
+      >
+        <div className="hero-overlay bg-opacity-25"></div>
+        <div className="hero-content text-center text-slate-300">
           <div>
             <h1 className="text-5xl font-bold">
               Step into Style, Comfort, and Savings!
@@ -81,37 +110,53 @@ const LandingPage = () => {
             </button>
           </div>
         </div>
-      </div>
+      </motion.main>
 
       {/* CTA Section */}
-      <section className="text-center py-16">
-        <h2 className="text-4xl font-bold">Ready to Find Your Perfect Pair?</h2>
-        <p className="py-4">
-          Join us today and start exploring our latest collection.
-        </p>
-        <Link to="/sign-up" className="btn btn-primary">
-          Join Now
-        </Link>
+      <section className="text-center py-16 bg-base-200">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1, transition: { duration: 0.5 } }}
+        >
+          <h2 className="text-4xl font-bold">
+            Ready to Find Your Perfect Pair?
+          </h2>
+          <p className="py-4">
+            Join us today and start exploring our latest collection.
+          </p>
+          <Link to="/sign-up" className="btn btn-primary">
+            Join Now
+          </Link>
+        </motion.div>
       </section>
 
       {/* Categories Section */}
       <section className="container mx-auto py-16">
-        <h2 className="text-3xl font-bold text-center">
-          Explore Our Shoe Categories
-        </h2>
-        <p className="text-center py-4">
-          From running shoes to formal wear, find the perfect pair for any
-          occasion.
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="text-center"
+        >
+          <h2 className="text-3xl font-bold">Explore Our Shoe Categories</h2>
+          <p className="text-center py-4">
+            From running shoes to formal wear, find the perfect pair for any
+            occasion.
+          </p>
+        </motion.div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
           {categories.map((category, index) => (
-            <div
+            <motion.div
               key={index}
               className="card bg-base-100 shadow-xl hover:scale-105 transition-transform duration-200"
+              variants={cardVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
             >
               <figure>
                 <img
-                  src={category.image}
+                  src={category.image || "/placeholder_image.jpg"}
                   alt={category.name}
                   className="w-full h-48 object-cover"
                 />
@@ -120,18 +165,13 @@ const LandingPage = () => {
                 <h3 className="card-title">{category.name}</h3>
                 <p>{category.description}</p>
                 <div className="card-actions justify-end">
-                  <Link to={category.link} className="btn btn-secondary">
+                  <Link to={category.link} className="btn btn-primary">
                     Explore
                   </Link>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
-        <div className="text-center mt-8">
-          <Link to="/shop/categories" className="btn btn-outline">
-            All Categories
-          </Link>
         </div>
       </section>
 

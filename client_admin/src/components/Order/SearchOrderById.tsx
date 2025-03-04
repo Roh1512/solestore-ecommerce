@@ -44,7 +44,7 @@ const SearchOrderById = () => {
   return (
     <>
       <button
-        className="btn btn-primary text-lg flex items-center gap-2"
+        className="btn bg-base-300 text-base-content text-lg flex items-center gap-2"
         onClick={open}
         aria-label="Open filter options"
       >
@@ -75,13 +75,13 @@ const SearchOrderById = () => {
             <fieldset className="flex w-full gap-1">
               <input
                 type="text"
-                className="input input-bordered input-primary w-full"
+                className="input input-bordered w-full"
                 placeholder="Enter order Id"
                 value={orderId}
                 onChange={handleInput}
               />
               <button
-                className="btn btn-primary"
+                className="btn btn-neutral"
                 aria-label="Search Order button"
               >
                 <Search aria-hidden />

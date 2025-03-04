@@ -53,14 +53,13 @@ const CheckOut = () => {
           {cartData?.items.map((item) => (
             <div key={item.id} className="border rounded-lg p-3 mb-3">
               <h3 className="text-xl font-semibold">{item.title}</h3>
-              <p className="text-sm text-gray-600">Size: {item.size}</p>
-              <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+              <p className="text-sm">Size: {item.size}</p>
+              <p className="text-sm">Quantity: {item.quantity}</p>
             </div>
           ))}
           <div className="flex justify-between items-center mt-4">
             <p className="text-lg font-medium">
-              Total Price:{" "}
-              <span className="text-primary">{cartData?.total_price}</span>
+              Total Price: <span className="">{cartData?.total_price}</span>
             </p>
             <p className="text-lg font-medium">{cartData?.total_count} Items</p>
           </div>
@@ -106,7 +105,11 @@ const CheckOut = () => {
             </div>
           </fieldset>
           <div className="card-actions justify-end mt-4">
-            <button onClick={toggleConfirm} className="btn btn-outline">
+            <button
+              onClick={toggleConfirm}
+              className="btn btn-outline"
+              disabled={cartData && cartData?.total_count <= 0}
+            >
               {confirmDetails
                 ? "Edit Delivery Details"
                 : "Confirm Delivery Details"}
@@ -116,7 +119,7 @@ const CheckOut = () => {
       </div>
 
       {/* Checkout Button */}
-      {confirmDetails ? (
+      {confirmDetails && cartData && cartData?.total_count > 0 ? (
         <div className="flex justify-center">
           <CheckoutButton orderDetails={orderDetails} />
         </div>

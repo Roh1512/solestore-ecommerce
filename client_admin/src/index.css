@@ -11,6 +11,7 @@
 [data-theme="lofi"] .btn-primary:disabled {
   background-color: rgb(104, 104, 104);
   color: white;
+  color: #ffbf00;
 }
 
 .btn:active {

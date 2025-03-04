@@ -1,79 +1,131 @@
-import {
-  useCurrentAuthState,
-  useCurrentCartState,
-} from "@/app/useCurrentState";
-import LogoLink from "../../../Logo/LogoLink";
+import { useState, useEffect, useRef, memo } from "react";
 import { NavLink } from "react-router-dom";
-import { memo } from "react";
-import { ShoppingCartIcon, UserIcon } from "lucide-react";
+import { ShoppingCartIcon, UserIcon, MenuIcon } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import LogoLink from "../../../Logo/LogoLink";
+import ThemeToggle from "@/components/Theme/ToggleTheme";
+import { useCheckAuthState, useCurrentCartState } from "@/app/useCurrentState";
+
+// Define animation variants for the mobile menu
+const mobileMenuVariants = {
+  hidden: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.2 } },
+};
 
 const HeaderStore = () => {
-  const { isLoggedIn, accessToken } = useCurrentAuthState();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLUListElement>(null);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        mobileMenuOpen &&
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node)
+      ) {
+        setMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [mobileMenuOpen]);
+
+  const { isLoggedIn } = useCheckAuthState();
   const { totalCount } = useCurrentCartState();
+
   return (
-    <header className="navbar">
-      <div className="navbar-start">
-        <div className="dropdown">
-          <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+    <header className="navbar bg-base-100 text-base-content shadow-md ">
+      {/* Mobile Menu Toggle: visible on small screens */}
+      <div className="lg:hidden relative mr-4">
+        <button
+          onClick={() => setMobileMenuOpen((prev) => !prev)}
+          className="btn btn-ghost btn-circle"
+        >
+          <MenuIcon className="w-6 h-6" />
+        </button>
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.ul
+              ref={mobileMenuRef}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              variants={mobileMenuVariants}
+              className="menu menu-compact absolute left-0 top-full mt-2 p-2 shadow-lg bg-base-100 rounded-b-box w-52 z-10 border border-t-transparent border-base-300"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h16M4 18h7"
-              />
-            </svg>
-          </div>
-          <ul
-            tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-          >
-            <li>
-              <NavLink
-                to="/profile"
-                className={({ isActive }) =>
-                  `btn p-2 ${isActive ? "bg-base-200" : "btn-ghost"}`
-                }
-              >
-                <UserIcon className="icon" /> <span>Profile</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/orders"
-                className={({ isActive }) =>
-                  `btn p-2 ${isActive ? "bg-base-200" : "btn-ghost"}`
-                }
-              >
-                <span>Orders</span>
-              </NavLink>
-            </li>
-          </ul>
-        </div>
+              <li>
+                <NavLink
+                  to="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    isActive ? "bg-base-200" : "btn-ghost"
+                  }
+                >
+                  <UserIcon className="w-5 h-5 mr-2" /> Profile
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/orders"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    isActive ? "bg-base-200" : "btn-ghost"
+                  }
+                >
+                  Orders
+                </NavLink>
+              </li>
+            </motion.ul>
+          )}
+        </AnimatePresence>
       </div>
-      <div className="navbar-center">
+
+      {/* Navbar Start: Logo */}
+      <div className="navbar-start">
         <LogoLink to="/" />
       </div>
-      {/* Shop Now Button */}
-      <div className="navbar-end gap-2">
-        {isLoggedIn && accessToken && (
-          <>
+
+      {/* Navbar End: All menu icons on the right */}
+      <div className="navbar-end flex items-center">
+        {/* Desktop Menu: visible on large screens */}
+        <div className="hidden lg:flex gap-4 mr-4">
+          <NavLink
+            to="/profile"
+            className={({ isActive }) =>
+              `btn btn-ghost ${isActive ? "bg-base-200" : ""}`
+            }
+          >
+            <UserIcon className="w-5 h-5 mr-2" /> Profile
+          </NavLink>
+          <NavLink
+            to="/orders"
+            className={({ isActive }) =>
+              `btn btn-ghost ${isActive ? "bg-base-200" : ""}`
+            }
+          >
+            Orders
+          </NavLink>
+        </div>
+
+        {/* Cart and Theme Toggle */}
+        {isLoggedIn && (
+          <div className="flex items-center gap-2">
             <NavLink
               to="/cart"
               className={({ isActive }) =>
-                `btn p-2 ${isActive ? "bg-base-200" : "btn-ghost"}`
+                `btn btn-ghost relative ${isActive ? "bg-base-200" : ""}`
               }
             >
-              <ShoppingCartIcon />
-              {totalCount && totalCount > 0 ? totalCount : null}
+              <ShoppingCartIcon className="w-6 h-6" />
+              {totalCount! > 0 && (
+                <span className="badge badge-sm badge-secondary absolute top-0 right-0">
+                  {totalCount}
+                </span>
+              )}
             </NavLink>
-          </>
+            <ThemeToggle />
+          </div>
         )}
       </div>
     </header>

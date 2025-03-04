@@ -71,7 +71,7 @@ const CartPage = () => {
       className="p-2 bg-transparent flex flex-col items-center justify-between gap-4"
       style={{ minHeight: "80vh" }}
     >
-      <div className="flex items-center justify-center flex-wrap">
+      <div className="flex gap-2 items-center justify-center flex-wrap">
         <label className="input input-bordered flex items-center gap-2">
           <input
             type="text"
@@ -83,6 +83,15 @@ const CartPage = () => {
           />
           <Search className="w-6 h-6" />
         </label>
+        {cartResponse && cartResponse?.total_count > 0 ? (
+          <Link to={"/checkout"} className="btn btn-primary">
+            Check Out
+          </Link>
+        ) : (
+          <Link className="btn btn-primary" to="/shop">
+            View Products
+          </Link>
+        )}
       </div>
       <div>
         <p>Total Price: {cartResponse?.total_price}</p>
@@ -93,10 +102,6 @@ const CartPage = () => {
           <CartItemCard key={item.id} item={item} />
         ))}
       </div>
-
-      <Link to={"/checkout"} className="btn btn-secondary">
-        Check Out
-      </Link>
 
       {/* Pagination Controls */}
       <div className="flex justify-center mt-8 space-x-4">

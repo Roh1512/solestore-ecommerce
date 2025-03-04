@@ -30,13 +30,11 @@ const Products = () => {
   const brand = searchParams.get("brand") || undefined;
   const category = searchParams.get("category") || undefined;
 
-  const searchTerm = searchParams.get("search");
-
-  const [searchQuery, setSearchQuery] = useState<string>(searchTerm || "");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
 
   const updateParams = useCallback(
     (newParams: {
-      search?: string;
       page?: string;
       sortBy?: string;
       sortOrder?: string;
@@ -66,20 +64,21 @@ const Products = () => {
       if (newParams.size) updatedParams.set("size", String(newParams.size));
       if (newParams.brand) updatedParams.set("brand", newParams.brand);
       if (newParams.category) updatedParams.set("category", newParams.category);
-      if (newParams.search) updatedParams.set("search", newParams.search);
       setSearchParams(updatedParams);
     },
     [searchParams, setSearchParams]
   );
 
   useEffect(() => {
+    if (searchQuery === "") {
+      setDebouncedSearch("");
+      return;
+    }
     const handler = setTimeout(() => {
-      const updatedParams = new URLSearchParams(searchParams);
-      updatedParams.set("search", searchQuery);
-      setSearchParams(updatedParams);
-    });
+      setDebouncedSearch(searchQuery);
+    }, 500);
     return () => clearTimeout(handler);
-  }, [searchParams, searchQuery, setSearchParams]);
+  }, [searchQuery]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -90,7 +89,7 @@ const Products = () => {
     isLoading,
     isFetching,
   } = useGetProductsQuery({
-    search: searchTerm || "",
+    search: debouncedSearch || "",
     page: page,
     sort_by: sortBy,
     sort_order: sortOrder,
