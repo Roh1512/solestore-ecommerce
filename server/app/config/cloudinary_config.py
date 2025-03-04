@@ -4,16 +4,6 @@ from app.config.env_settings import get_settings
 
 settings = get_settings()
 
-print(
-    "APIKEY", settings.CLOUDINARY_API_KEY
-)
-print(
-    "APISEC", settings.CLOUDINARY_API_SECRET
-)
-print(
-    "CLOUD NAME", settings.CLOUDINARY_CLOUD_NAME
-)
-
 # Configuration
 cloudinary.config(
     cloud_name=settings.CLOUDINARY_CLOUD_NAME,

@@ -26,6 +26,7 @@ from app.routes.product_routes import router as product_router
 from app.routes.cart_routes import router as cart_router
 from app.routes.order_routes import router as order_router
 from app.config.socket_manager import sio
+from app.config.origins import origins
 
 
 from starlette.middleware.sessions import SessionMiddleware
@@ -63,13 +64,6 @@ def custom_generate_unique_id(route: APIRoute):
 app = FastAPI(lifespan=lifespan,
               generate_unique_id_function=custom_generate_unique_id, redirect_slashes=True)
 
-
-origins = [
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000"
-]
 
 socket_app = socketio.ASGIApp(
     sio,

@@ -4,15 +4,9 @@ from pprint import pformat
 import socketio
 from app.utilities.auth_utils import get_current_user_ws
 from app.admin_app.admin_utilities.admin_auth_utils import get_current_admin_ws
+from app.config.origins import origins
 
 from fastapi.exceptions import HTTPException
-
-origins = [
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000"
-]
 
 
 sio = socketio.AsyncServer(
