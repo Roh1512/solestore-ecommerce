@@ -29,8 +29,8 @@ RUN pip install --upgrade pip && \
 COPY server/ .
 
 # Copy built assets from client-builder
-COPY --from=client-builder /app/client/build ./client/build
-COPY --from=client-builder /app/client_admin/build ./client_admin/build
+COPY --from=client-builder /app/client/dist ./client/dist
+COPY --from=client-builder /app/client_admin/dist ./client_admin/dist
 
 # Expose the port FastAPI will run on
 EXPOSE 8000
