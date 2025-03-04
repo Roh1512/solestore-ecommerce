@@ -19,6 +19,10 @@ RUN npm run build
 FROM python:3.10-slim
 WORKDIR /app
 
+# Create and activate virtual environment
+RUN python -m venv /app/venv
+ENV PATH="/app/venv/bin:$PATH"
+
 # Install server dependencies
 COPY server/requirements.txt .
 RUN pip install --upgrade pip && \

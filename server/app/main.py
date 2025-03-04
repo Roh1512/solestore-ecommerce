@@ -32,13 +32,16 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.config.cloudinary_config import cloudinary  # DO NOT REMOVE
 
-# Path to the React build folder
-client_build_dir = os.path.join(os.getcwd(), "..", 'client', 'dist')
-client_admin_build_dir = os.path.join(
+client_build = os.path.join(os.getcwd(), 'client', 'dist') if settings.ENVIRONMENT == "production" else os.path.join(
+    os.getcwd(), "..", 'client', 'dist')
+admin_build = os.path.join(
+    os.getcwd(), "..", "client_admin", "dist") if settings.ENVIRONMENT == "production" else os.path.join(
     os.getcwd(), "..", "client_admin", "dist")
 
-print("Client Build Dir: ", client_build_dir)
-print("Client Admin Build Dir: ", client_admin_build_dir)
+
+# Path to the React build folder
+client_build_dir = client_build
+client_admin_build_dir = admin_build
 
 
 @asynccontextmanager
