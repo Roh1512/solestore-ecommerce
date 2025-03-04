@@ -3,7 +3,6 @@ import React, { useCallback, useState } from "react";
 import { useLoginMutation } from "@/features/userAuthApiSlice";
 
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router";
 import { ValidationErrorDisplay } from "@/types/errorTypes";
 import {
   getApiErrorMessage,
@@ -28,8 +27,6 @@ const LoginUser = () => {
   const [apiError, setApiError] = useState<string | null>(null);
 
   const [login, { isLoading }] = useLoginMutation();
-  const navigate = useNavigate();
-
   const handleLogin = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -38,7 +35,6 @@ const LoginUser = () => {
       try {
         const response = await login(loginData).unwrap();
         console.log("Login successful:", response);
-        navigate("/login");
       } catch (error) {
         console.error("Login error:", error);
         if (isFieldValidationError(error)) {
@@ -55,7 +51,7 @@ const LoginUser = () => {
         }
       }
     },
-    [login, loginData, navigate]
+    [login, loginData]
   );
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
