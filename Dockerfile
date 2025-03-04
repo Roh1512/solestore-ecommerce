@@ -33,4 +33,4 @@ COPY --from=build-client-admin client_admin/build ./client_admin/build
 EXPOSE 8000
 
 # Start the FastAPI server using uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
