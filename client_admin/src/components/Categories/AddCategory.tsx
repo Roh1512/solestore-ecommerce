@@ -76,8 +76,8 @@ const AddCategory = () => {
       }
 
       try {
-        const response = await createCategory(categoryDetails).unwrap();
-        console.log("Category add response: ", response);
+        await createCategory(categoryDetails).unwrap();
+
         resetForm();
       } catch (error) {
         console.error("Error adding category: ", error);

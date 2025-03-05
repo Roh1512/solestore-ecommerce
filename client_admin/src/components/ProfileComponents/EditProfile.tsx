@@ -141,11 +141,10 @@ const EditProfile = (props: Props) => {
 
       try {
         const profileDetails = adminDetails;
-        const response = await updateProfile({
+        await updateProfile({
           profileDetails,
           currentPassword,
         }).unwrap();
-        console.log(response);
         toast.success("Profile updated");
         const modal = document.getElementById(
           "my_modal_2"
@@ -172,7 +171,6 @@ const EditProfile = (props: Props) => {
         errors.forEach(({ field, message }) => {
           newErrors[field] = message;
         });
-        console.log(newErrors);
 
         setZodErrors((prev) => ({ ...prev, ...newErrors }));
       }

@@ -33,7 +33,6 @@ async def create_new_admin(admin: AdminCreateRequest, logged_in_admin: Annotated
                Admin.email == admin.email)
         )
         if existing_admin:
-            print("Admin already exists")
             raise HTTPException(status_code=400, detail="Admin already exists")
         admin_data_dict = admin.model_dump()
         created_admin = await create_admin(admin_data_dict)
@@ -55,7 +54,6 @@ async def create_new_admin(admin: AdminCreateRequest, logged_in_admin: Annotated
 @router.post("/login", response_model=Token, status_code=200)
 async def admin_login(admin_credentials: Annotated[OAuth2PasswordRequestForm, Depends()], response: Response):
     try:
-        print("Login attempt for admin username:", admin_credentials.username)
 
         raw_admin = await Admin.find_one(
             Or(Admin.username == admin_credentials.username,
@@ -195,7 +193,7 @@ async def admin_refresh_token_route(request: Request, response: Response):
         admin_refresh_token = request.cookies.get(
             settings.ADMIN_REFRESH_COOKIE_NAME)
         if not admin_refresh_token:
-            print("NO REFRESH COOKIE")
+            # print("NO REFRESH COOKIE")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Unauthorized",
@@ -208,14 +206,12 @@ async def admin_refresh_token_route(request: Request, response: Response):
         )
         admin_id: str = payload.get("sub")
         if not admin_id:
-            print("NOT ADMIN ID")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Unauthorized",
                 headers={"WWW-Authenticate": "Bearer"}
             )
         if not await admin_refresh_token_is_saved(str(admin_id), refresh_token=admin_refresh_token):
-            print("REFRESH TOKEN NOT SAVED")
             response.delete_cookie(
                 settings.ADMIN_REFRESH_COOKIE_NAME
             )
@@ -227,7 +223,6 @@ async def admin_refresh_token_route(request: Request, response: Response):
         admin = await get_admin_details(admin_id)
 
         if not admin:
-            print("ADMIN NOT FOUND")
             response.delete_cookie(
                 settings.ADMIN_REFRESH_COOKIE_NAME
             )

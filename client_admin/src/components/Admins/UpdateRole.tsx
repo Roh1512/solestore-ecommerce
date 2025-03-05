@@ -75,11 +75,10 @@ const UpdateRole = memo(({ admin }: Props) => {
       } else {
         setZodErrors({});
         try {
-          const response = await updateRole({
+          await updateRole({
             adminId: admin._id,
             body: newRole,
           }).unwrap();
-          console.log("Admin role updated: ", response);
           toast.success("Admin role updated");
         } catch (error) {
           console.error("Error updating role: ", error);
@@ -107,7 +106,6 @@ const UpdateRole = memo(({ admin }: Props) => {
     }
   }, [error, isError]);
 
-  console.log("ROLE SELECTED: ", newRole);
   return (
     <>
       <button

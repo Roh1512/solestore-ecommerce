@@ -32,9 +32,7 @@ async def create_brand(brand_data: BrandCreateRequest):
         ) from e
     except DuplicateKeyError as e:
         if "title" in str(e):
-            print("Brand already exists")
             raise ValueError("Brand already exists") from e
-        print("A duplicate key error occurred")
         raise ValueError("A duplicate key error occurred") from e
 
 
@@ -91,8 +89,6 @@ async def delete_brand(brand_id: str):
 
     try:
         result: DeleteResult = await Brand.find_one(Brand.id == PydanticObjectId(brand_id)).delete()
-        print("Deleted: ", result)
-        print("Deleted Count: ", result.deleted_count)
         if not result.deleted_count or result.deleted_count <= 0:
             raise HTTPException(status_code=404, detail="Brand not found")
 

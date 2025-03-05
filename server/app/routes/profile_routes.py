@@ -87,7 +87,6 @@ async def update_profile_image_route(
     user: Annotated[dict, Depends(get_current_user)],
     file: UploadFile
 ):
-    print(file)
     if file.content_type not in ["image/jpeg", "image/png", "image/jpg"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

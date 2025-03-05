@@ -85,20 +85,17 @@ const RegisterUser = () => {
         });
 
         setErrors(fieldErrors);
-        console.log(userDetails);
       } else {
         setErrors({});
-        console.log("Validated User Details:", validationResult.data);
 
         // Proceed with your registration logic
         // For example: send `validationResult.data` to the backend
         try {
-          const response = await register(normalizedUserDetails).unwrap();
-          console.log("Registration successful: ", response);
+          await register(normalizedUserDetails).unwrap();
           toast.success("User registered successfully. Continue to login.");
           navigate("/login");
         } catch (error) {
-          console.log("Register Error: ", error);
+          console.error("Register Error: ", error);
         }
       }
     },

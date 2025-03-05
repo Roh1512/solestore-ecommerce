@@ -129,11 +129,10 @@ const UpdateContanctInfo = (props: Props) => {
       }
 
       try {
-        const response = await updateContactInfo({
+        await updateContactInfo({
           contactInfo,
           currentPassword,
         }).unwrap();
-        console.log(response);
         toast.success("Contact info updated");
         resetForm();
         closeModal(modalId);
@@ -159,7 +158,6 @@ const UpdateContanctInfo = (props: Props) => {
         errors.forEach(({ field, message }) => {
           newErrors[field] = message;
         });
-        console.log(newErrors);
 
         setZodErrors((prev) => ({ ...prev, ...newErrors }));
       }

@@ -82,11 +82,10 @@ const EditBrand = (props: Props) => {
       }
 
       try {
-        const response = await editBrand({
+        await editBrand({
           brandId: props.brand.id,
           data: brandDetails,
         }).unwrap();
-        console.log("Brand edit response: ", response);
         closeModal(modalId);
         resetForm();
       } catch (error) {

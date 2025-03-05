@@ -23,7 +23,6 @@ const OrderDetail = () => {
     isError,
     error,
   } = useGetOrderQuery({ orderId: orderId! });
-  console.log(order);
   const { data: currentAdmin } = useGetProfileQuery();
 
   const [startProcessing, { isLoading: startProcessingLoading }] =

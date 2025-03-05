@@ -82,12 +82,11 @@ const AddToCart = ({ product }: Props) => {
       return;
     }
     try {
-      const res = await addToCart({
+      await addToCart({
         product_id: product.id,
         quantity: quantity!,
         size: size!,
       }).unwrap();
-      console.log(res);
       toast.success(`${product.title} added to cart`);
       close();
     } catch (error) {

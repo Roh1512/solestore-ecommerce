@@ -77,8 +77,7 @@ const AddBrand = () => {
       }
 
       try {
-        const response = await createBrand(brandDetails).unwrap;
-        console.log("Brand add response: ", response);
+        await createBrand(brandDetails).unwrap();
         resetForm();
       } catch (error) {
         console.error("Error adding brand: ", error);

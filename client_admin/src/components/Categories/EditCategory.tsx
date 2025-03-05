@@ -83,13 +83,12 @@ const EditCategory = (props: Props) => {
       }
 
       try {
-        const response = await editCategory({
+        await editCategory({
           categoryId: props.category.id,
           data: categoryDetails,
         }).unwrap();
         closeModal(modalId);
         resetForm();
-        console.log("Category edit response: ", response);
       } catch (error) {
         console.error("Error editing category: ", error);
       }

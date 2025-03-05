@@ -34,10 +34,8 @@ async def create_admin(admin_data: dict):
 
     except DuplicateKeyError as e:
         if "username" in str(e):
-            print("Username already exists")
             raise ValueError("Username already exists") from e
         elif "email" in str(e):
-            print("Email already exists")
             raise ValueError("Email already exists") from e
         else:
             print("A duplicate key error occurred")
@@ -126,7 +124,6 @@ async def add_admin_refresh_token(admin_id: str, refresh_token: str):
         )
 
     if refresh_token in admin.refresh_tokens:
-        print("Refresh token already exists")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Unauthorized"
@@ -155,7 +152,6 @@ async def remove_admin_refresh_token(admin_id: str, refresh_token: str):
     if refresh_token in admin.refresh_tokens:
         admin.refresh_tokens.remove(refresh_token)
         await admin.save()
-        print("Refresh token found removed successfully")
     return {"message": "Refresh token removed successfully"}
 
 
@@ -269,23 +265,18 @@ async def update_admin_details(admin_id, details: AdminCreateRequest, current_pa
         # This gets the string representation of the error
         error_message = str(e)
 
-        print("Duplicte error: ", error_message)
-
         if "username" in error_message:
-            print("Username already exists")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Username already exists"
             ) from e
 
         if "email" in error_message:
-            print("Email already exists")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Email already exists"
             ) from e
 
-        print("A duplicate key error occurred")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="A duplicate key error occurred"
@@ -320,7 +311,6 @@ async def update_admin_role(admin_id: str, new_role: AdminRole):
         return updated_admin_dict
 
     except ValidationError as e:
-        print(e)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=e["detail"]
@@ -345,7 +335,6 @@ async def delete_admin(admin_id: str):
         result: DeleteResult = await Admin.find_one(
             Admin.id == PydanticObjectId(admin_id)
         ).delete()
-        print("Deleted Count: ", result.deleted_count)
 
         if not result.deleted_count or result.deleted_count <= 0:
             raise HTTPException(

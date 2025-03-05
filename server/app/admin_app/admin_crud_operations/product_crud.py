@@ -66,8 +66,6 @@ async def add_product(product_data: ProductCreateRequest):
         # Ensure all linked fields are populated
         await inserted_product.fetch_all_links()
 
-        print(pformat(inserted_product))
-
         return ProductResponse.from_mongo(inserted_product)
     except ValidationError as e:
         raise HTTPException(status_code=400, detail=e.errors()) from e
@@ -118,25 +116,14 @@ async def delete_images_product(product_id: str, public_ids: list[str]):
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
 
-        print(f"Deleting images with public_ids: {public_ids}")
-
         # Delete images from Cloudinary concurrently
         deletion_tasks = [delete_image_from_cloudinary(
             public_id) for public_id in public_ids]
         deletion_results = await gather(*deletion_tasks, return_exceptions=True)
-        for result in deletion_results:
-            if isinstance(result, Exception):
-                print("Deletion task error:", result)
-            else:
-                print("Deletion task success:", result)
 
         # Update product's images list by filtering out images with matching public_ids
-        original_count = len(product.images)
         product.images = [
             img for img in product.images if img.public_id not in public_ids]
-        updated_count = len(product.images)
-        print(
-            f"Images before deletion: {original_count}, after deletion: {updated_count}")
 
         await product.save()
         await product.fetch_all_links()

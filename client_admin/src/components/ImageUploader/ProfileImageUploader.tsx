@@ -58,11 +58,7 @@ const ProfileImageUploader = () => {
     formData.append("file", image);
 
     try {
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
-      const response = await updateProfileImage(formData).unwrap();
-      console.log("Updated image: ", response);
+      await updateProfileImage(formData).unwrap();
       removeImage();
       setApiError(null);
       const modal = document.getElementById(

@@ -34,7 +34,7 @@ const CheckoutButton = ({
       }).unwrap();
       const { id: order_id, amount: orderAmount, currency } = orderData;
 
-      console.log("OrderData: ", orderData);
+      //console.log("OrderData: ", orderData);
 
       // Step 2: Configure options for Razorpay Checkout.
       const options = {
@@ -46,7 +46,7 @@ const CheckoutButton = ({
         order_id: order_id,
         handler: async (response: any) => {
           // Handle the payment success response from Razorpay
-          console.log("Payment Successful", response);
+          //console.log("Payment Successful", response);
           // Optionally, verify the payment on the backend using Fetch.
 
           try {

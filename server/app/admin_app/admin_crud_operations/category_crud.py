@@ -40,7 +40,6 @@ async def create_category(category_data: CategoryCreateRequest) -> CategoryRespo
 
     except DuplicateKeyError as e:
         if "title" in str(e):
-            print("Category already exists")
             raise ValueError("Category already exists") from e
         print("A duplicate key error occurred")
         raise ValueError("A duplicate key error occurred") from e
@@ -103,7 +102,6 @@ async def delete_category(category_id: str) -> SuccessMessage:
         result: DeleteResult = await Category.find_one(
             Category.id == PydanticObjectId(category_id)
         ).delete()
-        print("Deleted Count: ", result.deleted_count)
 
         if not result.deleted_count or result.deleted_count <= 0:
             raise HTTPException(

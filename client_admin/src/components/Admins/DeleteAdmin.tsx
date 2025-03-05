@@ -28,10 +28,9 @@ const DeleteAdmin = ({ admin, deleteAdminId, text }: Props) => {
   const handleDeleteAdmin = useCallback(async () => {
     setApiError(null);
     try {
-      const res = await deleteAdmin({
+      await deleteAdmin({
         adminId: admin._id,
       }).unwrap();
-      console.log(res);
 
       closeModal(modalId);
       if (location.pathname === `/admin/admins/${admin._id}`) {

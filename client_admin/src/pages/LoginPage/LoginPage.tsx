@@ -33,8 +33,7 @@ const LoginPage = () => {
     setApiError(null);
     setValidationErrors([]);
     try {
-      const response = await login(loginData).unwrap();
-      console.log("Login successful:", response);
+      await login(loginData).unwrap();
       navigate("/admin/dashboard");
     } catch (error) {
       console.error("Login error:", error);

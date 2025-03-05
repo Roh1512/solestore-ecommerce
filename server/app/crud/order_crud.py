@@ -166,7 +166,7 @@ async def create_order(
         order_obj = getattr(razorpay_client, "order")
         razorpay_order = order_obj.create(order_data)
 
-        print("RayzorPay Order", razorpay_order)
+        # print("RayzorPay Order", razorpay_order)
 
         order = Order(
             user=user,
@@ -180,7 +180,7 @@ async def create_order(
             order_status=OrderStatus.REQUESTED,
         )
         new_order = await order.save()
-        print("NEW ORDER: ", new_order.id, new_order.razorpay_order_id)
+        # print("NEW ORDER: ", new_order.id, new_order.razorpay_order_id)
 
         return razorpay_order  # This includes the generated order id
 
@@ -210,7 +210,7 @@ async def verify_payment(payment_id: str, order_id: str, signature: str, user_id
         if not order:
             raise HTTPException(status_code=404, detail="Order not found")
 
-        pprint(order.model_dump())
+        # pprint(order.model_dump())
 
         params_dict = {
             "razorpay_order_id": order_id,

@@ -94,9 +94,6 @@ app.add_middleware(
 #     name="admin-static"
 # )
 
-print("Client build dir:", client_build_dir)
-print("Assets dir:", os.path.join(client_build_dir, "/"))
-
 app.mount("/admin-assets", StaticFiles(directory=os.path.join(
     client_admin_build_dir, "assets")), name="admin_assets")
 app.mount("/assets", StaticFiles(directory=os.path.join(
@@ -145,9 +142,6 @@ if settings.ENVIRONMENT != "testing":
                 .replace('src="/assets/', 'src="/admin-assets/')
                 .replace('href="/assets/', 'href="/admin-assets/')
             )
-
-            # Debug logs
-            print("ADMIn Index.html found")
 
             return HTMLResponse(content=content)
         except Exception as e:

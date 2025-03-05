@@ -83,8 +83,7 @@ const AddAdmin = memo(() => {
       } else {
         setZodErrors({});
         try {
-          const response = await addAdmin(normalizedAdminDetails).unwrap();
-          console.log("Admin Regitered successfully", response);
+          await addAdmin(normalizedAdminDetails).unwrap();
           toast.success("Admin Regitered successfully");
           resetForm();
         } catch (error) {

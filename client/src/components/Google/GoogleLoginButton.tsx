@@ -18,8 +18,7 @@ const GoogleLoginButton = () => {
       if (!token) {
         return;
       }
-      const data = await googleLogin({ token }).unwrap();
-      console.log("Google Login Successful:", data);
+      await googleLogin({ token }).unwrap();
     } catch (err) {
       console.error("Google login failed:", err);
     }

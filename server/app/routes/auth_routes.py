@@ -64,7 +64,6 @@ async def create_new_user(user: UserCreateRequest):
 @router.post("/login", response_model=Token)
 async def login(user_credentials: Annotated[OAuth2PasswordRequestForm, Depends()], response: Response):
     try:
-        print("Login attempt for username:", user_credentials.username)
 
         # First get the raw user data
         raw_user = await User.find_one(

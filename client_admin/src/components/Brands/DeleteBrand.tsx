@@ -22,8 +22,7 @@ const DeleteBrand = (props: Props) => {
 
   const handleDeleteBrand = useCallback(async () => {
     try {
-      const res = await deleteBrand({ brandId: props.deleteBrandId }).unwrap();
-      console.log(res);
+      await deleteBrand({ brandId: props.deleteBrandId }).unwrap();
       closeModal(modalId);
     } catch (error) {
       console.error(error);

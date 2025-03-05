@@ -24,10 +24,8 @@ async def create_user(user_data: dict):
     except DuplicateKeyError as e:
         # Handle duplicate key errors for both username and email
         if "username" in str(e):
-            print("Username already exists")
             raise ValueError("Username already exists") from e
         if "email" in str(e):
-            print("Email already exists")
             raise ValueError("Email already exists") from e
         print("A duplicate key error occurred")
         raise ValueError("A duplicate key error occurred") from e
@@ -61,7 +59,7 @@ async def add_refresh_token(user_id: str, refresh_token: str):
             detail="User not found"
         )
     if refresh_token in user.refresh_tokens:
-        print("Refresh token already exists")
+        # print("Refresh token already exists")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Unauthorized"
@@ -195,18 +193,18 @@ async def update_user_details(user_id: str, details: UpdateProfileRequest, curre
     except DuplicateKeyError as e:
         # Handle duplicate key errors for both username and email
         if "username" in str(e):
-            print("Username already exists")
+            # print("Username already exists")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Username already exists"
             ) from e
         if "email" in str(e):
-            print("Email already exists")
+            # print("Email already exists")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Email already exists"
             ) from e
-        print("A duplicate key error occurred")
+        # print("A duplicate key error occurred")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="A duplicate key error occurred"
@@ -283,7 +281,6 @@ async def create_or_get_google_user(google_user: dict):
                               ) if google_user["picture"] else None
 
         existing_user = await User.find_one(User.email == email)
-        print("Existing user: ", existing_user)
         if existing_user:
             existing_user.google_id = google_id
             existing_user.profile_img_url = existing_user.profile_img_url if existing_user.profile_img_url else prifile_img_url

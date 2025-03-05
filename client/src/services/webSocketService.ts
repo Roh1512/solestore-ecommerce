@@ -23,8 +23,6 @@ export const initWebSocket = (store: Store, token: string | null) => {
     currentToken = null;
   }
 
-  console.log("Token: ", token);
-
   if (token && !socket) {
     currentToken = token;
     socket = io(ENDPOINT, {
@@ -41,12 +39,10 @@ export const initWebSocket = (store: Store, token: string | null) => {
 
     const handleConnect = () => {
       store.dispatch(setConnectionStatus("connected"));
-      console.log("WebSocket connected");
     };
 
     const handleDisconnect = () => {
       store.dispatch(setConnectionStatus("disconnected"));
-      console.log("WebSocket disconnected");
     };
 
     const handleError = (error: Error) => {
@@ -55,8 +51,6 @@ export const initWebSocket = (store: Store, token: string | null) => {
     };
 
     const handleOrderUpdate = (data: OrderResponse) => {
-      console.log("Order update received:", data);
-
       store.dispatch(
         orderApiSlice.util.invalidateTags([{ type: "Order", id: data.id }])
       );
@@ -75,7 +69,6 @@ export const initWebSocket = (store: Store, token: string | null) => {
     // Return cleanup with connection check
     return () => {
       if (socket?.connected) {
-        console.log("Cleaning up WebSocket connection");
         socket.off("connect", handleConnect);
         socket.off("disconnect", handleDisconnect);
         socket.off("connect_error", handleError);

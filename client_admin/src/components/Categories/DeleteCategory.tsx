@@ -22,10 +22,9 @@ const DeleteCategory = (props: Props) => {
 
   const handleDeleteCategory = useCallback(async () => {
     try {
-      const res = await deleteCategory({
+      await deleteCategory({
         categoryId: props.category.id,
       }).unwrap();
-      console.log(res);
       closeModal(modalId);
     } catch (error) {
       console.error(error);

@@ -126,11 +126,10 @@ const EditProfileDetails = (props: Props) => {
 
       try {
         const profileDetails = userDetails;
-        const response = await updateProfileDetails({
+        await updateProfileDetails({
           profileDetails,
           currentPassword,
         }).unwrap();
-        console.log(response);
         toast.success("Profile updated");
 
         closeModal(modalId);

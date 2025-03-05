@@ -16,8 +16,6 @@ const ProfilePage = () => {
     return <PageLoading />;
   }
 
-  console.log(data);
-
   const {
     name,
     username,

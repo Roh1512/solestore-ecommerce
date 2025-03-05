@@ -27,8 +27,6 @@ export const baseQueryWithReauth: BaseQueryFn<
   let result = await baseQueryWithAuth(args, api, extraOptions);
 
   if (result.error && result.error.status === 401) {
-    console.log("Error 401 from api request. Request refresh");
-
     // Try to get a new token
     try {
       const refreshResult = await baseQueryWithAuth(
@@ -41,7 +39,6 @@ export const baseQueryWithReauth: BaseQueryFn<
         extraOptions
       );
       if (refreshResult.data) {
-        console.log("REFRESH TOKEN: ", refreshResult.data);
         api.dispatch(
           setCredentials({
             accessToken: (refreshResult.data as { access_token: string })
@@ -54,7 +51,7 @@ export const baseQueryWithReauth: BaseQueryFn<
         api.dispatch(clearCredentials());
       }
     } catch (error) {
-      console.log("Error refreshing token: ", error);
+      console.error("Error refreshing token: ", error);
       api.dispatch(clearCredentials());
     }
   }

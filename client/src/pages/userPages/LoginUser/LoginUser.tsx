@@ -33,8 +33,7 @@ const LoginUser = () => {
       setApiError(null);
       setValidationErrors([]);
       try {
-        const response = await login(loginData).unwrap();
-        console.log("Login successful:", response);
+        await login(loginData).unwrap();
       } catch (error) {
         console.error("Login error:", error);
         if (isFieldValidationError(error)) {

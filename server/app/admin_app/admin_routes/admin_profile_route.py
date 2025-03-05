@@ -94,7 +94,6 @@ async def update_admin_profile_image_route(
     admin: Annotated[dict, Depends(get_current_admin)],
     file: UploadFile
 ):
-    print("Admin Profile Image File: ", file)
     if file.content_type.lower() not in ["image/jpeg", "image/png", "image/jpg",]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
