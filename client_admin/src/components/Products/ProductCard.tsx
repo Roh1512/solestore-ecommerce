@@ -3,6 +3,7 @@ import { memo } from "react";
 import { Link } from "react-router-dom";
 import placeholderImage from "@/assets/placeholder_image.jpg";
 import { handleImageError } from "@/utils/default_images";
+import { IndianRupee } from "lucide-react";
 
 type Props = {
   product: ProductResponse;
@@ -45,7 +46,10 @@ const ProductCard = memo(({ product }: Props) => {
           )}
         </div>
         {product.description && <p>{product.description}</p>}
-        <div className="text-lg font-bold">${product.price.toFixed(2)}</div>
+        <div className="text-lg font-bold flex items-center justify-center gap-2">
+          <IndianRupee />
+          {product.price.toFixed(2)}
+        </div>
         <div className="card-actions justify-end">
           <Link
             to={`/admin/products/${product.id}`}

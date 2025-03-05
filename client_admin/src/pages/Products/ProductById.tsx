@@ -5,7 +5,7 @@ import {
 } from "@/features/productApiSlice";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useParams } from "react-router-dom";
-import { ChartBarStacked, Info } from "lucide-react";
+import { ChartBarStacked, IndianRupee, Info } from "lucide-react";
 import BackButton from "@/components/Buttons/BackButton";
 import AddImages from "@/components/Products/AddImages";
 import { toast } from "react-toastify";
@@ -171,9 +171,10 @@ const ProductById = () => {
                 <h3 className="card-title justify-center text-3xl font-bold">
                   {product.title}
                 </h3>
-                <p className="text-2xl font-bold text-center text-accent">
-                  ${product.price.toFixed(2)}
-                </p>
+                <div className="text-lg font-bold flex items-center justify-center gap-2">
+                  <IndianRupee />
+                  {product.price.toFixed(2)}
+                </div>
                 {product.description && (
                   <p className="mt-4 text-center text-base-content">
                     {product.description}
