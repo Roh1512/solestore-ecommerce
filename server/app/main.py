@@ -33,16 +33,16 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.config.cloudinary_config import cloudinary  # DO NOT REMOVE
 
-client_build = os.path.join(os.getcwd(), 'client', 'dist') if settings.ENVIRONMENT == "production" else os.path.join(
-    os.getcwd(), "..", 'client', 'dist')
-admin_build = os.path.join(
-    os.getcwd(), "client_admin", "dist") if settings.ENVIRONMENT == "production" else os.path.join(
-    os.getcwd(), "..", "client_admin", "dist")
+client_build_dir = os.path.join("client", "dist")
+client_admin_build_dir = os.path.join("client_admin", "dist")
 
-
-# Path to the React build folder
-client_build_dir = client_build
-client_admin_build_dir = admin_build
+if settings.ENVIRONMENT == "production":
+    client_build_dir = os.path.join(os.getcwd(), client_build_dir)
+    client_admin_build_dir = os.path.join(os.getcwd(), client_admin_build_dir)
+else:
+    client_build_dir = os.path.join(os.getcwd(), "..", client_build_dir)
+    client_admin_build_dir = os.path.join(
+        os.getcwd(), "..", client_admin_build_dir)
 
 
 @asynccontextmanager
@@ -88,12 +88,12 @@ app.add_middleware(
 )
 
 # Mount static files for both React apps
-app.mount("/", StaticFiles(directory=client_build_dir,
-          html=True), name="client-static")
 app.mount("/admin-assets", StaticFiles(directory=os.path.join(
     client_admin_build_dir, "assets")), name="admin_assets")
 app.mount("/assets", StaticFiles(directory=os.path.join(
     client_build_dir, "assets")), name="client_assets")
+app.mount("/", StaticFiles(directory=client_build_dir,
+          html=True), name="client-static")
 
 
 # Include the routers for auth, profile, and admin
@@ -114,6 +114,7 @@ app.include_router(admin_router, prefix="/api/admin", tags=["admin"])
 # Note: removed the slash
 if settings.ENVIRONMENT != "testing":
     @app.get("/admin{full_path:path}", response_class=HTMLResponse)
+    @app.get("/admin", response_class=HTMLResponse)
     async def serve_admin_react_app(full_path: str):
         '''Serve client app'''
         try:
