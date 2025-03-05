@@ -45,6 +45,7 @@ export const store = configureStore({
       .prepend(allAdminsApi.middleware)
       .prepend(productApi.middleware)
       .prepend(ordersApiSlice.middleware),
+  devTools: false,
 });
 
 export type RootState = ReturnType<typeof store.getState>;

@@ -49,7 +49,7 @@ export const store = configureStore({
       .prepend(cartApiSlice.middleware)
       .prepend(orderApiSlice.middleware),
 
-  // devTools: false //in production
+  devTools: false, //in production
 });
 
 export type RootState = ReturnType<typeof store.getState>;
