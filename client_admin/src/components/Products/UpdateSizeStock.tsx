@@ -88,6 +88,7 @@ const UpdateSizeStock = memo(({ product }: Props) => {
           productId: product.id,
           body: sizeStock,
         }).unwrap();
+        close();
       } catch (error) {
         console.error(error);
       }
@@ -156,7 +157,7 @@ const UpdateSizeStock = memo(({ product }: Props) => {
               ))}
               {zodErrors.sizes && <AlertText message={zodErrors.sizes} />}
             </fieldset>
-            <button type="submit" className="btn btn-neutral">
+            <button type="submit" className="btn btn-neutral w-full max-w-md">
               {isLoading ? <ButtonLoading text="Updating" /> : "Update"}
             </button>
           </form>

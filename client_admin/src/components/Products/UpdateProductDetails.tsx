@@ -104,6 +104,7 @@ const UpdateProductDetails = memo(({ product }: Props) => {
           productId: product.id,
           body: productDetails,
         }).unwrap();
+        close();
       } catch (error) {
         console.error(error);
       }
@@ -227,7 +228,7 @@ const UpdateProductDetails = memo(({ product }: Props) => {
                 />
               </div>
 
-              <button className="btn btn-primary" disabled={isLoading}>
+              <button className="btn btn-primary mt-2" disabled={isLoading}>
                 {isLoading ? <ButtonLoading text="Saving" /> : "Edit Product"}
               </button>
             </fieldset>
