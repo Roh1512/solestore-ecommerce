@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import AddToCart from "@/components/Cart/AddToCart";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
+import { handleImageError } from "@/utils/default_images";
 
 const ProductById = () => {
   const { productId } = useParams();
@@ -71,6 +72,7 @@ const ProductById = () => {
                 alt={`Product image ${index + 1}`}
                 className="max-h-96 w-full object-fill bg-base-300"
                 loading={index === 0 ? "eager" : "lazy"}
+                onError={handleImageError}
               />
             </div>
           ))}

@@ -1,9 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
+import PlaceHolderImage from "@/assets/placeholder_image.jpg";
+
 import FooterStore from "../../components/headersAndFooters/footersStore/FooterStore";
 import LogoLink from "@/components/Logo/LogoLink";
 import ThemeToggle from "@/components/Theme/ToggleTheme";
+import { handleImageError } from "@/utils/default_images";
 
 const heroVariants = {
   hidden: { opacity: 0, y: -20 },
@@ -26,7 +29,7 @@ const LandingPage = () => {
     {
       name: "Running Shoes",
       image:
-        "https://res.cloudinary.com/rohithashok/image/upload/c_thumb,w_200,g_face/v1741077945/solestore_ecommerce_app/static_files/pexels-jeshoots-com-147458-7432_pzyvvk.jpg",
+        "https://res.cloudinary.com/rohithashok/image/upload/c_thumb,w_200,g_face/v1741077945/ajkajakjkaajksolestore_ecommerce_app/static_files/pexels-jeshoots-com-147458-7432_pzyvvk.jpg",
       description:
         "Boost your performance with lightweight, durable shoes designed for running.",
       link: "/category/running-shoes",
@@ -156,9 +159,10 @@ const LandingPage = () => {
             >
               <figure>
                 <img
-                  src={category.image || "/placeholder_image.jpg"}
+                  src={category.image || PlaceHolderImage}
                   alt={category.name}
                   className="w-full h-48 object-cover"
+                  onError={handleImageError}
                 />
               </figure>
               <div className="card-body">

@@ -1,8 +1,9 @@
 import { ProductResponse } from "@/client";
 import { memo } from "react";
-import logoImage from "@/assets/soleStoreLogoSmall.svg";
+import PlaceHolderImage from "@/assets/placeholder_image.jpg";
 import { Link } from "react-router-dom";
 import AddToCart from "../Cart/AddToCart";
+import { handleImageError } from "@/utils/default_images";
 
 type Props = {
   product: ProductResponse;
@@ -18,25 +19,22 @@ const optimizeImageUrl = (url: string): string => {
 };
 
 const ProductCard = memo(({ product }: Props) => {
-  const placeholderImage = logoImage;
-
   // Use the first image if available; otherwise, use the placeholder.
   const originalImageUrl =
-    product.images && product.images.length > 0
-      ? product.images[0].url
-      : placeholderImage;
+    product.images && product.images.length > 0 && product.images[0].url;
 
   // Apply transformation to optimize the image.
-  const imageUrl = optimizeImageUrl(originalImageUrl);
+  const imageUrl = originalImageUrl && optimizeImageUrl(originalImageUrl!);
 
   return (
     <div className="card sm:w-80 md:w-96 lg:w-96 bg-base-100 border border-base-300 text-base-content shadow-xl mx-auto">
       <figure className="p-5">
         <img
-          src={imageUrl}
+          src={imageUrl || PlaceHolderImage}
           alt={product.title}
           loading="lazy"
           className="w-full h-64 object-cover rounded-xl"
+          onError={handleImageError}
         />
       </figure>
       <div className="card-body py-4">

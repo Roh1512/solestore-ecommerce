@@ -5,7 +5,6 @@ import {
 } from "@/features/productApiSlice";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useParams } from "react-router-dom";
-import LogoImg from "@/assets/soleStoreLogoSmall.svg";
 import { ChartBarStacked, Info } from "lucide-react";
 import BackButton from "@/components/Buttons/BackButton";
 import AddImages from "@/components/Products/AddImages";
@@ -16,6 +15,8 @@ import UpdateProductDetails from "@/components/Products/UpdateProductDetails";
 import DeleteProduct from "@/components/Products/DeleteProduct";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
+import { handleImageError } from "@/utils/default_images";
+import PlaceHolderImage from "@/assets/placeholder_image.jpg";
 
 const ProductById = () => {
   const { productId } = useParams();
@@ -99,6 +100,7 @@ const ProductById = () => {
                 alt={`Product image ${index + 1}`}
                 className="max-h-96 object-contain bg-base-300"
                 loading={index === 0 ? "eager" : "lazy"}
+                onError={handleImageError}
               />
               <button
                 onClick={(e) => {
@@ -117,7 +119,7 @@ const ProductById = () => {
     ) : (
       <div className="max-w-2xl mx-auto p-4 text-center">
         <img
-          src={LogoImg}
+          src={PlaceHolderImage}
           alt="Placeholder"
           className="mx-auto rounded-box w-full object-cover"
         />

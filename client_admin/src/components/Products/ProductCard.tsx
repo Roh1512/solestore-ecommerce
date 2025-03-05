@@ -1,7 +1,8 @@
 import { ProductResponse } from "@/client";
 import { memo } from "react";
-import logoImage from "@/assets/soleStoreLogoSmall.svg";
 import { Link } from "react-router-dom";
+import placeholderImage from "@/assets/placeholder_image.jpg";
+import { handleImageError } from "@/utils/default_images";
 
 type Props = {
   product: ProductResponse;
@@ -9,7 +10,6 @@ type Props = {
 
 const ProductCard = memo(({ product }: Props) => {
   // Define a placeholder image URL (you can customize this URL as needed)
-  const placeholderImage = logoImage;
 
   // Use the first image if available; otherwise, use the placeholder
   const imageUrl =
@@ -25,6 +25,7 @@ const ProductCard = memo(({ product }: Props) => {
           alt={product.title}
           loading="lazy"
           className="w-full object-cover min-h-52 max-h-64"
+          onError={handleImageError}
         />
       </div>
       <div className="card-body py-4">

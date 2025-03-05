@@ -93,12 +93,14 @@ app.add_middleware(
 #     StaticFiles(directory=client_admin_build_dir, html=True),
 #     name="admin-static"
 # )
+
+print("Client build dir:", client_build_dir)
+print("Assets dir:", os.path.join(client_build_dir, "/"))
+
 app.mount("/admin-assets", StaticFiles(directory=os.path.join(
     client_admin_build_dir, "assets")), name="admin_assets")
 app.mount("/assets", StaticFiles(directory=os.path.join(
     client_build_dir, "assets")), name="client_assets")
-app.mount("/", StaticFiles(directory=client_build_dir,
-          html=True), name="client-static")
 
 
 # Include the routers for auth, profile, and admin
@@ -118,8 +120,7 @@ app.include_router(admin_router, prefix="/api/admin", tags=["admin"])
 # Admin route handler
 # Note: removed the slash
 if settings.ENVIRONMENT != "testing":
-    @app.get("/admin/{full_path:path}", response_class=HTMLResponse)
-    @app.get("/admin", response_class=HTMLResponse)
+    @app.get("/admin{full_path:path}", response_class=HTMLResponse)
     async def serve_admin_react_app(full_path: str):
         '''Serve client app'''
         try:
