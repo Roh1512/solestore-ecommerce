@@ -12,6 +12,7 @@ import {
   isFieldValidationError,
 } from "@/utils/errorHandler";
 import { toast } from "react-toastify";
+import { IndianRupee } from "lucide-react";
 
 type Props = {
   item: CartItemResponse;
@@ -112,7 +113,8 @@ const CartItemCard = memo(({ item }: Props) => {
         <div className="grid grid-cols-2 gap-4 mt-2">
           <div className="text-sm">
             <p>
-              <span className="font-semibold">Price:</span> $
+              <span className="font-semibold">Price:</span>{" "}
+              <IndianRupee className="w-4 h-4" />
               {item.price.toFixed(2)}
             </p>
             <p>
