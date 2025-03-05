@@ -1,4 +1,4 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, createListenerMiddleware } from "@reduxjs/toolkit";
 import { adminAuthApi } from "@/features/adminAuthApiSlice";
 import authReducer from "@/features/adminAuthSlice";
 import { profileApi } from "@/features/profileApiSLice";
@@ -8,6 +8,20 @@ import { allAdminsApi } from "@/features/allAdminsApiSlice";
 import { productApi } from "@/features/productApiSlice";
 import { ordersApiSlice } from "@/features/orderApiSlice";
 import webSocketReducer from "@/features/webSocketSlice";
+
+const logoutListener = createListenerMiddleware();
+logoutListener.startListening({
+  matcher: adminAuthApi.endpoints.logout.matchFulfilled,
+  effect: async (_action, { dispatch }) => {
+    dispatch(adminAuthApi.util.resetApiState());
+    dispatch(profileApi.util.resetApiState());
+    dispatch(brandApi.util.resetApiState());
+    dispatch(categoryApi.util.resetApiState());
+    dispatch(allAdminsApi.util.resetApiState());
+    dispatch(productApi.util.resetApiState());
+    dispatch(ordersApiSlice.util.resetApiState());
+  },
+});
 
 export const store = configureStore({
   reducer: {
