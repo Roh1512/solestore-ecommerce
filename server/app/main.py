@@ -152,7 +152,7 @@ if settings.ENVIRONMENT != "testing":
     @app.get("/{full_path:path}", response_class=HTMLResponse)
     async def serve_react_app(full_path: str):
         '''Only serve the React app for paths that aren't API or admin routes'''
-        if full_path.startswith("api/") or full_path.startswith("admin/"):
+        if full_path.startswith("api/"):
             raise HTTPException(status_code=404, detail="Not Found")
         if not full_path.startswith("api/") and not full_path.startswith("admin"):
             with open(os.path.join(client_build_dir, 'index.html'), "r", encoding="utf-8") as f:
