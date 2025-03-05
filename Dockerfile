@@ -42,6 +42,7 @@ COPY server/ .
 COPY --from=client-builder /app/client/dist ./client/dist
 COPY --from=client-builder /app/client_admin/dist ./client_admin/dist
 
+
 # Expose the port FastAPI will run on
 EXPOSE 8000
 

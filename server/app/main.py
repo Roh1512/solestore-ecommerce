@@ -5,7 +5,7 @@ import os
 
 import socketio
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI
 from fastapi.exceptions import HTTPException
 from fastapi.routing import APIRoute
 from fastapi.middleware.cors import CORSMiddleware
@@ -88,11 +88,11 @@ app.add_middleware(
 )
 
 # Mount static files for both React apps
-app.mount(
-    "/admin",
-    StaticFiles(directory=client_admin_build_dir, html=True),
-    name="admin-static"
-)
+# app.mount(
+#     "/admin",
+#     StaticFiles(directory=client_admin_build_dir, html=True),
+#     name="admin-static"
+# )
 app.mount("/admin-assets", StaticFiles(directory=os.path.join(
     client_admin_build_dir, "assets")), name="admin_assets")
 app.mount("/assets", StaticFiles(directory=os.path.join(
@@ -146,8 +146,7 @@ if settings.ENVIRONMENT != "testing":
             )
 
             # Debug logs
-            print("Modified content preview:")
-            print(content[:500])
+            print("ADMIn Index.html found")
 
             return HTMLResponse(content=content)
         except Exception as e:
