@@ -88,6 +88,11 @@ app.add_middleware(
 )
 
 # Mount static files for both React apps
+app.mount(
+    "/admin",
+    StaticFiles(directory=client_admin_build_dir, html=True),
+    name="admin-static"
+)
 app.mount("/admin-assets", StaticFiles(directory=os.path.join(
     client_admin_build_dir, "assets")), name="admin_assets")
 app.mount("/assets", StaticFiles(directory=os.path.join(
