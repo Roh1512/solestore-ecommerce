@@ -113,7 +113,7 @@ app.include_router(admin_router, prefix="/api/admin", tags=["admin"])
 # Admin route handler
 # Note: removed the slash
 if settings.ENVIRONMENT != "testing":
-    @app.get("/admin{full_path:path}", response_class=HTMLResponse)
+    @app.get("/admin/{full_path:path}", response_class=HTMLResponse)
     @app.get("/admin", response_class=HTMLResponse)
     async def serve_admin_react_app(full_path: str):
         '''Serve client app'''
