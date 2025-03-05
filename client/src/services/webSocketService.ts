@@ -9,7 +9,7 @@ import { OrderResponse } from "@/client";
 import { orderApiSlice } from "@/features/orderApiSlice";
 
 // WebSocket server URL
-const ENDPOINT = "http://127.0.0.1:8000";
+const ENDPOINT = "https://solestore-ecommerce-3e19.onrender.com"; // "http://127.0.0.1:8000";
 
 // webSocketService.ts
 let socket: Socket | null = null;

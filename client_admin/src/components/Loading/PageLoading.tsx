@@ -2,7 +2,7 @@ import { memo } from "react";
 
 const PageLoading = () => {
   return (
-    <div className="bg-base-200 flex items-center justify-center min-h-screen">
+    <div className="flex items-center justify-center min-h-screen">
       {/* Loading Container */}
       <div className="flex flex-col items-center justify-center space-y-4">
         {/* Spinner */}
