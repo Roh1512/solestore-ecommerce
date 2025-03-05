@@ -37,6 +37,7 @@ export const store = configureStore({
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
+      .prepend(logoutListener.middleware)
       .prepend(adminAuthApi.middleware)
       .prepend(profileApi.middleware)
       .prepend(brandApi.middleware)

@@ -40,6 +40,7 @@ export const store = configureStore({
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
+      .prepend(logoutListener.middleware)
       .prepend(userAuthApi.middleware)
       .prepend(userProfileApiSlice.middleware)
       .prepend(brandApiSlice.middleware)
