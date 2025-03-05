@@ -5,6 +5,7 @@ import AlertText from "../ErrorElements/AlertText";
 import ButtonLoading from "../Loading/ButtonLoading";
 import { getApiErrorMessage, isApiError } from "@/utils/errorHandler";
 import { toast } from "react-toastify";
+import { closeModal } from "@/utils/modal_utils";
 
 type Props = {
   productId: string;
@@ -67,6 +68,7 @@ const ProductImagesUploader = ({ productId }: Props) => {
       setImages([]);
       setPreviews([]);
       setApiError(null);
+      closeModal("add-product-images-modal");
     } catch (err) {
       console.error("Upload error:", err);
     }
