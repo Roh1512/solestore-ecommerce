@@ -139,7 +139,7 @@ const LoginUser = () => {
           </p>
         </div>
       </form>
-      <div className="flex flex-col items-stretch justify-center w-full">
+      <div className="flex flex-col items-center justify-center w-full">
         <GoogleLoginButton />
       </div>
     </div>

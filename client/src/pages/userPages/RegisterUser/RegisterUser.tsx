@@ -278,7 +278,7 @@ const RegisterUser = () => {
           {apiError && (
             <AlertMessage message={apiError || "Error registering user"} />
           )}
-          <div className="flex flex-col items-stretch justify-center">
+          <div className="flex flex-col items-center justify-center">
             <GoogleLoginButton />
           </div>
         </div>
