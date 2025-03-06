@@ -49,7 +49,11 @@ const GoogleLoginButton = () => {
         theme={theme === "coffee" ? "filled_black" : "filled_blue"}
         text="signin_with"
         containerProps={{
-          className: "w-full m-auto",
+          className: "w-full mx-auto",
+          style: {
+            width: "100%",
+            margin: "0 auto",
+          },
         }}
         logo_alignment="left"
         size="large"

@@ -65,7 +65,7 @@ const LoginUser = () => {
     validationErrors.find((err) => err.field === field)?.message || null;
 
   return (
-    <div className="w-full h-full max-w-md p-3 bg-base-300 text-base-content shadow-xl rounded-lg mt-4 mb-4">
+    <div className="w-full h-full max-w-md p-3 bg-base-200 text-base-content shadow-xl rounded-lg mt-4 mb-4">
       <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
       <form onSubmit={handleLogin}>
         <div className="mb-4">
@@ -139,7 +139,9 @@ const LoginUser = () => {
           </p>
         </div>
       </form>
-      <GoogleLoginButton />
+      <div className="flex flex-col items-stretch justify-center w-full">
+        <GoogleLoginButton />
+      </div>
     </div>
   );
 };
