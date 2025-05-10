@@ -32,14 +32,14 @@ const LandingPage = () => {
         "https://res.cloudinary.com/rohithashok/image/upload/c_thumb,w_200,g_face/v1741077945/ajkajakjkaajksolestore_ecommerce_app/static_files/pexels-jeshoots-com-147458-7432_pzyvvk.jpg",
       description:
         "Boost your performance with lightweight, durable shoes designed for running.",
-      link: "/category/running-shoes",
+      link: "/shop",
     },
     {
       name: "Casual Shoes",
       image:
         "https://res.cloudinary.com/rohithashok/image/upload/c_thumb,w_200,g_face/v1741077949/solestore_ecommerce_app/static_files/pexels-mnzoutfits-1598508_xlus0z.jpg",
       description: "Comfortable and stylish shoes perfect for everyday wear.",
-      link: "/category/casual-shoes",
+      link: "/shop",
     },
     {
       name: "Formal Shoes",
@@ -47,14 +47,14 @@ const LandingPage = () => {
         "https://res.cloudinary.com/rohithashok/image/upload/c_thumb,w_200,g_face/v1741077947/solestore_ecommerce_app/static_files/pexels-solliefoto-298864_ewvbnq.jpg",
       description:
         "Step into sophistication with our premium selection of formal shoes.",
-      link: "/category/formal-shoes",
+      link: "/shop",
     },
     {
       name: "Boots",
       image:
         "https://res.cloudinary.com/rohithashok/image/upload/c_thumb,w_200,g_face/v1741075264/solestore_ecommerce_app/static_files/pexels-clemlep-29090887_uqshpo.jpg",
       description: "Durable and stylish boots for all seasons and terrains.",
-      link: "/category/boots",
+      link: "/shop",
     },
     {
       name: "Sneakers",
@@ -62,7 +62,7 @@ const LandingPage = () => {
         "https://res.cloudinary.com/rohithashok/image/upload/c_thumb,w_200,g_face/v1741077335/solestore_ecommerce_app/static_files/pexels-avneet-kaur-669191817-19294576_c0hcoe.jpg",
       description:
         "Comfortable, stylish, and functional sneakers to stand out.",
-      link: "/category/sneakers",
+      link: "/shop",
     },
   ];
 
