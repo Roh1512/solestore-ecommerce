@@ -39,15 +39,17 @@ const HeaderStore = () => {
   const { totalCount } = useCurrentCartState();
 
   return (
-    <header className="navbar bg-base-100 text-base-content shadow-md ">
+    <header className="navbar bg-base-100 text-base-content shadow-md">
       {/* Mobile Menu Toggle: visible on small screens */}
       <div className="lg:hidden relative mr-4">
-        <button
-          onClick={() => setMobileMenuOpen((prev) => !prev)}
-          className="btn btn-ghost btn-circle"
-        >
-          <MenuIcon className="w-6 h-6" />
-        </button>
+        {isLoggedIn && (
+          <button
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            className="btn btn-ghost btn-circle"
+          >
+            <MenuIcon className="w-6 h-6" />
+          </button>
+        )}
         <AnimatePresence>
           {mobileMenuOpen && isLoggedIn && (
             <motion.ul
@@ -93,25 +95,27 @@ const HeaderStore = () => {
       {/* Navbar End: All menu icons on the right */}
       <div className="navbar-end flex items-center">
         {/* Desktop Menu: visible on large screens */}
-        <div className="hidden lg:flex gap-4 mr-4">
-          <NavLink
-            to="/orders"
-            className={({ isActive }) =>
-              `btn btn-ghost ${isActive ? "bg-base-200" : ""}`
-            }
-          >
-            <SquareChartGantt className="w-5 h-5 mr-2" aria-disabled />
-            Orders
-          </NavLink>
-          <NavLink
-            to="/profile"
-            className={({ isActive }) =>
-              `btn btn-ghost ${isActive ? "bg-base-200" : ""}`
-            }
-          >
-            <UserIcon aria-disabled className="w-5 h-5 mr-2" /> Profile
-          </NavLink>
-        </div>
+        {isLoggedIn && (
+          <div className="hidden lg:flex gap-4 mr-4">
+            <NavLink
+              to="/orders"
+              className={({ isActive }) =>
+                `btn btn-ghost ${isActive ? "bg-base-200" : ""}`
+              }
+            >
+              <SquareChartGantt className="w-5 h-5 mr-2" aria-disabled />
+              Orders
+            </NavLink>
+            <NavLink
+              to="/profile"
+              className={({ isActive }) =>
+                `btn btn-ghost ${isActive ? "bg-base-200" : ""}`
+              }
+            >
+              <UserIcon aria-disabled className="w-5 h-5 mr-2" /> Profile
+            </NavLink>
+          </div>
+        )}
 
         {/* Cart and Theme Toggle */}
         {isLoggedIn && (

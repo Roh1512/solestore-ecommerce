@@ -5,7 +5,6 @@ import PlaceHolderImage from "@/assets/placeholder_image.jpg";
 
 import FooterStore from "../../components/headersAndFooters/footersStore/FooterStore";
 import LogoLink from "@/components/Logo/LogoLink";
-import ThemeToggle from "@/components/Theme/ToggleTheme";
 import { handleImageError } from "@/utils/default_images";
 
 const heroVariants = {
@@ -76,11 +75,10 @@ const LandingPage = () => {
         <div className="flex-none gap-2">
           <button
             onClick={() => navigate("/login")}
-            className="btn btn-primary font-bold text-base"
+            className="btn btn-primary btn-md font-bold text-base"
           >
             Shop Now
           </button>
-          <ThemeToggle />
         </div>
       </header>
 
@@ -127,7 +125,7 @@ const LandingPage = () => {
           <p className="py-4">
             Join us today and start exploring our latest collection.
           </p>
-          <Link to="/sign-up" className="btn btn-primary">
+          <Link to="/register" className="btn btn-primary">
             Join Now
           </Link>
         </motion.div>

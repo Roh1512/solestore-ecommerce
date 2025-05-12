@@ -26,7 +26,6 @@
 
 html,
 body {
-  max-width: 1280px;
   margin: 0 auto;
   text-align: center;
   min-height: 100vh;
@@ -42,10 +41,11 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: relative;
 }
 
 header {
-  @apply bg-base-200 text-base-content shadow-lg fixed top-0 z-30;
+  @apply bg-base-200 text-base-content shadow-lg fixed top-0 left-0 z-30;
 }
 main {
   @apply flex-1 mt-20;
